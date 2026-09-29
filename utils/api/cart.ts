@@ -21,6 +21,12 @@ type UpdateCartItemBody = {
   product_id: string;
 };
 
+type DeleteCartItemBody = {
+  cart_item_id: string;
+  product_id: string;
+  cart_id: string;
+};
+
 const cart = {
   initialize_cart: (data: InitializeCartBody) => {
     return utils.api_request({
@@ -48,14 +54,23 @@ const cart = {
   },
 
 
-
-  get_cart_details: () => {
+  delete_cart_item: (data: DeleteCartItemBody) => {
     return utils.api_request({
-      url: "api/cart/details",
-      method: "GET",
+      url: "api/cart/item",
+      method: "DELETE",
+      data,
     });
   },
 
+  get_cart_details: (cart_id: string) => {
+    return utils.api_request({
+      url: "api/cart/details",
+      method: "POST",
+      data: {
+        cart_id,
+      },
+    });
+  },
 
 };
 

@@ -25,7 +25,7 @@ const TabView = () => {
   const tab_navigation_state: any = useNavigationState((state) => state);
   const navigation: any = useNavigation();
   const [active_tab, set_active_tab] = useState<any>(
-    head(constants.bottom_tabs)
+    head(constants.bottom_tabs),
   );
   const animated_value = useRef(new Animated.Value(0))?.current;
 
@@ -90,6 +90,10 @@ const TabView = () => {
     );
   };
 
+  if (active_tab?.route === constants.route_names.Cart) {
+    return;
+  }
+
   return (
     <SafeAreaView style={{ backgroundColor: "white" }}>
       <View style={styles.tab_container}>
@@ -118,7 +122,10 @@ const TabBar = () => {
       <Tab.Screen name={constants.route_names.Search} component={Search} />
       <Tab.Screen name={constants.route_names.Cart} component={Cart} />
       <Tab.Screen name={constants.route_names.Wishlist} component={Wishlist} />
-      <Tab.Screen name={constants.route_names.Notifications} component={Notifications} />
+      <Tab.Screen
+        name={constants.route_names.Notifications}
+        component={Notifications}
+      />
     </Tab.Navigator>
   );
 };
