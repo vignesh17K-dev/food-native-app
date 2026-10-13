@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
-import { View,  useToast } from "native-base";
+import { View } from "native-base";
+import { useAppToast } from "../../context/AppToast";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS, SIZES } from "../../../constants";
@@ -14,7 +15,7 @@ import utils from "../../../utils/utils";
 
 function ForgotPassword() {
   const [loading, set_loading] = useState(false);
-  const toast = useToast();
+  const toast = useAppToast();
   const { control, handleSubmit } = useForm();
   const redirect_to = makeRedirectUri();
 

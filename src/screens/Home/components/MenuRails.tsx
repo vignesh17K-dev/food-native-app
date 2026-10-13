@@ -27,13 +27,13 @@ const MenuRails = () => {
   const [menu_data, set_menu_data] = useState([]);
   const [loading, set_loading] = useState(true);
   const wishlist_data = useSelector(
-    (state: any) => state?.wishlist?.wishlist_data
+    (state: any) => state?.wishlist?.wishlist_data,
   );
   const arr = Array.from({ length: 6 }, (v, i) => i);
   const dispatch = useDispatch();
   const navigate: any = useNavigation();
 
-  const render_menu_tabs = ({ item }) => {
+  const render_menu_tabs = ({ item }: any) => {
     return (
       <TouchableOpacity onPress={() => set_selected_menu(item)}>
         <Text
@@ -56,13 +56,13 @@ const MenuRails = () => {
       } else {
         dispatch(add_to_wishlist_action(product_id));
       }
-    }, 2000)
+    }, 2000),
   );
 
   const handle_favorite = (data: any) => {
     const product_id_exist = find(
       wishlist_data,
-      (item: any) => item?.id === data?.id
+      (item: any) => item?.id === data?.id,
     );
     dispatch(update_wishlist(data));
     debounced_ref.current(data?.id, product_id_exist, dispatch, data);
@@ -107,10 +107,10 @@ const MenuRails = () => {
     );
   }
 
-  const render_cards = ({ item }) => {
+  const render_cards = ({ item }: any) => {
     const is_favorite = find(
       wishlist_data,
-      (wishlist: any) => wishlist?.id === item?.id
+      (wishlist: any) => wishlist?.id === item?.id,
     );
 
     return (
@@ -169,7 +169,7 @@ const MenuRails = () => {
         horizontal
         data={menu_data}
         renderItem={render_menu_tabs}
-        keyExtractor={(item) => item?.id?.toString()}
+        keyExtractor={(item: any) => item?.id?.toString()}
         contentContainerStyle={styles.menu_list}
         showsHorizontalScrollIndicator={false}
         nestedScrollEnabled={true}

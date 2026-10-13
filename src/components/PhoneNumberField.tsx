@@ -1,5 +1,4 @@
 import _ from "lodash";
-import { FormControl, Input } from "native-base";
 import React, { useState } from "react";
 import { Controller } from "react-hook-form";
 import {
@@ -7,7 +6,9 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
+  View,
 } from "react-native";
 import { CountryPicker } from "react-native-country-codes-picker";
 import apply_validations from "../../utils/rules";
@@ -56,7 +57,7 @@ const PhoneNumberField = ({
     <Controller
       name={name}
       control={control}
-      defaultValue={defaultValue}
+      defaultValue={defaultValue ?? ""}
       rules={apply_validations({
         ...validations,
         name,
@@ -67,72 +68,65 @@ const PhoneNumberField = ({
         fieldState: { error },
       }) => {
         return (
-          <FormControl isInvalid={!!error}>
+          <View style={[styles.container, style]}>
             {!_.isEmpty(label) && (
               <Text style={styles.label_style}>{label}</Text>
             )}
-            <Input
-              value={value}
-              onBlur={() => {
-                onBlur();
-              }}
-              onChangeText={(text) => {
-                if (text === " ") {
-                  return;
-                }
-                let final_text: any = text;
+            <View
+              style={[
+                styles.inputRow,
+                disabled && styles.inputRowDisabled,
+              ]}
+            >
+              <TouchableOpacity
+                hitSlop={{ top: 5, right: 5, bottom: 5, left: 5 }}
+                style={styles.country_code_divider}
+                onPress={() => !disabled && set_show_country(true)}
+                disabled={disabled}
+              >
+                <Text style={styles.countryCodeText}>
+                  {selected_country_code}
+                </Text>
+                <Image
+                  source={ImageLinks?.down_arrow}
+                  style={styles.icon_style}
+                />
+              </TouchableOpacity>
+              <TextInput
+                value={value ?? ""}
+                editable={!disabled}
+                onBlur={onBlur}
+                onChangeText={(text) => {
+                  if (text === " ") {
+                    return;
+                  }
 
-								if (type === 'number' && !_.isEmpty(text)) {
-									if (validations?.allow_digits) {
-										if (!/^\d+(\.\d{0,2})?$/.test(text)) {
-											return;
-										}
-									} else if (!/^\d+(\.\d{0,2})?$/.test(text)) {
-										return;
-									}
+                  let final_text = text;
 
-									if (final_text.length > 1) {
-										final_text = text.replace(/^0+/, '');
-									}
-								}
+                  if (type === "number" && text.length > 0) {
+                    if (!/^\d*$/.test(text)) {
+                      return;
+                    }
+                    if (final_text.length > 1) {
+                      final_text = text.replace(/^0+/, "");
+                    }
+                  }
 
-								onChange(final_text);
-                onChange(text);
-              }}
-              leftElement={
-                <TouchableOpacity
-                  hitSlop={{ top: 5, right: 5, bottom: 5, left: 5 }}
-                  style={styles.country_code_divider}
-                  onPress={() => set_show_country(true)}
-                >
-                  <Text style={{
-                    color:'grey'
-                  }}>{selected_country_code}</Text>
-
-                  <Image
-                    source={ImageLinks?.down_arrow}
-                    style={styles.icon_style}
-                  />
-                </TouchableOpacity>
-              }
-              isDisabled={disabled}
-              isReadOnly={disabled}
-              scrollEnabled={true}
-              borderRadius={10}
-              type={type}
-              keyboardType={"numeric"}
-              placeholder={placeholder}
-              style={styles.input_field}
-              autoCapitalize="none"
-              showSoftInputOnFocus={true}
-              size="lg"
-              variant="outline"
-              width={"100%"}
-            />
+                  onChange(final_text);
+                }}
+                keyboardType="phone-pad"
+                placeholder={placeholder}
+                placeholderTextColor="#666"
+                style={styles.input_field}
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType="telephoneNumber"
+              />
+            </View>
             {error && <Text style={styles.formItemError}>{error.message}</Text>}
             <CountryPicker
               lang="en"
-              initialState={"+1"}
+              initialState="+1"
               show={show_country}
               onBackdropPress={() => set_show_country(false)}
               itemTemplate={({ item, name: country_name, onPress }) => {
@@ -160,7 +154,6 @@ const PhoneNumberField = ({
                 },
                 textInput: {
                   backgroundColor: "rgb(211, 211, 211)",
-                  opacity:0.5,
                   marginHorizontal: 40,
                   paddingHorizontal: 10,
                   borderColor: "transparent",
@@ -168,7 +161,7 @@ const PhoneNumberField = ({
                 },
               }}
             />
-          </FormControl>
+          </View>
         );
       }}
     />
@@ -176,24 +169,44 @@ const PhoneNumberField = ({
 };
 
 const styles = StyleSheet.create({
-  input_field: {
-    borderColor: "transparent",
-    backgroundColor: "rgb(211, 211, 211)",
+  container: {
+    width: SIZES.width * 0.88,
+    maxWidth: "100%",
+    alignSelf: "center",
+  },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
     height: SIZES.height * 0.055,
-    borderWidth: 0,
+    borderRadius: 10,
+    backgroundColor: "rgb(211, 211, 211)",
+    paddingRight: 10,
+  },
+  inputRowDisabled: {
+    opacity: 0.6,
+  },
+  input_field: {
+    flex: 1,
     fontSize: 16,
-    opacity: 0.5,
+    color: "#000",
+    paddingVertical: 8,
+    borderWidth: 0,
   },
   country_code_divider: {
     marginLeft: 10,
     flexDirection: "row",
     alignItems: "center",
+    paddingRight: 8,
+  },
+  countryCodeText: {
+    color: "grey",
   },
   icon_style: {
     resizeMode: "contain",
     height: SIZES.height * 0.02,
-    width: SIZES.width * 0.02,
-    paddingHorizontal: 15,
+    width: SIZES.width * 0.03,
+    marginLeft: 4,
   },
   label_style: {
     marginVertical: SIZES.height * 0.01,

@@ -7,15 +7,20 @@ import { View, StyleSheet, Platform } from "react-native";
 import { SIZES } from "../../../constants";
 import Button from "../../components/Button";
 import { supabase } from "../../../supabase.config";
-import { useToast } from "native-base";
+import { useAppToast } from "../../context/AppToast";
 import { useNavigation } from "@react-navigation/native";
 import utils from "../../../utils/utils";
 import constants from "../../../utils/constants";
 
 const PhoneLogin = () => {
-  const { control, handleSubmit, setValue } = useForm();
+  const { control, handleSubmit, setValue } = useForm({
+    defaultValues: {
+      phone_number: "",
+      country_code: "+1",
+    },
+  });
   const [loading, set_loading] = useState(false);
-  const toast = useToast();
+  const toast = useAppToast();
   const navigate: any = useNavigation();
 
   const handle_country_code = (code: any) => {
@@ -32,7 +37,6 @@ const PhoneLogin = () => {
     const { error } = await supabase.auth.signInWithOtp({
       phone: phone_number,
     });
-
 
     set_loading(false);
     if (error) {
@@ -51,7 +55,7 @@ const PhoneLogin = () => {
     });
     await utils.store_data(
       "user_data",
-      JSON.stringify({ phone_number: phone_number })
+      JSON.stringify({ phone_number: phone_number }),
     );
     navigate.navigate(constants.route_names.OtpLogin);
   };
@@ -80,12 +84,7 @@ const PhoneLogin = () => {
         </View>
       </View>
 
-      <View
-        style={{
-          alignItems: "center",
-          marginVertical: Platform.OS === "android" && 20,
-        }}
-      >
+      <View style={styles.buttonWrapper}>
         <Button
           text={"Verify"}
           onClick={onSubmit}
@@ -109,5 +108,9 @@ const styles = StyleSheet.create({
   text_field_container: {
     marginHorizontal: SIZES.width * 0.06,
     marginVertical: SIZES.height * 0.02,
+  },
+  buttonWrapper: {
+    alignItems: "center",
+    marginVertical: Platform.OS === "android" ? 20 : 0,
   },
 });

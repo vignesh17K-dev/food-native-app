@@ -1,37 +1,44 @@
 import React from "react";
-import { TouchableOpacity, View, Text } from "react-native";
-import { StyleSheet } from "react-native";
-import { Dimensions } from "react-native";
+import {
+  TouchableOpacity,
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  ViewStyle,
+  StyleProp,
+  ActivityIndicator,
+} from "react-native";
 import { SIZES } from "../../constants";
 import { HStack, Spinner } from "native-base";
 
+type ButtonType = "primary" | "secondary";
+
 interface Props {
   text: string;
-  type: any;
-  width?: any;
-  onClick?: () => any;
+  type: ButtonType;
+  width?: number | string;
+  onClick?: () => void;
   loading?: boolean;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
+  activityIndicatorProps?: any
 }
 
-const Button = ({ text, type, width, onClick, loading, style }: Props) => {
+const Button = ({ text, type, width, onClick, loading, style, activityIndicatorProps }: Props) => {
   const renderButton = () => {
     switch (type) {
       case "primary":
         return (
           <TouchableOpacity onPress={onClick}>
             <View
-              style={{
-                ...styles.primaryButton,
-                ...style,
-                width: width,
-              }}
+              style={[
+                styles.primaryButton,
+                style,
+                width !== undefined ? { width } : null,
+              ]}
             >
               {loading ? (
-                <HStack space={2} justifyContent="center">
-                  <Spinner color="indigo.500" />
-                  <Text style={styles.primaryButtonText}>{text}</Text>
-                </HStack>
+                <ActivityIndicator color="black" size="small" {...activityIndicatorProps} />
               ) : (
                 <Text style={styles.primaryButtonText}>{text}</Text>
               )}
@@ -41,7 +48,13 @@ const Button = ({ text, type, width, onClick, loading, style }: Props) => {
       default:
         return (
           <TouchableOpacity onPress={onClick}>
-            <View style={{ ...styles.secondaryButton, ...style, width: width }}>
+            <View
+              style={[
+                styles.secondaryButton,
+                style,
+                width !== undefined ? { width } : null,
+              ]}
+            >
               <Text style={styles.secondaryButtonText}>{text}</Text>
             </View>
           </TouchableOpacity>

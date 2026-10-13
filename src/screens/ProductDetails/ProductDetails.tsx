@@ -7,11 +7,12 @@ import React, {
   useState,
 } from "react";
 import {
-  SafeAreaView,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../../components/Header";
 import { SIZES } from "../../../constants";
 import ImageLinks from "../../../assets/ImageLink";
@@ -21,7 +22,6 @@ import { FontAwesome } from "@expo/vector-icons";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import Fontisto from "react-native-vector-icons/Fontisto";
 import { debounce, find, map } from "lodash";
-import Button from "../../components/Button";
 import {
   add_to_wishlist_action,
   remove_from_wishlist_action,
@@ -30,15 +30,27 @@ import { update_wishlist } from "../../../store/slices/WishlistSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Counter from "../../components/Counter";
 import { LayoutChangeEvent } from "react-native";
+import cart from "../../../utils/api/cart";
+import {
+  ensureProductsMap,
+  remove_cart_item,
+  upsert_cart_item,
+} from "../../../store/slices/CartSlice";
+import { applyCartItemResponse } from "../../../utils/cart/applyCartItemResponse";
+import { store } from "../../../store/store";
 
-const ProductDetails = ({ route, navigation }) => {
+const QUANTITY_SYNC_DEBOUNCE_MS = 500;
+
+const ProductDetails = ({ route, navigation }: any) => {
   const { id } = route.params;
   const [loading, set_loading] = useState(false);
   const [product_details, set_product_details] = useState<any>({});
   const [selected_size, set_selected_size] = useState<any>(null);
+  const [add_to_cart_loading, set_add_to_cart_loading] = useState(false);
   const dispatch = useDispatch();
 
   const [footer_height, set_footer_height] = useState(0);
+  const cart_data = useSelector((state: any) => state?.cart?.cart_data);
 
   const handleFooterLayout = useCallback((event: LayoutChangeEvent) => {
     const { height } = event.nativeEvent.layout;
@@ -53,6 +65,90 @@ const ProductDetails = ({ route, navigation }) => {
     wishlist_data,
     (wishlist: any) => wishlist?.id === product_details?.id,
   );
+
+  const cart_line_for_selection = useMemo(() => {
+    if (!product_details?.id) {
+      return null;
+    }
+    const products = ensureProductsMap(cart_data?.products);
+    const variants = products?.[product_details.id];
+    if (!variants) {
+      return null;
+    }
+    return (
+      Object.values(variants).find(
+        (line) => line.selectedSize === selected_size,
+      ) ?? null
+    );
+  }, [cart_data?.products, product_details?.id, selected_size]);
+
+  const cart_quantity = cart_line_for_selection?.quantity ?? 0;
+  const is_in_cart = cart_quantity > 0;
+  const pending_quantity_ref = useRef<number | null>(null);
+
+  const sync_cart_quantity_api = useRef(
+    debounce(async (product_id: string, size: string) => {
+      const quantity = pending_quantity_ref.current;
+      if (quantity == null || quantity <= 0) {
+        return;
+      }
+
+      const cart_state = (store.getState() as { cart?: { cart_data?: any } })
+        ?.cart?.cart_data;
+      const cart_id = cart_state?.cart_id;
+      if (!cart_id) {
+        return;
+      }
+
+      const products = ensureProductsMap(cart_state?.products);
+      const line = Object.values(products[product_id] ?? {}).find(
+        (entry) => entry.selectedSize === size,
+      );
+      if (!line?.cart_item_id) {
+        return;
+      }
+
+      set_add_to_cart_loading(true);
+      try {
+        const response = await cart.update_cart_item({
+          cart_item_id: line.cart_item_id,
+          quantity,
+          selectedSize: size,
+          cart_id,
+          product_id,
+        });
+        const cart_item = response?.data ?? response;
+        const product_snapshot = (store.getState() as any)?.cart?.cart_data;
+
+        dispatch(
+          upsert_cart_item(
+            applyCartItemResponse({
+              response: cart_item,
+              products: product_snapshot?.products,
+              submittedProductId: product_id,
+              submittedSize: size,
+              display: {
+                name: line.name,
+                price: line.price,
+                image: line.image,
+              },
+            }),
+          ),
+        );
+      } catch (error) {
+        console.log(error);
+      } finally {
+        set_add_to_cart_loading(false);
+      }
+    }, QUANTITY_SYNC_DEBOUNCE_MS),
+  ).current;
+
+  useEffect(() => {
+    return () => {
+      sync_cart_quantity_api.flush();
+      sync_cart_quantity_api.cancel();
+    };
+  }, [sync_cart_quantity_api]);
 
   const product_info = useMemo(() => {
     const product_info_arr = [
@@ -320,16 +416,134 @@ const ProductDetails = ({ route, navigation }) => {
     );
   };
 
+  const handle_add_products_to_cart = async () => {
+    if (add_to_cart_loading) return;
+    set_add_to_cart_loading(true);
+    try {
+      const payload = {
+        product_id: product_details?.id,
+        quantity: 1,
+        selectedSize: selected_size,
+        cart_id: cart_data?.cart_id,
+      };
+      const response = await cart.add_to_cart(payload);
+      const cart_item = response?.data ?? response;
+
+      dispatch(
+        upsert_cart_item(
+          applyCartItemResponse({
+            response: cart_item,
+            products: cart_data?.products,
+            submittedProductId: product_details?.id,
+            submittedSize: selected_size,
+            display: {
+              name: product_details?.name,
+              price: product_details?.price,
+              image: product_details?.image,
+            },
+          }),
+        ),
+      );
+    } catch (error) {
+      console.log(error);
+    } finally {
+      set_add_to_cart_loading(false);
+    }
+  };
+
+  const handle_add_to_cart = () => {
+    handle_add_products_to_cart();
+  };
+
+  const handle_quantity_change = useCallback(
+    (next_quantity: number) => {
+      const line = cart_line_for_selection;
+      const cart_item_id = line?.cart_item_id;
+      const product_id = product_details?.id;
+      const cart_id = cart_data?.cart_id;
+      if (!cart_item_id || !product_id || !cart_id) {
+        return;
+      }
+
+      if (next_quantity <= 0) {
+        sync_cart_quantity_api.cancel();
+        pending_quantity_ref.current = null;
+
+        dispatch(
+          remove_cart_item({
+            product_id,
+            cart_item_id,
+          }),
+        );
+
+        set_add_to_cart_loading(true);
+        void (async () => {
+          try {
+            await cart.delete_cart_item({
+              cart_item_id,
+              product_id,
+              cart_id,
+            });
+          } catch (error) {
+            console.log(error);
+          } finally {
+            set_add_to_cart_loading(false);
+          }
+        })();
+        return;
+      }
+
+      pending_quantity_ref.current = next_quantity;
+      dispatch(
+        upsert_cart_item({
+          product_id,
+          cart_item_id,
+          quantity: next_quantity,
+          selectedSize: selected_size,
+          name: product_details?.name,
+          price: product_details?.price,
+          image: product_details?.image,
+        }),
+      );
+      sync_cart_quantity_api(product_id, selected_size);
+    },
+    [
+      cart_data?.cart_id,
+      cart_line_for_selection,
+      dispatch,
+      product_details,
+      selected_size,
+      sync_cart_quantity_api,
+    ],
+  );
+
   const handle_cart_btn = () => {
+    const unit_price = product_details?.price ?? 0;
+
     return (
-      <TouchableOpacity style={{ flex: 1 }}>
-        <View style={styles.cart_btn}>
-          <Text style={{ color: "white", fontWeight: "700", fontSize: 16 }}>
-            Add to Cart
-          </Text>
-          <Text style={{ color: "white", fontWeight: "700", fontSize: 16 }}>
-            ${product_details?.price}
-          </Text>
+      <TouchableOpacity
+        style={{ flex: 1 }}
+        onPress={handle_add_to_cart}
+        disabled={add_to_cart_loading}
+      >
+        <View
+          style={[
+            styles.cart_btn,
+            add_to_cart_loading && styles.cart_btn_loading,
+          ]}
+        >
+          {add_to_cart_loading ? (
+            <ActivityIndicator color="white" size="small" />
+          ) : (
+            <>
+              <Text style={{ color: "white", fontWeight: "700", fontSize: 16 }}>
+                Add to Cart
+              </Text>
+              <Text style={{ color: "white", fontWeight: "700", fontSize: 16 }}>
+                ${unit_price}
+              </Text>
+            </>
+          )}
         </View>
       </TouchableOpacity>
     );
@@ -381,8 +595,45 @@ const ProductDetails = ({ route, navigation }) => {
           </ScrollView>
 
           <View style={styles.footer_section} onLayout={handleFooterLayout}>
-            <Counter />
-            {handle_cart_btn()}
+            {is_in_cart ? (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 10,
+                  width: "100%",
+                }}
+              >
+                <Counter
+                  value={cart_quantity}
+                  onChange={handle_quantity_change}
+                  minCount={0}
+                  disable_increment={add_to_cart_loading}
+                  disable_decrement={add_to_cart_loading}
+                  style={{ flex: 1 }}
+                />
+
+                <View style={styles.price_container}>
+                  <Image
+                    source={ImageLinks.cart}
+                    alt="cart"
+                    style={styles.cart_image}
+                  />
+
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      fontWeight: "700",
+                      marginLeft: 10,
+                    }}
+                  >
+                    ${Math.floor(cart_quantity * product_details?.price)?.toFixed(2)}
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              handle_cart_btn()
+            )}
           </View>
         </>
       )}
@@ -398,6 +649,22 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 15,
     resizeMode: "contain",
+  },
+
+  price_container: {
+    // backgroundColor: "#ed7550",
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
+    borderRadius: 12,
+    justifyContent: "center",
+  },
+
+  cart_image: {
+    width: 30,
+    height: 30,
+    resizeMode: "contain",
+    tintColor: "black",
   },
 
   footer_section: {
@@ -460,5 +727,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 20,
     width: "100%",
+    minHeight: 62,
+  },
+  cart_btn_loading: {
+    justifyContent: "center",
   },
 });

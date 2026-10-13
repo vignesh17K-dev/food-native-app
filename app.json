@@ -1,25 +1,19 @@
 {
   "expo": {
     "name": "Eat Me",
-    "slug": "eat-me-app",
+    "slug": "eatme",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo_01.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/images/splash/ios/logo.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "runtimeVersion": {
-      "policy": "sdkVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.vignesh12.eatmeapp"
+      "bundleIdentifier": "com.vignesh12.eatmeapp",
+      "deploymentTarget": "16.4"
     },
     "android": {
       "adaptiveIcon": {
@@ -34,9 +28,22 @@
     },
     "extra": {
       "eas": {
-        "projectId": "2b8c4a67-e5f6-45ff-a231-ffb866c1bd6e"
+        "projectId": "75643b3d-434c-4209-b903-441974b0960f"
       }
     },
-    "owner": "vignesh12"
+    "owner": "vignesh12k",
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash/ios/logo.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      "expo-status-bar",
+      "expo-web-browser",
+      "expo-font"
+    ]
   }
 }

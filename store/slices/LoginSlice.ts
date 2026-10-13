@@ -1,17 +1,23 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+type LoginState = {
+  isLogin: boolean;
+  loginType: string;
+};
+
+const initialState: LoginState = {
+  isLogin: false,
+  loginType: "signup",
+};
 
 const Login = createSlice({
   name: "login",
-  initialState: {
-    isLogin: false,
-    loginType: "signup",
-  },
+  initialState,
   reducers: {
-    setLogin: (state, { payload }) => {
+    setLogin: (state, { payload }: PayloadAction<boolean>) => {
       state.isLogin = payload;
     },
-
-    changeLoginType: (state, { payload }) => {
+    changeLoginType: (state, { payload }: PayloadAction<string>) => {
       state.loginType = payload;
     },
   },

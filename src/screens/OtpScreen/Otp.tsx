@@ -12,7 +12,7 @@ import { StyleSheet } from "react-native";
 import utils from "../../../utils/utils";
 import { OtpInput } from "react-native-otp-entry";
 import { SIZES } from "../../../constants";
-import { useToast } from "native-base";
+import { useAppToast } from "../../context/AppToast";
 import { supabase } from "../../../supabase.config";
 import Button from "../../components/Button";
 import { setLogin } from "../../../store/slices/LoginSlice";
@@ -25,7 +25,7 @@ function Otp({ navigation }) {
   const [loading, set_loading] = useState(false);
   const [opt, set_otp] = useState<any>();
 
-  const toast = useToast();
+  const toast = useAppToast();
   const dispatch = useDispatch();
 
   const handle_get_data = async () => {

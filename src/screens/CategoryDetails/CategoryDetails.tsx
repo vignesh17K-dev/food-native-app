@@ -11,7 +11,8 @@ import {
 import Header from "../../components/Header";
 import ImageLinks from "../../../assets/ImageLink";
 import { SIZES } from "../../../constants/theme";
-import { Skeleton, useToast } from "native-base";
+import { Skeleton } from "native-base";
+import { useAppToast } from "../../context/AppToast";
 import product from "../../../utils/api/product";
 import { debounce, find, map } from "lodash";
 import constants from "../../../utils/constants";
@@ -27,7 +28,7 @@ const CategoryDetails = ({ route, navigation }) => {
   const { category_id, name } = route.params;
   const [products, set_products] = useState<any[]>([]);
   const [loading, set_loading] = useState<boolean>(false);
-  const toast = useToast();
+  const toast = useAppToast();
   const dispatch = useDispatch();
   const wishlist_data = useSelector(
     (state: any) => state?.wishlist?.wishlist_data,

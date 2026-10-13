@@ -1,4 +1,5 @@
-import { View, useToast } from "native-base";
+import { View } from "native-base";
+import { useAppToast } from "../../context/AppToast";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS, SIZES } from "../../../constants";
@@ -18,7 +19,7 @@ import constants from "../../../utils/constants";
 function ResetPassword() {
   const [loading, set_loading] = useState(false);
   const [user_data, set_user_data] = useState<any>({});
-  const toast = useToast();
+  const toast = useAppToast();
   const { control, handleSubmit } = useForm();
   const navigation: any = useNavigation();
   const dispatch = useDispatch();

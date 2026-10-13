@@ -26,20 +26,19 @@ const InputField = ({
       <Controller
         control={control}
         name={name}
-        rules={apply_validations({ ...validations, name, label })}
+        rules={apply_validations({ ...validations, name, label }) as any}
         render={({ field: { onChange, value }, fieldState: { error } }) => (
           <React.Fragment>
             <Text style={styles.textLabel}>{label}</Text>
             <TextInput
               autoComplete="off"
               autoCapitalize="none"
-              value={value}
+              value={value ?? ""}
               placeholder={placeholder}
               onChangeText={onChange}
               style={{
                 height: SIZES.height * 0.055,
                 borderRadius: 10,
-                borderWidth: 0.6,
                 borderColor: "transparent",
                 fontSize: 16,
                 ...styles.inputFieldStyle,

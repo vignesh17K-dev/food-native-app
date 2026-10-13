@@ -10,18 +10,26 @@ import { changeLoginType, setLogin } from "../../../../store/slices/LoginSlice";
 import { useNavigation } from "@react-navigation/native";
 import { supabase } from "../../../../supabase.config";
 import { useForm } from "react-hook-form";
-import { useToast } from "native-base";
+import { useAppToast } from "../../../context/AppToast";
 import PhoneNumberField from "../../../components/PhoneNumberField";
 import _ from "lodash";
 import constants from "../../../../utils/constants";
 
-const loginInputFieldContainer = ({ navigation }) => {
+const loginInputFieldContainer = ({ navigation }: any) => {
   const [loading, set_loading] = useState(false);
   const navigate: any = useNavigation();
   const loginType = useSelector((state: any) => state.login.loginType);
   const dispatch = useDispatch();
-  const { control, handleSubmit, setValue, watch } = useForm();
-  const toast = useToast();
+  const { control, handleSubmit, setValue, watch } = useForm({
+    defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+      phone_number: "",
+      country_code: "+1",
+    },
+  });
+  const toast = useAppToast();
 
   const onSubmit = handleSubmit((data) => {
     const { email, password } = data;
@@ -46,6 +54,8 @@ const loginInputFieldContainer = ({ navigation }) => {
       routes: [{ name: constants.route_names?.MainApp }],
     });
   };
+
+  console.log(supabase, 'supabase')
 
   const handle_create_new_user = async (payload: any) => {
     const phone_number = `${payload?.country_code}${payload?.phone_number}`;

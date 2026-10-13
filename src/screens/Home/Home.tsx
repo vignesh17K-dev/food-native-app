@@ -18,7 +18,7 @@ import RecommendedRails from "./components/RecommendedRails";
 import _ from "lodash";
 import constants from "../../../utils/constants";
 import MenuRails from "./components/MenuRails";
-import { useToast } from "native-base";
+import { useAppToast } from "../../context/AppToast";
 import { supabase } from "../../../supabase.config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setLogin } from "../../../store/slices/LoginSlice";
@@ -32,12 +32,13 @@ import {
   clear_product_filters,
   set_product_filters,
 } from "../../../store/slices/SearchSlice";
+import CartIcon from "../../components/CartIcon";
 
-const Home = ({ navigation }) => {
+const Home = ({ navigation }: any) => {
   const section_data = useSelector((state: any) => state?.home?.section_data);
   const navigate: any = useNavigation();
   const dispatch = useDispatch();
-  const toast = useToast();
+  const toast = useAppToast();
   const [filter_visible, set_filter_visible] = useState(false);
 
   const scrollY = useRef(new Animated.Value(0))?.current;
@@ -89,14 +90,15 @@ const Home = ({ navigation }) => {
       >
         <Header
           title={<Text style={{ fontSize: 20, fontWeight: "700" }}>HOME</Text>}
-          right_section={
+          right_section={<CartIcon />}
+          left_section={
             <TouchableOpacity onPress={handle_logout}>
-            <Image
-              source={ImageLinks.profile}
-              alt="search"
-              style={{ height: 45, width: 45, borderRadius: 10 }}
-            />
-          </TouchableOpacity>
+              <Image
+                source={ImageLinks.profile}
+                alt="search"
+                style={{ height: 45, width: 45, borderRadius: 10 }}
+              />
+            </TouchableOpacity>
           }
           // left_section={
           //   <TouchableOpacity onPress={handle_logout}>
@@ -137,7 +139,10 @@ const Home = ({ navigation }) => {
   const handle_render_search = () => {
     return (
       <View style={styles.search_container}>
-        <TouchableOpacity style={styles.search_input_area} onPress={handle_click}>
+        <TouchableOpacity
+          style={styles.search_input_area}
+          onPress={handle_click}
+        >
           <Image
             source={ImageLinks.search}
             alt="search"
@@ -167,7 +172,7 @@ const Home = ({ navigation }) => {
     );
   };
 
-  const render_section = ({ item }) => {
+  const render_section = ({ item }: any) => {
     switch (item.section) {
       case "delivery":
         return handle_render_deliver_section();
@@ -187,7 +192,7 @@ const Home = ({ navigation }) => {
   const handle_get_wishlist = async () => {
     try {
       const response = await wishlist.get_wishlist_data();
-      dispatch(set_wishlist(response?.data?.products));
+      dispatch(set_wishlist(response?.data?.products ?? []));
     } catch (err) {
       console.error(err);
     }
@@ -216,7 +221,7 @@ const Home = ({ navigation }) => {
         contentContainerStyle={styles?.content}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
+          { useNativeDriver: true },
         )}
         scrollEventThrottle={1}
       />
