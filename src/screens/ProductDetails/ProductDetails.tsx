@@ -22,7 +22,6 @@ import { FontAwesome } from "@expo/vector-icons";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import Fontisto from "react-native-vector-icons/Fontisto";
 import { debounce, find, map } from "lodash";
-import Button from "../../components/Button";
 import {
   add_to_wishlist_action,
   remove_from_wishlist_action,
@@ -418,6 +417,7 @@ const ProductDetails = ({ route, navigation }: any) => {
   };
 
   const handle_add_products_to_cart = async () => {
+    if (add_to_cart_loading) return;
     set_add_to_cart_loading(true);
     try {
       const payload = {
@@ -624,10 +624,10 @@ const ProductDetails = ({ route, navigation }: any) => {
                     style={{
                       fontSize: 20,
                       fontWeight: "700",
-                       marginLeft: 10,
+                      marginLeft: 10,
                     }}
                   >
-                    ${cart_quantity * product_details?.price}
+                    ${Math.floor(cart_quantity * product_details?.price)?.toFixed(2)}
                   </Text>
                 </View>
               </View>

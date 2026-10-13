@@ -29,9 +29,7 @@ export type CartItemResponse = {
 };
 
 export type UpsertCartItemPayload = CartItemResponse &
-  Partial<Omit<CartProduct, "quantity" | "selectedSize">> & {
-    replace_cart_item_id?: string;
-  };
+  Partial<Omit<CartProduct, "quantity" | "selectedSize">>;
 
 type CartState = {
   cart_data: CartData | null;
@@ -112,8 +110,7 @@ const CartSlice = createSlice({
         product_id,
         cart_item_id,
         quantity,
-        selectedSize,
-        replace_cart_item_id,
+        selectedSize = '',
         ...rest
       } = payload;
 
@@ -127,13 +124,6 @@ const CartSlice = createSlice({
 
       const products = ensureProductsMap(state.cart_data.products);
 
-      if (
-        replace_cart_item_id &&
-        replace_cart_item_id !== cart_item_id
-      ) {
-        deleteVariantFromMap(products, product_id, replace_cart_item_id);
-      }
-
       const existing = products[product_id]?.[cart_item_id];
 
       products[product_id] = {
@@ -145,7 +135,7 @@ const CartSlice = createSlice({
           product_id,
           cart_item_id,
           quantity,
-          selectedSize,
+          ...(selectedSize ? { selectedSize } : {}),
         },
       };
 

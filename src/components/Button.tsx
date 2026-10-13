@@ -7,6 +7,7 @@ import {
   Dimensions,
   ViewStyle,
   StyleProp,
+  ActivityIndicator,
 } from "react-native";
 import { SIZES } from "../../constants";
 import { HStack, Spinner } from "native-base";
@@ -20,9 +21,10 @@ interface Props {
   onClick?: () => void;
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
+  activityIndicatorProps?: any
 }
 
-const Button = ({ text, type, width, onClick, loading, style }: Props) => {
+const Button = ({ text, type, width, onClick, loading, style, activityIndicatorProps }: Props) => {
   const renderButton = () => {
     switch (type) {
       case "primary":
@@ -36,10 +38,7 @@ const Button = ({ text, type, width, onClick, loading, style }: Props) => {
               ]}
             >
               {loading ? (
-                <HStack space={2} justifyContent="center">
-                  <Spinner color="indigo.500" />
-                  <Text style={styles.primaryButtonText}>{text}</Text>
-                </HStack>
+                <ActivityIndicator color="black" size="small" {...activityIndicatorProps} />
               ) : (
                 <Text style={styles.primaryButtonText}>{text}</Text>
               )}

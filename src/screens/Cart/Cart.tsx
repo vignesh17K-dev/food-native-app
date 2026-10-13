@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import {
   FlatList,
@@ -18,13 +18,16 @@ import Header from "../../components/Header";
 import { SIZES } from "../../../constants";
 import ImageLinks from "../../../assets/ImageLink";
 import constants from "../../../utils/constants";
-import { remove_cart_item, set_cart } from "../../../store/slices/CartSlice";
+import { ensureProductsMap, remove_cart_item, set_cart, upsert_cart_item } from "../../../store/slices/CartSlice";
 import cart from "../../../utils/api/cart";
 import {
   calculateCartSubtotal,
   calculateLineTotal,
 } from "../../../utils/cart/cartTotals";
 import Counter from "../../components/Counter";
+import { debounce } from "lodash";
+import { store } from "../../../store/store";
+import { applyCartItemResponse } from "../../../utils/cart/applyCartItemResponse";
 
 type CartLineItem = {
   product_id: string;
@@ -70,9 +73,13 @@ const flatten_cart_products = (
 const Cart = ({ navigation }: any) => {
   const [loading, set_loading] = useState(true);
   const [delete_loading, set_delete_loading] = useState(false);
+  const [add_to_cart_loading, set_add_to_cart_loading] = useState(false)
   const dispatch = useDispatch();
   const cart_data = useSelector((state: any) => state?.cart?.cart_data);
   const cart_id = cart_data?.cart_id;
+  const pending_quantity_ref = useRef<number | null>(null);
+  const QUANTITY_SYNC_DEBOUNCE_MS = 500;
+
 
   const cart_products = cart_data?.products;
   const cart_items = useMemo(
@@ -106,11 +113,63 @@ const Cart = ({ navigation }: any) => {
     }
   }, [cart_id, dispatch]);
 
-  useFocusEffect(
-    useCallback(() => {
-      handle_get_cart_details();
-    }, [handle_get_cart_details]),
-  );
+
+  const sync_cart_quantity_api = useRef(
+    debounce(async (product_id: string, cart_item_id: string) => {
+      const quantity = pending_quantity_ref.current;
+      if (quantity == null || quantity <= 0) {
+        return;
+      }
+
+      const cart_state = (store.getState() as { cart?: { cart_data?: any } })
+        ?.cart?.cart_data;
+      const cart_id = cart_state?.cart_id;
+      if (!cart_id) {
+        return;
+      }
+
+      const products = ensureProductsMap(cart_state?.products);
+      const line = Object.values(products[product_id] ?? {}).find(
+        (entry) => entry.cart_item_id === cart_item_id,
+      );
+      if (!line?.cart_item_id) {
+        return;
+      }
+
+      set_add_to_cart_loading(true);
+      try {
+        const response = await cart.update_cart_item({
+          cart_item_id: line.cart_item_id,
+          quantity,
+          cart_id,
+          product_id,
+        });
+        const cart_item = response?.data ?? response;
+        const product_snapshot = (store.getState() as any)?.cart?.cart_data;
+
+        dispatch(
+          upsert_cart_item(
+            applyCartItemResponse({
+              response: cart_item,
+              products: product_snapshot?.products,
+              submittedProductId: product_id,
+              submittedCartItemId: line.cart_item_id,
+              display: {
+                name: line.name,
+                price: line.price,
+                image: line.image,
+              },
+            }),
+          ),
+        );
+      } catch (error) {
+        console.log(error);
+      } finally {
+        set_add_to_cart_loading(false);
+      }
+    }, QUANTITY_SYNC_DEBOUNCE_MS),
+  ).current;
+
 
   const handle_delete_cart_item = async (data: any) => {
     set_delete_loading(true);
@@ -137,6 +196,31 @@ const Cart = ({ navigation }: any) => {
     };
     handle_delete_cart_item(data);
   };
+
+
+  const handle_update_quantity = useCallback((item: CartLineItem, quantity: number) => {
+    if (quantity <= 0) {
+      sync_cart_quantity_api.cancel();
+      pending_quantity_ref.current = null;
+      handle_delete(item)
+      return;
+    }
+
+    pending_quantity_ref.current = quantity;
+
+    dispatch(
+      upsert_cart_item({
+        product_id: item?.product_id,
+        cart_item_id: item?.cart_item_id,
+        quantity: quantity,
+      }),
+    );
+
+    sync_cart_quantity_api(item?.product_id, item?.cart_item_id);
+
+  }, [sync_cart_quantity_api])
+
+
 
   const handle_open_product = useCallback(
     (item: CartLineItem) => {
@@ -181,6 +265,20 @@ const Cart = ({ navigation }: any) => {
     );
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      handle_get_cart_details();
+    }, [handle_get_cart_details]),
+  );
+
+
+  useEffect(() => {
+    return () => {
+      sync_cart_quantity_api.flush();
+      sync_cart_quantity_api.cancel();
+    };
+  }, [sync_cart_quantity_api]);
+
   const render_item = ({ item }: { item: CartLineItem }) => {
     const translateX = new Animated.Value(0);
     const pan_responder = PanResponder.create({
@@ -213,7 +311,12 @@ const Cart = ({ navigation }: any) => {
         <Animated.View style={{ transform: [{ translateX }] }}>
           <View {...pan_responder.panHandlers} style={styles.cart_item}>
             {handle_render_item(item)}
-            <Counter from_cart value={item?.quantity ?? 1} />
+            <Counter
+              minCount={0}
+              disable_increment={add_to_cart_loading}
+              disable_decrement={add_to_cart_loading}
+              from_cart value={item?.quantity ?? 1}
+              onChange={(count) => handle_update_quantity(item, count)} />
           </View>
         </Animated.View>
 

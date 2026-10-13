@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Eat Me",
-    "slug": "eat-me-app",
+    "slug": "eatme",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo_01.png",
@@ -28,10 +28,10 @@
     },
     "extra": {
       "eas": {
-        "projectId": "2b8c4a67-e5f6-45ff-a231-ffb866c1bd6e"
+        "projectId": "75643b3d-434c-4209-b903-441974b0960f"
       }
     },
-    "owner": "vignesh12",
+    "owner": "vignesh12k",
     "plugins": [
       [
         "expo-splash-screen",

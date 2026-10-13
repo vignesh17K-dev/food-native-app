@@ -16,9 +16,9 @@ type AddToCartBody = {
 type UpdateCartItemBody = {
   cart_item_id: string;
   quantity: number;
-  selectedSize: string;
   cart_id: string;
   product_id: string;
+  selectedSize?: string;
 };
 
 type DeleteCartItemBody = {

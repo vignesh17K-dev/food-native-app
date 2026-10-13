@@ -15,7 +15,7 @@ import PhoneNumberField from "../../../components/PhoneNumberField";
 import _ from "lodash";
 import constants from "../../../../utils/constants";
 
-const loginInputFieldContainer = ({ navigation }:any) => {
+const loginInputFieldContainer = ({ navigation }: any) => {
   const [loading, set_loading] = useState(false);
   const navigate: any = useNavigation();
   const loginType = useSelector((state: any) => state.login.loginType);
@@ -54,6 +54,8 @@ const loginInputFieldContainer = ({ navigation }:any) => {
       routes: [{ name: constants.route_names?.MainApp }],
     });
   };
+
+  console.log(supabase, 'supabase')
 
   const handle_create_new_user = async (payload: any) => {
     const phone_number = `${payload?.country_code}${payload?.phone_number}`;

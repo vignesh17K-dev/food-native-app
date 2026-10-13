@@ -192,7 +192,7 @@ const Home = ({ navigation }: any) => {
   const handle_get_wishlist = async () => {
     try {
       const response = await wishlist.get_wishlist_data();
-      dispatch(set_wishlist(response?.data?.products));
+      dispatch(set_wishlist(response?.data?.products ?? []));
     } catch (err) {
       console.error(err);
     }

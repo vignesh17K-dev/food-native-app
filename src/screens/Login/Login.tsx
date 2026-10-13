@@ -23,14 +23,15 @@ import constants from "../../../utils/constants";
 
 WebBrowser.maybeCompleteAuthSession();
 
-const Login = ({ navigation }) => {
+
+const Login = ({ navigation }:any) => {
   const [request, response, promptAsync] = Google.useAuthRequest({
     iosClientId:
-      "256385423646-ce03he8h22l3vdi69okag85ivegav5h2.apps.googleusercontent.com",
-    androidClientId:
-      "256385423646-r4h33vvbsq7vfp3p4h628dt0ppt47ta3.apps.googleusercontent.com",
+      "256385423646-12uc2ho8clfdaf6koc26kb50d83u1v9q.apps.googleusercontent.com",
+    // androidClientId:
+    //   "256385423646-r4h33vvbsq7vfp3p4h628dt0ppt47ta3.apps.googleusercontent.com",
     webClientId:
-      "256385423646-9i5235emvqtjbg012oq00724b28vbcmm.apps.googleusercontent.com",
+      "256385423646-u8dacfhmqbstc0jolaktvgfthad69gdq.apps.googleusercontent.com",
   });
   const toast = useAppToast();
   const login_type = useSelector((state: any) => state?.login?.loginType);

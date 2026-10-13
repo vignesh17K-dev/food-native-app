@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   FlatList,
   Image,
@@ -20,19 +20,73 @@ import Button from "../../components/Button";
 import { remove_from_wishlist_action } from "../../../actions/wishlist";
 import { update_wishlist } from "../../../store/slices/WishlistSlice";
 import constants from "../../../utils/constants";
+import cart from "../../../utils/api/cart";
+import { upsert_cart_item } from "../../../store/slices/CartSlice";
+import { applyCartItemResponse } from "../../../utils/cart/applyCartItemResponse";
+import { head } from "lodash";
 
-const Wishlist = ({ navigation }:any) => {
+interface PayloadProps {
+  product_id: string,
+  quantity: number
+  selectedSize: string
+  cart_id: string
+}
+
+const Wishlist = ({ navigation }: any) => {
+  const [add_to_cart_loading, set_add_to_cart_loading] = useState(false)
   const wishlist_data = useSelector(
     (state: any) => state?.wishlist?.wishlist_data
   );
+  const cart_data = useSelector((state: any) => state?.cart?.cart_data);
+  const cart_products = cart_data?.products;
   const dispatch = useDispatch<any>();
+
 
   const handle_delete = (item: any) => {
     dispatch(update_wishlist(item));
     dispatch(remove_from_wishlist_action(item?.id, item));
   };
 
-  const handle_render_item = (item: any) => {
+
+  const handle_add_products_to_cart = async (product: any) => {
+    if (add_to_cart_loading) return;
+
+    set_add_to_cart_loading(true);
+    try {
+      const payload: PayloadProps = {
+        product_id: product?.id,
+        quantity: 1,
+        selectedSize: head(product?.sizes),
+        cart_id: cart_data?.cart_id,
+      };
+
+      const response = await cart.add_to_cart(payload);
+      const cart_item = response?.data ?? response;
+
+      dispatch(
+        upsert_cart_item(
+          applyCartItemResponse({
+            response: cart_item,
+            products: cart_data?.products,
+            submittedProductId: product?.id,
+            submittedSize: product?.selected_size,
+            display: {
+              name: product?.name,
+              price: product?.price,
+              image: product?.image,
+            },
+          }),
+        ),
+      );
+    } catch (error) {
+      console.log(error);
+    } finally {
+      set_add_to_cart_loading(false);
+    }
+  };
+
+
+  const handle_render_item = (item: any, is_product_in_cart: boolean) => {
     return (
       <React.Fragment>
         <TouchableOpacity
@@ -78,21 +132,23 @@ const Wishlist = ({ navigation }:any) => {
           </View>
         </TouchableOpacity>
 
-        <Button
-          // loading={loading}
-          // onClick={onSubmit}
+        {!is_product_in_cart ? <Button
+          loading={add_to_cart_loading}
+          onClick={() => handle_add_products_to_cart(item)}
           text={"Add To Cart"}
           type="primary"
           style={{
             marginHorizontal: 5,
           }}
           width={SIZES.width * 0.3}
-        />
+        /> : <View style={{
+          width: SIZES.width * 0.3
+        }} />}
       </React.Fragment>
     );
   };
 
-  const render_item = ({ item }:any) => {
+  const render_item = ({ item }: any) => {
     const translateX = new Animated.Value(0);
     const pan_responder = PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -117,6 +173,8 @@ const Wishlist = ({ navigation }:any) => {
       },
     });
 
+    const is_product_in_cart = cart_products?.[item?.id] ? true : false;
+
     return (
       <View style={{ flexDirection: "row" }}>
         <Animated.View style={{ transform: [{ translateX }] }}>
@@ -125,7 +183,7 @@ const Wishlist = ({ navigation }:any) => {
             key={item?.id}
             style={styles.wishlist_item}
           >
-            {handle_render_item(item)}
+            {handle_render_item(item, is_product_in_cart)}
           </View>
         </Animated.View>
 
@@ -245,7 +303,7 @@ const styles = StyleSheet.create({
   },
   delete_btn: {
     justifyContent: "center",
-    backgroundColor: "red",
+    backgroundColor: "#ed7550",
     width: 100,
     alignItems: "center",
     borderRadius: 12,

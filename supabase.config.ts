@@ -3,11 +3,11 @@ import { AppState } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
 
-const supa_base_url = 'https://tquyucgrwwfywwszdehp.supabase.co';
-const supa_base_anon_Key ="sb_publishable_Hijhc65fkV4PQcMBy6-ORg_hMYY4pHi";
+const supabaseUrl = 'https://nhivnrtnwavstvuxrmbf.supabase.co';
+const supabaseKey ="sb_publishable_8QN1TwINCyhyelJ593wTHQ_r3XdKVic";
 
 
-export const supabase = createClient(supa_base_url, supa_base_anon_Key, {
+export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     storage: AsyncStorage,
     autoRefreshToken: true,
