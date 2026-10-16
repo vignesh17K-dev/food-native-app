@@ -509,7 +509,6 @@ const styles = StyleSheet.create({
   checkout_footer: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    borderTopWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: 24,
     paddingTop: 20,
     paddingBottom: 24,

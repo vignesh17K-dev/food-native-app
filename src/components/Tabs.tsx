@@ -43,7 +43,7 @@ const TabView = () => {
     const active_route =
       tab_navigation_state?.routes[tab_navigation_state?.index]?.state
         ?.routes?.[
-        tab_navigation_state?.routes[tab_navigation_state?.index]?.state?.index
+      tab_navigation_state?.routes[tab_navigation_state?.index]?.state?.index
       ];
     const new_active_tab = find(constants.bottom_tabs, {
       route: active_route?.name,
@@ -101,13 +101,18 @@ const TabView = () => {
   }
 
   return (
-    <SafeAreaView style={{ backgroundColor: colors.background }}>
+    <SafeAreaView style={{
+      backgroundColor: colors.surface, borderRadius: 28, shadowRadius: 10,
+      shadowColor: "rgba(0,0,0,0.5)",
+      shadowOpacity: 0.1,
+      elevation: 5,
+    }}>
       <View
         style={[
           styles.tab_container,
           {
-            backgroundColor: colors.background,
-            borderTopColor: colors.border,
+            backgroundColor: colors.surface,
+            borderTopColor: darkMode ? "rgba(255,255,255,0.12)" : colors.border,
           },
         ]}
       >
