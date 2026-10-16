@@ -91,13 +91,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: SIZES.height * 0.055,
     borderRadius: 10,
-    borderWidth: 0.6,
-    borderColor: "transparent",
+    borderWidth: 0,
     backgroundColor: "rgb(211, 211, 211)",
+    opacity: 0.4,
     paddingHorizontal: 10,
   },
   inputRowAccount: {
     backgroundColor: "#fff",
+    opacity: 1,
     borderWidth: 0,
   },
   inputFieldStyle: {
@@ -111,7 +112,8 @@ const styles = StyleSheet.create({
   },
   textLabel: {
     marginVertical: SIZES.height * 0.01,
-    opacity: 0.6,
+    opacity: 0.5,
+    fontWeight: "500",
     fontSize: 16,
   },
   textLabelAccount: {

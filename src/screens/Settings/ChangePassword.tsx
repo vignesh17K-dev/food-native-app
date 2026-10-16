@@ -17,8 +17,8 @@ import Password from "../../components/Password";
 import Button from "../../components/Button";
 import ImageLinks from "../../../assets/ImageLink";
 import { SIZES } from "../../../constants";
-import { supabase } from "../../../supabase.config";
 import { useAppToast } from "../../context/AppToast";
+import { changePassword } from "../../../utils/auth/changePassword";
 import { useAppSelector } from "../../../store/hooks";
 
 type ChangePasswordFormValues = {
@@ -26,6 +26,8 @@ type ChangePasswordFormValues = {
   new_password: string;
   confirm_password: string;
 };
+
+const PASSWORD_VALIDATIONS = { required: true, minLength: 6 } as const;
 
 function ChangePassword({ navigation }: any) {
   const toast = useAppToast();
@@ -43,16 +45,6 @@ function ChangePassword({ navigation }: any) {
   });
 
   const on_submit = handleSubmit(async (data) => {
-    const email = auth_user?.email;
-    if (!email) {
-      toast.show({
-        title: "Could not verify account email",
-        placement: "top",
-        background: "red.800",
-      });
-      return;
-    }
-
     if (!_.isEqual(data.new_password, data.confirm_password)) {
       toast.show({
         title: "New password and confirm password do not match",
@@ -73,39 +65,22 @@ function ChangePassword({ navigation }: any) {
 
     set_loading(true);
     try {
-      const { error: sign_in_error } = await supabase.auth.signInWithPassword({
-        email,
-        password: data.current_password,
-      });
-
-      if (sign_in_error) {
-        toast.show({
-          title: "Current password is incorrect",
-          placement: "top",
-          background: "red.800",
-        });
-        return;
-      }
-
-      const { error: update_error } = await supabase.auth.updateUser({
-        password: data.new_password,
-      });
-
-      if (update_error) {
-        toast.show({
-          title: update_error.message,
-          placement: "top",
-          background: "red.800",
-        });
-        return;
-      }
-
+      await changePassword(data.current_password, data.new_password, auth_user);
       reset();
       toast.show({
         title: "Password updated successfully",
         placement: "top",
+        background: "green.800",
       });
       navigation?.goBack();
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update password";
+      toast.show({
+        title: message,
+        placement: "top",
+        background: "red.800",
+      });
     } finally {
       set_loading(false);
     }
@@ -142,21 +117,21 @@ function ChangePassword({ navigation }: any) {
               name="current_password"
               label="Current Password"
               control={control}
-              validations={{ required: true, minLength: 6 }}
+              validations={PASSWORD_VALIDATIONS}
               variant="account"
             />
             <Password
               name="new_password"
               label="New Password"
               control={control}
-              validations={{ required: true, minLength: 6 }}
+              validations={PASSWORD_VALIDATIONS}
               variant="account"
             />
             <Password
               name="confirm_password"
               label="Confirm Password"
               control={control}
-              validations={{ required: true, minLength: 6 }}
+              validations={PASSWORD_VALIDATIONS}
               variant="account"
             />
           </View>
@@ -167,6 +142,7 @@ function ChangePassword({ navigation }: any) {
             text="Update Password"
             type="primary"
             width="100%"
+            disabled={loading}
             loading={loading}
             onClick={on_submit}
           />

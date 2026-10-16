@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgb(211, 211, 211)",
     opacity: 0.4,
     color: "black",
-    borderWidth: 1,
+    borderWidth: 0,
     padding: 10,
     marginBottom: 1,
   },

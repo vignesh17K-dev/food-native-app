@@ -181,9 +181,9 @@ const PhoneNumberField = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: SIZES.width * 0.88,
+    width: "100%",
     maxWidth: "100%",
-    alignSelf: "center",
+    alignSelf: "stretch",
   },
   inputRow: {
     flexDirection: "row",
@@ -192,6 +192,7 @@ const styles = StyleSheet.create({
     height: SIZES.height * 0.055,
     borderRadius: 10,
     backgroundColor: "rgb(211, 211, 211)",
+    opacity: 0.4,
     paddingRight: 10,
   },
   inputRowDisabled: {
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
   label_style: {
     marginVertical: SIZES.height * 0.01,
     opacity: 0.5,
-    fontWeight: "400",
+    fontWeight: "500",
     fontSize: 16,
   },
   label_style_account: {
@@ -235,6 +236,7 @@ const styles = StyleSheet.create({
   },
   inputRowAccount: {
     backgroundColor: "#fff",
+    opacity: 1,
   },
   formItemError: {
     color: "red",
