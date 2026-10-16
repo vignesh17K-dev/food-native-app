@@ -55,7 +55,6 @@ const loginInputFieldContainer = ({ navigation }: any) => {
     });
   };
 
-  console.log(supabase, 'supabase')
 
   const handle_create_new_user = async (payload: any) => {
     const phone_number = `${payload?.country_code}${payload?.phone_number}`;
@@ -63,6 +62,13 @@ const loginInputFieldContainer = ({ navigation }: any) => {
       email: payload?.email,
       password: payload?.password,
       phone: phone_number,
+      options:{
+        data:{
+          username: payload?.username,
+          phone: payload?.phone_number,
+          country_code: payload?.country_code,
+        }
+      }
     });
 
     if (error) {
@@ -114,7 +120,7 @@ const loginInputFieldContainer = ({ navigation }: any) => {
         <InputField
           name="username"
           label="Username"
-          style={{ marginBottom: SIZES.height * 0.001 }}
+          style={styles.field_spacing}
           validations={{
             required: true,
             minLength: 3,
@@ -130,7 +136,7 @@ const loginInputFieldContainer = ({ navigation }: any) => {
           required: true,
           email: true,
         }}
-        style={{ marginBottom: SIZES.height * 0.001 }}
+        style={styles.field_spacing}
         control={control}
       />
 
@@ -138,6 +144,7 @@ const loginInputFieldContainer = ({ navigation }: any) => {
         <PhoneNumberField
           name="phone_number"
           label="Phone Number"
+          style={styles.field_spacing}
           validations={{
             required: true,
             number: true,
@@ -150,7 +157,7 @@ const loginInputFieldContainer = ({ navigation }: any) => {
 
       <Password
         name="password"
-        style={{ marginBottom: SIZES.height * 0.001 }}
+        style={styles.field_spacing}
         label="Password"
         validations={{
           required: true,
@@ -215,6 +222,14 @@ const styles = StyleSheet.create({
   text_field_container: {
     marginHorizontal: SIZES.width * 0.06,
     marginVertical: SIZES.height * 0.03,
+    width: SIZES.width * 0.88,
+    maxWidth: "100%",
+    alignSelf: "center",
+  },
+  field_spacing: {
+    marginBottom: SIZES.height * 0.001,
+    width: "100%",
+    alignSelf: "stretch",
   },
 
   cta_text: {

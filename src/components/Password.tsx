@@ -17,9 +17,18 @@ interface Props {
   validations: any;
   label: string;
   control: any;
+  variant?: "default" | "account";
 }
 
-const Password = ({ style, label, control, validations, name }: Props) => {
+const Password = ({
+  style,
+  label,
+  control,
+  validations,
+  name,
+  variant = "default",
+}: Props) => {
+  const is_account = variant === "account";
   const [show, setShow] = useState(false);
 
   return (
@@ -30,8 +39,14 @@ const Password = ({ style, label, control, validations, name }: Props) => {
         rules={apply_validations({ ...validations, name, label }) as any}
         render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
           <React.Fragment>
-            <Text style={styles.textLabel}>{label}</Text>
-            <View style={styles.inputRow}>
+            <Text
+              style={[styles.textLabel, is_account && styles.textLabelAccount]}
+            >
+              {label}
+            </Text>
+            <View
+              style={[styles.inputRow, is_account && styles.inputRowAccount]}
+            >
               <TextInput
                 onChangeText={onChange}
                 onBlur={onBlur}
@@ -43,7 +58,7 @@ const Password = ({ style, label, control, validations, name }: Props) => {
                 autoComplete="password"
                 autoCorrect={false}
                 textContentType="password"
-                placeholderTextColor="#666"
+                placeholderTextColor="#b0b0b0"
               />
               <Pressable
                 onPress={() => setShow(!show)}
@@ -76,10 +91,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: SIZES.height * 0.055,
     borderRadius: 10,
-    borderWidth: 0.6,
-    borderColor: "transparent",
+    borderWidth: 0,
     backgroundColor: "rgb(211, 211, 211)",
+    opacity: 0.4,
     paddingHorizontal: 10,
+  },
+  inputRowAccount: {
+    backgroundColor: "#fff",
+    opacity: 1,
+    borderWidth: 0,
   },
   inputFieldStyle: {
     flex: 1,
@@ -92,8 +112,17 @@ const styles = StyleSheet.create({
   },
   textLabel: {
     marginVertical: SIZES.height * 0.01,
-    opacity: 0.6,
+    opacity: 0.5,
+    fontWeight: "500",
     fontSize: 16,
+  },
+  textLabelAccount: {
+    opacity: 1,
+    color: "#8a8a8a",
+    fontWeight: "600",
+    fontSize: 14,
+    marginBottom: 6,
+    marginTop: 4,
   },
   formItemError: {
     color: "red",

@@ -6,7 +6,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  SafeAreaView,
   PanResponder,
   Animated,
 } from "react-native";
@@ -24,6 +23,7 @@ import cart from "../../../utils/api/cart";
 import { upsert_cart_item } from "../../../store/slices/CartSlice";
 import { applyCartItemResponse } from "../../../utils/cart/applyCartItemResponse";
 import { head } from "lodash";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface PayloadProps {
   product_id: string,

@@ -15,7 +15,7 @@ import { SIZES } from "../../constants";
 import Home from "../screens/Home/Home";
 import Search from "../screens/Search/Search";
 import Cart from "../screens/Cart/Cart";
-import Notifications from "../screens/Notifications/Notification";
+import Settings from "../screens/Settings/Settings";
 import Wishlist from "../screens/Wishlist/Wishlist";
 import { useNavigation, useNavigationState } from "@react-navigation/native";
 
@@ -123,8 +123,8 @@ const TabBar = () => {
       <Tab.Screen name={constants.route_names.Cart} component={Cart} />
       <Tab.Screen name={constants.route_names.Wishlist} component={Wishlist} />
       <Tab.Screen
-        name={constants.route_names.Notifications}
-        component={Notifications}
+        name={constants.route_names.Settings}
+        component={Settings}
       />
     </Tab.Navigator>
   );

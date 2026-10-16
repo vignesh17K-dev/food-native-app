@@ -22,14 +22,15 @@ interface Props {
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
   activityIndicatorProps?: any
+  disabled: boolean;
 }
 
-const Button = ({ text, type, width, onClick, loading, style, activityIndicatorProps }: Props) => {
+const Button = ({ text, type, width, onClick, loading, style, activityIndicatorProps, disabled }: Props) => {
   const renderButton = () => {
     switch (type) {
       case "primary":
         return (
-          <TouchableOpacity onPress={onClick}>
+          <TouchableOpacity disabled={disabled} onPress={onClick}>
             <View
               style={[
                 styles.primaryButton,
@@ -47,7 +48,7 @@ const Button = ({ text, type, width, onClick, loading, style, activityIndicatorP
         );
       default:
         return (
-          <TouchableOpacity onPress={onClick}>
+          <TouchableOpacity disabled={disabled} onPress={onClick}>
             <View
               style={[
                 styles.secondaryButton,
