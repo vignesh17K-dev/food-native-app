@@ -11,6 +11,11 @@ import constants from "../utils/constants";
 import ProductDetails from "./screens/ProductDetails/ProductDetails";
 import CategoryDetails from "./screens/CategoryDetails/CategoryDetails";
 import { useAppSelector } from "../store/hooks";
+import Terms from "./screens/Settings/TermsCondition";
+import PrivacyPolicy from "./screens/Settings/PrivacyPolicy";
+import CheckUpdateScreen from "./screens/CheckUpdate/CheckUpdateScreen";
+import AccountDetails from "./screens/Settings/AccountDetails";
+import ChangePassword from "./screens/Settings/ChangePassword";
 
 export type RootStackParamList = {
   onBoarding: undefined;
@@ -22,6 +27,11 @@ export type RootStackParamList = {
   mainApp: undefined;
   productdetails: { id: string };
   categorydetails: { id: string };
+  checkupdate: undefined;
+  "terms&condition": undefined;
+  privacypolicy: undefined;
+  accountdetails: undefined;
+  changepassword: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -62,6 +72,26 @@ const Routes = () => {
       <Stack.Screen
         name={route_names.CategoryDetails}
         component={CategoryDetails}
+      />
+       <Stack.Screen
+        name={route_names.Terms}
+        component={Terms}
+      />
+        <Stack.Screen
+        name={route_names.PrivacyPolicy}
+        component={PrivacyPolicy}
+      />
+        <Stack.Screen
+        name={route_names.CheckUpdate}
+        component={CheckUpdateScreen}
+      />
+      <Stack.Screen
+        name={route_names.AccountDetails}
+        component={AccountDetails}
+      />
+       <Stack.Screen
+        name={route_names.ChangePassword}
+        component={ChangePassword}
       />
     </Stack.Navigator>
   );

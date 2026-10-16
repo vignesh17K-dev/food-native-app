@@ -55,7 +55,6 @@ const loginInputFieldContainer = ({ navigation }: any) => {
     });
   };
 
-  console.log(supabase, 'supabase')
 
   const handle_create_new_user = async (payload: any) => {
     const phone_number = `${payload?.country_code}${payload?.phone_number}`;
@@ -63,6 +62,13 @@ const loginInputFieldContainer = ({ navigation }: any) => {
       email: payload?.email,
       password: payload?.password,
       phone: phone_number,
+      options:{
+        data:{
+          username: payload?.username,
+          phone: payload?.phone_number,
+          country_code: payload?.country_code,
+        }
+      }
     });
 
     if (error) {

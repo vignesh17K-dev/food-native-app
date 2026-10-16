@@ -11,6 +11,8 @@ interface Props {
   label: string;
   control: any;
   placeholder?: string;
+  variant?: "default" | "account";
+  multiline?: boolean;
 }
 
 const InputField = ({
@@ -20,28 +22,39 @@ const InputField = ({
   label,
   control,
   placeholder,
+  variant = "default",
+  multiline = false,
 }: Props) => {
+  const is_account = variant === "account";
+
   return (
     <View style={style}>
       <Controller
         control={control}
         name={name}
-        rules={apply_validations({ ...validations, name, label }) as any}
+        rules={apply_validations({ ...validations, name, label })}
         render={({ field: { onChange, value }, fieldState: { error } }) => (
           <React.Fragment>
-            <Text style={styles.textLabel}>{label}</Text>
+            <Text
+              style={[styles.textLabel, is_account && styles.textLabelAccount]}
+            >
+              {label}
+            </Text>
             <TextInput
               autoComplete="off"
               autoCapitalize="none"
               value={value ?? ""}
               placeholder={placeholder}
               onChangeText={onChange}
+              multiline={multiline}
+              textAlignVertical={multiline ? "top" : "center"}
               style={{
-                height: SIZES.height * 0.055,
+                height: multiline ? SIZES.height * 0.12 : SIZES.height * 0.055,
                 borderRadius: 10,
                 borderColor: "transparent",
                 fontSize: 16,
                 ...styles.inputFieldStyle,
+                ...(is_account ? styles.inputFieldAccount : null),
               }}
             />
 
@@ -76,6 +89,19 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     fontWeight: '500',
     fontSize: 16,
+  },
+  textLabelAccount: {
+    opacity: 1,
+    color: "#8a8a8a",
+    fontWeight: "600",
+    fontSize: 14,
+    marginBottom: 6,
+    marginTop: 4,
+  },
+  inputFieldAccount: {
+    backgroundColor: "#fff",
+    opacity: 1,
+    borderWidth: 0,
   },
 });
 

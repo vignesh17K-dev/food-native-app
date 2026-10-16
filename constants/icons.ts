@@ -25,6 +25,14 @@ const setting = require("../assets/icons/setting.png")
 const star = require("../assets/icons/star.png")
 const wallet = require("../assets/icons/wallet.png")
 const help = require("../assets/icons/help.png")
+const preference = require("../assets/icons/preference.png")
+const account = require("../assets/icons/account.png")
+const password_change = require("../assets/icons/password_change.png")
+const terms = require("../assets/icons/terms.png")
+const update = require("../assets/icons/update.png")
+const privacy =  require("../assets/icons/privacy.png")
+
+
 
 const icons = {
     coupon,
@@ -54,6 +62,12 @@ const icons = {
     star,
     wallet,
     help,
+    preference,
+    account,
+    password_change,
+    terms,
+    update,
+    privacy
 }
 
 export default icons

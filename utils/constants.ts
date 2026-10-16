@@ -14,10 +14,15 @@ const constants = {
         Search: "search",
         Cart: "cart",
         Wishlist: "wishlist",
-        Notifications: "notifications",
+        Settings: "settings",
         ProductDetails: "productdetails",
         CategoryDetails: "categorydetails",
-    },
+        Terms: 'terms&condition',
+        PrivacyPolicy: 'privacypolicy',
+        CheckUpdate: 'checkupdate',
+        AccountDetails:'accountdetails',
+        ChangePassword:'changepassword'
+    } as const,
     bottom_tabs: [
         {
             id: 0,
@@ -45,9 +50,9 @@ const constants = {
         },
         {
             id: 4,
-            label: "Notification",
-            route: 'notifications',
-            icon: icons.notification
+            label: "Settings",
+            route: 'settings',
+            icon: icons.setting
         },
     ],
     sections: [
@@ -168,6 +173,43 @@ const constants = {
             label: "Taccos",
             slug: "tacos",
         }
+    ],
+    settings: [
+        {
+            name: 'Account Details',
+            key: 'account_details',
+            icon: icons.account
+        },
+        {
+            name: 'Change Password',
+            key: 'change_password',
+            icon: icons.password_change
+        },
+        {
+            name: 'Preferences',
+            key: 'preferences',
+            icon: icons.preference
+        },
+        {
+            name: 'Check Update',
+            key: 'check_update',
+            icon: icons.update
+        },
+        {
+            name: 'Privacy Policy',
+            key: 'privacy_policy',
+            icon: icons.privacy
+        },
+        {
+            name: 'Terms & Conditions',
+            key: 'terms_&_conditions',
+            icon: icons.terms
+        },
+        {
+            name: 'Logout',
+            key: 'logout',
+            icon: icons.logout
+        },
     ]
 }
 

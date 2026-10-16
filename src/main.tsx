@@ -11,11 +11,13 @@ import { setSession } from "../store/slices/User";
 import { set_cart, clear_cart } from "../store/slices/CartSlice";
 import Loader from "./components/Loader";
 import cart from "../utils/api/cart";
+import { useAppSelector } from "../store/hooks";
 
 const MainApp = () => {
   const dispatch = useDispatch();
   const toast = useAppToast();
   const [loading, set_loading] = useState(false);
+
 
   const initialize_user_cart = async (user_id?: string | null) => {
     if (!user_id) {
@@ -24,7 +26,7 @@ const MainApp = () => {
 
     try {
       const response = await cart.initialize_cart({ user_id });
-      const cart_data = response?.data ?? response;  
+      const cart_data = response?.data ?? response;
       if (cart_data) {
         dispatch(set_cart(cart_data));
       }
@@ -76,6 +78,7 @@ const MainApp = () => {
       set_loading(false);
     }
   };
+
 
   useEffect(() => {
     fetch_session();

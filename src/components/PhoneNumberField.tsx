@@ -27,6 +27,7 @@ interface Props {
   on_country_code_select: (country_code: any) => any;
   placeholder?: any;
   type: any;
+  variant?: "default" | "account";
 }
 
 const PhoneNumberField = ({
@@ -41,7 +42,9 @@ const PhoneNumberField = ({
   disabled,
   placeholder,
   type,
+  variant = "default",
 }: Props) => {
+  const is_account = variant === "account";
   const [show_country, set_show_country] = useState(false);
   const [selected_country_code, set_selected_country_code] = useState(
     default_selected_country ? default_selected_country : "+1"
@@ -70,11 +73,19 @@ const PhoneNumberField = ({
         return (
           <View style={[styles.container, style]}>
             {!_.isEmpty(label) && (
-              <Text style={styles.label_style}>{label}</Text>
+              <Text
+                style={[
+                  styles.label_style,
+                  is_account && styles.label_style_account,
+                ]}
+              >
+                {label}
+              </Text>
             )}
             <View
               style={[
                 styles.inputRow,
+                is_account && styles.inputRowAccount,
                 disabled && styles.inputRowDisabled,
               ]}
             >
@@ -213,6 +224,17 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     fontWeight: "400",
     fontSize: 16,
+  },
+  label_style_account: {
+    opacity: 1,
+    color: "#8a8a8a",
+    fontWeight: "600",
+    fontSize: 14,
+    marginBottom: 6,
+    marginTop: 4,
+  },
+  inputRowAccount: {
+    backgroundColor: "#fff",
   },
   formItemError: {
     color: "red",

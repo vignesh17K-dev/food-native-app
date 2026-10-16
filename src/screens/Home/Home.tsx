@@ -19,12 +19,8 @@ import _ from "lodash";
 import constants from "../../../utils/constants";
 import MenuRails from "./components/MenuRails";
 import { useAppToast } from "../../context/AppToast";
-import { supabase } from "../../../supabase.config";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { setLogin } from "../../../store/slices/LoginSlice";
 import { set_section_data } from "../../../store/slices/HomeSlice";
 import mock_data from "../../../constants/dummyData";
-import { store } from "../../../store/store";
 import wishlist from "../../../utils/api/wishlist";
 import { set_wishlist } from "../../../store/slices/WishlistSlice";
 import FilterModal, { FilterValues } from "./components/FilterModal";
@@ -58,26 +54,6 @@ const Home = ({ navigation }: any) => {
     extrapolate: "clamp",
   });
 
-  const handle_logout = async () => {
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      toast.show({
-        title: error?.message,
-        placement: "top",
-      });
-      return;
-    }
-
-    AsyncStorage.clear();
-    dispatch(setLogin(false));
-    navigate.navigate(constants.route_names.Login);
-    store.dispatch({ type: "USER_LOGOUT" });
-    navigation.reset({
-      index: 0,
-      routes: [{ name: constants.route_names.Login }],
-    });
-  };
 
   const handle_render_header = () => {
     return (
@@ -92,7 +68,7 @@ const Home = ({ navigation }: any) => {
           title={<Text style={{ fontSize: 20, fontWeight: "700" }}>HOME</Text>}
           right_section={<CartIcon />}
           left_section={
-            <TouchableOpacity onPress={handle_logout}>
+            <TouchableOpacity >
               <Image
                 source={ImageLinks.profile}
                 alt="search"
@@ -100,15 +76,6 @@ const Home = ({ navigation }: any) => {
               />
             </TouchableOpacity>
           }
-          // left_section={
-          //   <TouchableOpacity onPress={handle_logout}>
-          //     <Image
-          //       source={ImageLinks.profile}
-          //       alt="search"
-          //       style={{ height: 45, width: 45, borderRadius: 10 }}
-          //     />
-          //   </TouchableOpacity>
-          // }
           container_style={{
             marginVertical: 10,
           }}
@@ -117,9 +84,9 @@ const Home = ({ navigation }: any) => {
     );
   };
 
-  const handle_open_filter = () => {
-    set_filter_visible(true);
-  };
+  // const handle_open_filter = () => {
+  //   set_filter_visible(true);
+  // };
 
   const handle_close_filter = () => {
     set_filter_visible(false);
