@@ -21,8 +21,10 @@ import {
 } from "../../../../actions/wishlist";
 import constants from "../../../../utils/constants";
 import { useNavigation } from "@react-navigation/native";
+import { useAppTheme } from "../../../hooks/useAppTheme";
 
 const MenuRails = () => {
+  const { colors } = useAppTheme();
   const [selected_menu, set_selected_menu] = useState<any>("");
   const [menu_data, set_menu_data] = useState([]);
   const [loading, set_loading] = useState(true);
@@ -38,7 +40,7 @@ const MenuRails = () => {
       <TouchableOpacity onPress={() => set_selected_menu(item)}>
         <Text
           style={{
-            color: item.id === selected_menu?.id ? "#FF6D00" : "#000",
+            color: item.id === selected_menu?.id ? "#FF6D00" : colors.text,
             fontWeight: "bold",
             fontSize: 18,
           }}
@@ -115,7 +117,7 @@ const MenuRails = () => {
 
     return (
       <TouchableOpacity
-        style={styles.card_container}
+        style={[styles.card_container, { backgroundColor: colors.surface }]}
         onPress={() =>
           navigate.navigate(constants.route_names.ProductDetails, {
             id: item?.id,
@@ -155,9 +157,17 @@ const MenuRails = () => {
         />
 
         <View style={styles.card_content}>
-          <Text style={styles.card_title}>{item?.name}</Text>
-          <Text style={styles.card_description}>{item?.description}</Text>
-          <Text style={styles.card_price}>${item?.price}</Text>
+          <Text style={[styles.card_title, { color: colors.text }]}>
+            {item?.name}
+          </Text>
+          <Text
+            style={[styles.card_description, { color: colors.textSecondary }]}
+          >
+            {item?.description}
+          </Text>
+          <Text style={[styles.card_price, { color: colors.text }]}>
+            ${item?.price}
+          </Text>
         </View>
       </TouchableOpacity>
     );
@@ -199,7 +209,6 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   card_container: {
-    backgroundColor: "#f7f8fa",
     borderRadius: 20,
     padding: 20,
     minWidth: 220,

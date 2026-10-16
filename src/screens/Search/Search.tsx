@@ -11,10 +11,9 @@ import {
 } from "react-native";
 import { SIZES } from "../../../constants";
 import ImageLinks from "../../../assets/ImageLink";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import ThemedScreen from "../../components/ThemedScreen";
+import { useAppTheme } from "../../hooks/useAppTheme";
 import { useDispatch, useSelector } from "react-redux";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import product from "../../../utils/api/product";
@@ -45,6 +44,7 @@ const TAB_BAR_HEIGHT = SIZES.height * 0.1;
 const SEARCH_DEBOUNCE_MS = 1000;
 
 const Search = () => {
+  const { colors } = useAppTheme();
   const navigation: any = useNavigation();
   const dispatch = useDispatch();
   const insets = useSafeAreaInsets();
@@ -215,7 +215,12 @@ const Search = () => {
 
   const handle_render_search = () => {
     return (
-      <View style={styles.search_container}>
+      <View
+        style={[
+          styles.search_container,
+          { backgroundColor: colors.searchBackground },
+        ]}
+      >
         <TouchableOpacity
           onPress={() => navigation.navigate(constants.route_names.Home)}
         >
@@ -230,8 +235,8 @@ const Search = () => {
           value={search_value}
           placeholder="Search food..."
           keyboardType="default"
-          style={styles.search_input}
-          placeholderTextColor="#bdbdc1"
+          style={[styles.search_input, { color: colors.text }]}
+          placeholderTextColor={colors.placeholder}
         />
         <TouchableOpacity onPress={handle_open_filter}>
           <View
@@ -245,7 +250,7 @@ const Search = () => {
               alt="filter"
               style={[
                 styles.filter_icon,
-                filters_active && styles.filter_icon_active,
+                { tintColor: filters_active ? "#fff" : colors.icon },
               ]}
             />
           </View>
@@ -263,7 +268,7 @@ const Search = () => {
     return (
       <View style={styles.section_header_wrap}>
         <View style={styles.section_header}>
-          <Text style={styles.section_title}>
+          <Text style={[styles.section_title, { color: colors.text }]}>
             {filters_active ? "Filtered Results" : "All Products"}
           </Text>
           {filters_active && (
@@ -272,7 +277,11 @@ const Search = () => {
             </TouchableOpacity>
           )}
         </View>
-        {show_count && <Text style={styles.results_count}>{result_label}</Text>}
+        {show_count && (
+          <Text style={[styles.results_count, { color: colors.textSecondary }]}>
+            {result_label}
+          </Text>
+        )}
       </View>
     );
   };
@@ -285,7 +294,7 @@ const Search = () => {
 
     return (
       <TouchableOpacity
-        style={styles.card_container}
+        style={[styles.card_container, { backgroundColor: colors.surface }]}
         onPress={() =>
           navigation.navigate(constants.route_names.ProductDetails, {
             id: item?.id,
@@ -319,20 +328,20 @@ const Search = () => {
 
         <View style={styles.card_content}>
           <Text
-            style={styles.card_title}
+            style={[styles.card_title, { color: colors.text }]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
             {item?.name}
           </Text>
           <Text
-            style={styles.card_description}
+            style={[styles.card_description, { color: colors.textSecondary }]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
             {item?.description}
           </Text>
-          <Text style={styles.card_price} numberOfLines={1}>
+          <Text style={[styles.card_price, { color: colors.text }]} numberOfLines={1}>
             ${item?.price}
           </Text>
         </View>
@@ -363,11 +372,18 @@ const Search = () => {
     if (!loading && products.length === 0) {
       return (
         <View style={styles.center_content}>
-          <View style={styles.empty_icon_wrap}>
+          <View
+            style={[
+              styles.empty_icon_wrap,
+              { backgroundColor: colors.accentSoft },
+            ]}
+          >
             <FontAwesome name="search" size={48} color="#ed7550" />
           </View>
-          <Text style={styles.empty_text}>No products found</Text>
-          <Text style={styles.empty_subtext}>
+          <Text style={[styles.empty_text, { color: colors.text }]}>
+            No products found
+          </Text>
+          <Text style={[styles.empty_subtext, { color: colors.textSecondary }]}>
             Try a different search or adjust your filters
           </Text>
         </View>
@@ -408,8 +424,8 @@ const Search = () => {
   };
 
   return (
-    <SafeAreaView style={styles.screen} edges={["top"]}>
-      <View style={styles.container}>
+    <ThemedScreen style={styles.screen} edges={["top"]}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         {handle_render_search()}
         {handle_render_section_header()}
         {render_content()}
@@ -420,7 +436,7 @@ const Search = () => {
         onApply={handle_apply_filters}
         initialFilters={product_filters ?? DEFAULT_FILTER_VALUES}
       />
-    </SafeAreaView>
+    </ThemedScreen>
   );
 };
 
@@ -429,7 +445,6 @@ export default Search;
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   container: {
     flex: 1,
@@ -437,12 +452,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginBottom: 0,
     paddingTop: 8,
-    backgroundColor: "#fff",
   },
   search_container: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
     paddingVertical: SIZES.height * 0.012,
     paddingHorizontal: 12,
     borderRadius: 16,
@@ -457,7 +470,6 @@ const styles = StyleSheet.create({
   search_input: {
     flex: 1,
     fontSize: 16,
-    color: "#000",
   },
   filter_button: {
     padding: 8,
@@ -481,13 +493,11 @@ const styles = StyleSheet.create({
   section_title: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#000",
     flex: 1,
   },
   results_count: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#888",
     marginTop: 6,
   },
   clear_filters_text: {
@@ -511,7 +521,6 @@ const styles = StyleSheet.create({
   },
   card_container: {
     flex: 1,
-    backgroundColor: "#f7f8fa",
     borderRadius: 16,
     padding: 14,
     overflow: "hidden",
@@ -564,26 +573,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "700",
     marginBottom: 4,
-    color: "#000",
   },
   filter_icon: {
     height: 22,
     width: 22,
-    tintColor: "black",
-  },
-  filter_icon_active: {
-    tintColor: "#fff",
   },
   card_description: {
     fontSize: 11,
     marginBottom: 8,
-    color: "#888",
     lineHeight: 14,
   },
   card_price: {
     fontSize: 14,
     fontWeight: "900",
-    color: "#000",
   },
   center_content: {
     flex: 1,
@@ -593,13 +595,11 @@ const styles = StyleSheet.create({
   },
   empty_text: {
     fontSize: 18,
-    color: "#000",
     fontWeight: "700",
     marginTop: 16,
   },
   empty_subtext: {
     fontSize: 14,
-    color: "#888",
     textAlign: "center",
     marginTop: 8,
     paddingHorizontal: 24,
@@ -609,7 +609,6 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: "#fdeee9",
     alignItems: "center",
     justifyContent: "center",
   },

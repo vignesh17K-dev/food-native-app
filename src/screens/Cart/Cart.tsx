@@ -12,7 +12,8 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { SafeAreaView } from "react-native-safe-area-context";
+import ThemedScreen from "../../components/ThemedScreen";
+import { useAppTheme } from "../../hooks/useAppTheme";
 import { Skeleton } from "native-base";
 import Header from "../../components/Header";
 import { SIZES } from "../../../constants";
@@ -71,6 +72,10 @@ const flatten_cart_products = (
 };
 
 const Cart = ({ navigation }: any) => {
+  const { colors, darkMode } = useAppTheme();
+  const checkout_footer_background = darkMode
+    ? colors.surface
+    : colors.surfaceElevated;
   const [loading, set_loading] = useState(true);
   const [delete_loading, set_delete_loading] = useState(false);
   const [add_to_cart_loading, set_add_to_cart_loading] = useState(false)
@@ -249,14 +254,16 @@ const Cart = ({ navigation }: any) => {
 
           <View style={styles.item_info}>
             <Text
-              style={styles.cart_name}
+              style={[styles.cart_name, { color: colors.text }]}
               numberOfLines={2}
               ellipsizeMode="tail"
             >
               {item?.name}
             </Text>
             {!!item?.selectedSize && (
-              <Text style={styles.item_meta}>Size: {item.selectedSize}</Text>
+              <Text style={[styles.item_meta, { color: colors.textSecondary }]}>
+                Size: {item.selectedSize}
+              </Text>
             )}
             <Text style={styles.cart_price}>${line_total.toFixed(2)}</Text>
           </View>
@@ -309,7 +316,10 @@ const Cart = ({ navigation }: any) => {
     return (
       <View style={{ flexDirection: "row" }}>
         <Animated.View style={{ transform: [{ translateX }] }}>
-          <View {...pan_responder.panHandlers} style={styles.cart_item}>
+          <View
+            {...pan_responder.panHandlers}
+            style={[styles.cart_item, { backgroundColor: colors.surface }]}
+          >
             {handle_render_item(item)}
             <Counter
               minCount={0}
@@ -325,7 +335,7 @@ const Cart = ({ navigation }: any) => {
           onPress={() => handle_delete(item)}
         >
           {delete_loading ? (
-            <ActivityIndicator size="small" color="#000" />
+            <ActivityIndicator size="small" color={colors.icon} />
           ) : (
             <Text style={styles.delete_text}>Delete</Text>
           )}
@@ -337,7 +347,10 @@ const Cart = ({ navigation }: any) => {
   const render_skeleton = () => (
     <View style={styles.skeleton_container}>
       {[1, 2, 3, 4]?.map((item) => (
-        <View key={item} style={styles.skeleton_item}>
+        <View
+          key={item}
+          style={[styles.skeleton_item, { backgroundColor: colors.surface }]}
+        >
           <Skeleton
             height={SIZES.height * 0.1}
             width={SIZES.width * 0.2}
@@ -361,14 +374,16 @@ const Cart = ({ navigation }: any) => {
     if (cart_items.length === 0) {
       return (
         <View style={styles.empty_wrap}>
-          <View style={styles.empty_glow}>
+          <View style={[styles.empty_glow, { backgroundColor: colors.accentSoft }]}>
             <View style={styles.empty_icon_circle}>
               <Image source={ImageLinks.cart} style={styles.empty_cart_icon} />
             </View>
           </View>
 
-          <Text style={styles.empty_title}>Hungry? Your cart is empty</Text>
-          <Text style={styles.empty_subtitle}>
+          <Text style={[styles.empty_title, { color: colors.text }]}>
+            Hungry? Your cart is empty
+          </Text>
+          <Text style={[styles.empty_subtitle, { color: colors.textSecondary }]}>
             Browse delicious meals and add your favorites to get started.
           </Text>
 
@@ -408,29 +423,40 @@ const Cart = ({ navigation }: any) => {
 
   const render_summary_row = (label: string, amount: number, bold = false) => (
     <View style={styles.summary_row}>
-      <Text style={[styles.summary_label, bold && styles.summary_bold]}>
+      <Text
+        style={[
+          styles.summary_label,
+          { color: colors.text },
+          bold && styles.summary_bold,
+        ]}
+      >
         {label}
       </Text>
-      <Text style={[styles.summary_value, bold && styles.summary_bold]}>
+      <Text
+        style={[
+          styles.summary_value,
+          { color: colors.text },
+          bold && styles.summary_bold,
+        ]}
+      >
         ${amount.toFixed(2)}
       </Text>
     </View>
   );
 
   return (
-    <SafeAreaView
-      style={{
-        backgroundColor: "#fff",
-        flex: 1,
-      }}
-    >
+    <ThemedScreen>
       <Header
         container_style={{
           marginRight: 18,
           marginHorizontal: SIZES.width * 0.02,
           marginBottom: 10,
         }}
-        title={<Text style={{ fontSize: 20, fontWeight: "700" }}>Cart</Text>}
+        title={
+          <Text style={{ fontSize: 20, fontWeight: "700", color: colors.text }}>
+            Cart
+          </Text>
+        }
         left_section={
           <TouchableOpacity onPress={() => navigation?.goBack()}>
             <Image
@@ -449,10 +475,20 @@ const Cart = ({ navigation }: any) => {
       {render_content()}
 
       {!loading && cart_items.length > 0 && (
-        <View style={styles.checkout_footer}>
+        <View
+          style={[
+            styles.checkout_footer,
+            {
+              backgroundColor: checkout_footer_background,
+              borderTopColor: colors.border,
+            },
+          ]}
+        >
           {render_summary_row("Subtotal", cart_subtotal)}
           {render_summary_row("Shipping fee", shipping_fee)}
-          <View style={styles.summary_divider} />
+          <View
+            style={[styles.summary_divider, { backgroundColor: colors.border }]}
+          />
           {render_summary_row("Total:", cart_total, true)}
           <TouchableOpacity
             style={styles.place_order_btn}
@@ -463,7 +499,7 @@ const Cart = ({ navigation }: any) => {
           </TouchableOpacity>
         </View>
       )}
-    </SafeAreaView>
+    </ThemedScreen>
   );
 };
 
@@ -471,9 +507,9 @@ export default Cart;
 
 const styles = StyleSheet.create({
   checkout_footer: {
-    backgroundColor: "#fff",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
+    borderTopWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: 24,
     paddingTop: 20,
     paddingBottom: 24,
@@ -491,12 +527,10 @@ const styles = StyleSheet.create({
   },
   summary_label: {
     fontSize: 16,
-    color: "#1a1a1a",
     fontWeight: "400",
   },
   summary_value: {
     fontSize: 16,
-    color: "#1a1a1a",
     fontWeight: "700",
   },
   summary_bold: {
@@ -505,7 +539,6 @@ const styles = StyleSheet.create({
   },
   summary_divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: "#e0e0e0",
     marginVertical: 10,
   },
   place_order_btn: {
@@ -529,7 +562,6 @@ const styles = StyleSheet.create({
     paddingBottom: 220,
   },
   cart_item: {
-    backgroundColor: "#f6f6f8",
     borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
@@ -562,7 +594,6 @@ const styles = StyleSheet.create({
   },
   item_meta: {
     fontSize: 13,
-    color: "#888",
   },
   cart_price: {
     color: "#ed7550",
@@ -590,7 +621,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   skeleton_item: {
-    backgroundColor: "#f6f6f8",
     borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
@@ -612,7 +642,6 @@ const styles = StyleSheet.create({
     width: 160,
     height: 160,
     borderRadius: 80,
-    backgroundColor: "#fff3ee",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 28,
@@ -639,14 +668,12 @@ const styles = StyleSheet.create({
   empty_title: {
     fontSize: 22,
     fontWeight: "800",
-    color: "#1a1a1a",
     textAlign: "center",
     marginBottom: 10,
   },
   empty_subtitle: {
     fontSize: 15,
     fontWeight: "400",
-    color: "#8a8a8a",
     textAlign: "center",
     lineHeight: 22,
     marginBottom: 28,

@@ -1,10 +1,12 @@
 import React from "react";
 import { Text, View } from "react-native";
+import { useAppTheme } from "../../../hooks/useAppTheme";
 
 function RecommendedRails() {
+  const { colors } = useAppTheme();
   return (
     <View>
-      <Text>RecommendedRails</Text>
+      <Text style={{ color: colors.text }}>RecommendedRails</Text>
     </View>
   );
 }

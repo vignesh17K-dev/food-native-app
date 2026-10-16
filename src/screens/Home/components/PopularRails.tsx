@@ -21,8 +21,10 @@ import {
 } from "../../../../actions/wishlist";
 import { useNavigation } from "@react-navigation/native";
 import constants from "../../../../utils/constants";
+import { useAppTheme } from "../../../hooks/useAppTheme";
 
 const PopularRails = () => {
+  const { colors } = useAppTheme();
   const dispatch = useDispatch();
   const wishlist_data = useSelector(
     (state: any) => state.wishlist.wishlist_data
@@ -97,7 +99,7 @@ const PopularRails = () => {
 
     return (
       <TouchableOpacity
-        style={styles.card_container}
+        style={[styles.card_container, { backgroundColor: colors.surface }]}
         onPress={() =>
           navigate.navigate(constants.route_names.ProductDetails, {
             id: item?.id,
@@ -137,9 +139,17 @@ const PopularRails = () => {
         />
 
         <View style={styles.card_content}>
-          <Text style={styles.card_title}>{item?.name}</Text>
-          <Text style={styles.card_description}>{item?.description}</Text>
-          <Text style={styles.card_price}>${item?.price}</Text>
+          <Text style={[styles.card_title, { color: colors.text }]}>
+            {item?.name}
+          </Text>
+          <Text
+            style={[styles.card_description, { color: colors.textSecondary }]}
+          >
+            {item?.description}
+          </Text>
+          <Text style={[styles.card_price, { color: colors.text }]}>
+            ${item?.price}
+          </Text>
         </View>
       </TouchableOpacity>
     );
@@ -152,6 +162,7 @@ const PopularRails = () => {
           style={{
             fontWeight: "700",
             fontSize: 18,
+            color: colors.text,
           }}
         >
           Popular Near You
@@ -179,7 +190,6 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   card_container: {
-    backgroundColor: "#f7f8fa",
     borderRadius: 20,
     padding: 20,
     maxWidth: 220,

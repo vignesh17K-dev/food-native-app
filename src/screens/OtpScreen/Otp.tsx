@@ -6,7 +6,8 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import ThemedScreen from "../../components/ThemedScreen";
+import { useAppTheme } from "../../hooks/useAppTheme";
 import LogoHeader from "../../components/LogoHeader";
 import { StyleSheet } from "react-native";
 import utils from "../../../utils/utils";
@@ -20,6 +21,7 @@ import { useDispatch } from "react-redux";
 import constants from "../../../utils/constants";
 
 function Otp({ navigation }) {
+  const { colors } = useAppTheme();
   const [user_data, set_user_data] = useState<any>({});
   const [time, set_time] = useState(60);
   const [loading, set_loading] = useState(false);
@@ -115,7 +117,7 @@ function Otp({ navigation }) {
   }, [time]);
 
   return (
-    <SafeAreaView style={{ flex: 1, justifyContent: "space-between" }}>
+    <ThemedScreen style={{ flex: 1, justifyContent: "space-between" }}>
       <LogoHeader
         allow_back={true}
         title="OTP Authentication"
@@ -139,13 +141,25 @@ function Otp({ navigation }) {
               onTextChange={(text) => handle_otp(text)}
               focusStickBlinkingDuration={400}
               theme={{
-                containerStyle:styles.opt_container,
-                pinCodeContainerStyle:styles.pin_code_container
+                containerStyle: styles.opt_container,
+                pinCodeContainerStyle: {
+                  ...styles.pin_code_container,
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                  borderWidth: 1,
+                },
+                pinCodeTextStyle: { color: colors.text },
               }}
             />
             <TouchableOpacity onPress={handle_resend_code}>
               <View style={styles.resent_opt}>
-                <Text style={{ fontSize: 18, opacity: 0.6 }}>
+                <Text
+                  style={{
+                    fontSize: 18,
+                    opacity: 0.6,
+                    color: colors.textSecondary,
+                  }}
+                >
                   Didn't receive code?
                 </Text>
                 <Text
@@ -171,7 +185,7 @@ function Otp({ navigation }) {
           />
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ThemedScreen>
   );
 }
 

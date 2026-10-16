@@ -10,8 +10,10 @@ import { ON_BOARDING_CONTANTS } from "../contants";
 import { Platform } from "react-native";
 import ImageLinks from "../../../../assets/ImageLink";
 import constants from "../../../../utils/constants";
+import { useAppTheme } from "../../../hooks/useAppTheme";
 
 function OnBoardingArea() {
+  const { colors } = useAppTheme();
   const [tab, set_tab] = useState(0);
 
   const scroll_x: any = useRef(new Animated.Value(0)).current;
@@ -84,7 +86,7 @@ function OnBoardingArea() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <View style={styles.logoContainer}>
         <Image
           source={ImageLinks?.logo}

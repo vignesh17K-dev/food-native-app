@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import LoginInputFieldContainer from "../Login/components/loginInputFieldContainer";
-import { SafeAreaView } from "react-native-safe-area-context";
+import ThemedScreen from "../../components/ThemedScreen";
+import { useAppTheme } from "../../hooks/useAppTheme";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -25,6 +26,7 @@ WebBrowser.maybeCompleteAuthSession();
 
 
 const Login = ({ navigation }:any) => {
+  const { colors } = useAppTheme();
   const [request, response, promptAsync] = Google.useAuthRequest({
     iosClientId:
       "256385423646-12uc2ho8clfdaf6koc26kb50d83u1v9q.apps.googleusercontent.com",
@@ -63,7 +65,7 @@ const Login = ({ navigation }:any) => {
   }, [response]);
 
   return (
-      <SafeAreaView
+      <ThemedScreen
         style={{ flex: 1, marginVertical: Platform.OS === "android" && 20 }}
       >
         <KeyboardAvoidingView
@@ -101,7 +103,12 @@ const Login = ({ navigation }:any) => {
         )}
 
         <TouchableOpacity onPress={() => promptAsync()}>
-          <View style={{ ...styles.googleButton }}>
+          <View
+            style={[
+              styles.googleButton,
+              { backgroundColor: colors.surface },
+            ]}
+          >
             <Image
               source={ImageLinks?.google_icon}
               alt="google_icon"
@@ -110,10 +117,10 @@ const Login = ({ navigation }:any) => {
                 height: 20,
               }}
             />
-            <Text>Continue With Google</Text>
+            <Text style={{ color: colors.text }}>Continue With Google</Text>
           </View>
         </TouchableOpacity>
-      </SafeAreaView>
+      </ThemedScreen>
   );
 };
 
@@ -139,7 +146,6 @@ const styles = StyleSheet.create({
   googleButton: {
     borderRadius: 10,
     padding: 15,
-    backgroundColor: "rgba(230,230,230,0.6)",
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",

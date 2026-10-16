@@ -11,6 +11,7 @@ import { Controller } from "react-hook-form";
 import { Feather } from "@expo/vector-icons";
 import { SIZES } from "../../constants";
 import apply_validations from "../../utils/rules";
+import { useAppTheme } from "../hooks/useAppTheme";
 
 export type DropdownOption = {
   label: string;
@@ -37,6 +38,7 @@ const DropdownField = ({
   placeholder = "Select gender",
 }: Props) => {
   const [open, set_open] = useState(false);
+  const { colors, darkMode } = useAppTheme();
 
   return (
     <Controller
@@ -50,17 +52,28 @@ const DropdownField = ({
 
         return (
           <View style={style}>
-            <Text style={styles.label}>{label}</Text>
-            <Pressable style={styles.field} onPress={() => set_open(true)}>
+            <Text
+              style={[
+                styles.label,
+                { color: darkMode ? colors.fieldLabel : colors.textSecondary },
+              ]}
+            >
+              {label}
+            </Text>
+            <Pressable
+              style={[styles.field, { backgroundColor: colors.surfaceElevated }]}
+              onPress={() => set_open(true)}
+            >
               <Text
                 style={[
                   styles.field_text,
-                  !has_value && styles.placeholder_text,
+                  { color: colors.fieldText },
+                  !has_value && { color: colors.fieldPlaceholder },
                 ]}
               >
                 {display}
               </Text>
-              <Feather name="chevron-down" size={22} color="#b0b0b0" />
+              <Feather name="chevron-down" size={22} color={colors.fieldPlaceholder} />
             </Pressable>
             {error && (
               <Text style={styles.formItemError}>{error.message}</Text>
@@ -68,17 +81,24 @@ const DropdownField = ({
 
             <Modal visible={open} transparent animationType="fade">
               <Pressable style={styles.backdrop} onPress={() => set_open(false)}>
-                <View style={styles.sheet}>
+                <View
+                  style={[styles.sheet, { backgroundColor: colors.surfaceElevated }]}
+                >
                   {options.map((option) => (
                     <TouchableOpacity
                       key={option.value}
-                      style={styles.option_row}
+                      style={[
+                        styles.option_row,
+                        { borderBottomColor: colors.border },
+                      ]}
                       onPress={() => {
                         onChange(option.value);
                         set_open(false);
                       }}
                     >
-                      <Text style={styles.option_text}>{option.label}</Text>
+                      <Text style={[styles.option_text, { color: colors.text }]}>
+                        {option.label}
+                      </Text>
                     </TouchableOpacity>
                   ))}
                 </View>

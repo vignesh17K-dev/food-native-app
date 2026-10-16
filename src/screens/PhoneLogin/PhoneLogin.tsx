@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import ThemedScreen from "../../components/ThemedScreen";
 import LogoHeader from "../../components/LogoHeader";
 import { useForm } from "react-hook-form";
 import PhoneNumberField from "../../components/PhoneNumberField";
@@ -61,7 +61,7 @@ const PhoneLogin = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, justifyContent: "space-between" }}>
+    <ThemedScreen style={{ flex: 1, justifyContent: "space-between" }}>
       <LogoHeader
         allow_back={true}
         title={"Log In with Your Phone Number"}
@@ -93,7 +93,7 @@ const PhoneLogin = () => {
           width={SIZES.width * 0.88}
         />
       </View>
-    </SafeAreaView>
+    </ThemedScreen>
   );
 };
 

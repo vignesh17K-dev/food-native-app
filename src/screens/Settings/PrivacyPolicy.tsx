@@ -1,12 +1,14 @@
 import React from "react";
 import { Text, TouchableOpacity, View, StyleSheet, Image, Pressable, Linking } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../../components/Header";
 import { SIZES } from "../../../constants";
 import ImageLinks from "../../../assets/ImageLink";
 import { ScrollView } from "native-base";
+import ThemedScreen from "../../components/ThemedScreen";
+import { useAppTheme } from "../../hooks/useAppTheme";
 
 const PrivacyPolicy = ({ navigation }: any) => {
+    const { colors } = useAppTheme();
 
 
     const sections = [
@@ -63,12 +65,7 @@ const PrivacyPolicy = ({ navigation }: any) => {
     ];
 
     return (
-        <SafeAreaView
-            style={{
-                backgroundColor: "#fff",
-                flex: 1,
-            }}
-        >
+        <ThemedScreen>
             <Header
                 container_style={{
                     marginRight: 18,
@@ -76,7 +73,9 @@ const PrivacyPolicy = ({ navigation }: any) => {
                     marginVertical: 20
                 }}
                 title={
-                    <Text style={{ fontSize: 20, fontWeight: "700" }}>Privacy Policy</Text>
+                    <Text style={{ fontSize: 20, fontWeight: "700", color: colors.text }}>
+                        Privacy Policy
+                    </Text>
                 }
                 left_section={
                     <TouchableOpacity onPress={() => navigation?.goBack()}>
@@ -94,19 +93,25 @@ const PrivacyPolicy = ({ navigation }: any) => {
 
 
             <ScrollView
-                style={styles.container}
+                style={[styles.container, { backgroundColor: colors.background }]}
                 contentContainerStyle={styles.content}
             >
 
                 {sections.map((section) => (
                     <View key={section.title} style={styles.section}>
-                        <Text style={styles.heading}>{section.title}</Text>
-                        <Text style={styles.body}>{section.content}</Text>
+                        <Text style={[styles.heading, { color: colors.text }]}>
+                            {section.title}
+                        </Text>
+                        <Text style={[styles.body, { color: colors.textSecondary }]}>
+                            {section.content}
+                        </Text>
                     </View>
                 ))}
 
-                <Text style={[styles.heading, { marginTop: 20 }]} >Contact</Text>
-                <Text style={styles.body}  >
+                <Text style={[styles.heading, { marginTop: 20, color: colors.text }]} >
+                    Contact
+                </Text>
+                <Text style={[styles.body, { color: colors.textSecondary }]}  >
                     For privacy questions, requests or complaints:
                 </Text>
 
@@ -122,7 +127,7 @@ const PrivacyPolicy = ({ navigation }: any) => {
 
             </ScrollView>
 
-        </SafeAreaView>
+        </ThemedScreen>
     );
 }
 
@@ -131,7 +136,6 @@ export default PrivacyPolicy;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
     },
     content: {
         paddingHorizontal: 30,
@@ -153,13 +157,11 @@ const styles = StyleSheet.create({
     heading: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#222222',
         marginBottom: 8,
     },
     body: {
         fontSize: 15,
         lineHeight: 24,
-        color: '#444444',
     },
     link: {
         color: '#ed7550',

@@ -18,10 +18,12 @@ import Cart from "../screens/Cart/Cart";
 import Settings from "../screens/Settings/Settings";
 import Wishlist from "../screens/Wishlist/Wishlist";
 import { useNavigation, useNavigationState } from "@react-navigation/native";
+import { useAppTheme } from "../hooks/useAppTheme";
 
 const Tab = createBottomTabNavigator();
 
 const TabView = () => {
+  const { colors, darkMode } = useAppTheme();
   const tab_navigation_state: any = useNavigationState((state) => state);
   const navigation: any = useNavigation();
   const [active_tab, set_active_tab] = useState<any>(
@@ -81,7 +83,11 @@ const TabView = () => {
             source={tab?.icon}
             style={{
               ...styles.icon_style,
-              tintColor: is_active ? "white" : "grey",
+              tintColor: is_active
+                ? "white"
+                : darkMode
+                  ? colors.textSecondary
+                  : "grey",
             }}
           />
           {is_active && <Text style={styles.text_style}>{tab?.label}</Text>}
@@ -95,8 +101,16 @@ const TabView = () => {
   }
 
   return (
-    <SafeAreaView style={{ backgroundColor: "white" }}>
-      <View style={styles.tab_container}>
+    <SafeAreaView style={{ backgroundColor: colors.background }}>
+      <View
+        style={[
+          styles.tab_container,
+          {
+            backgroundColor: colors.background,
+            borderTopColor: colors.border,
+          },
+        ]}
+      >
         {map(constants.bottom_tabs, (tab, index) => {
           return (
             <React.Fragment key={tab?.id}>
@@ -148,7 +162,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,
-    backgroundColor: "white",
+    borderTopWidth: StyleSheet.hairlineWidth,
     borderTopRightRadius: 30,
     borderTopLeftRadius: 30,
   },

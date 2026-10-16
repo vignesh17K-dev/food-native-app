@@ -37,6 +37,7 @@ import {
     ACCOUNT_EDIT_FIELDS,
     AccountEditFieldConfig,
 } from "../../../utils/account/accountFormConfig";
+import { useAppTheme } from "../../hooks/useAppTheme";
 
 const ACCENT = "#ed7550";
 
@@ -57,20 +58,33 @@ type DetailRowProps = {
     is_last?: boolean;
 };
 
-const DetailRow = ({ label, value, multiline, is_last }: DetailRowProps) => (
-    <View>
-        <View style={styles.row}>
-            <Text style={styles.row_label}>{label}</Text>
-            <Text
-                style={[styles.row_value, multiline && styles.row_value_multiline]}
-                numberOfLines={multiline ? 4 : 2}
-            >
-                {value}
-            </Text>
+const DetailRow = ({ label, value, multiline, is_last }: DetailRowProps) => {
+    const { colors } = useAppTheme();
+    return (
+        <View>
+            <View style={styles.row}>
+                <Text style={[styles.row_label, { color: colors.textSecondary }]}>
+                    {label}
+                </Text>
+                <Text
+                    style={[
+                        styles.row_value,
+                        { color: colors.text },
+                        multiline && styles.row_value_multiline,
+                    ]}
+                    numberOfLines={multiline ? 4 : 2}
+                >
+                    {value}
+                </Text>
+            </View>
+            {!is_last && (
+                <Divider
+                    style={[styles.row_divider, { backgroundColor: colors.border }]}
+                />
+            )}
         </View>
-        {!is_last && <Divider style={styles.row_divider} />}
-    </View>
-);
+    );
+};
 
 function formatJoined(created_at?: string): string {
     if (!created_at) {
@@ -168,6 +182,7 @@ function buildDefaultValues(user: User | undefined): AccountFormValues {
 }
 
 const AccountDetails = ({ navigation }: any) => {
+    const { colors } = useAppTheme();
     const dispatch = useAppDispatch();
     const toast = useAppToast();
     const auth_user = useAppSelector((state) => state.user.session?.session?.user);
@@ -291,7 +306,7 @@ const AccountDetails = ({ navigation }: any) => {
     const renderCard = (
         rows: { label: string; value: string; multiline?: boolean }[],
     ) => (
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
             {rows.map((row, index) => (
                 <DetailRow
                     key={row.label}
@@ -373,16 +388,22 @@ const AccountDetails = ({ navigation }: any) => {
     };
 
     const render_edit_form = () => (
-        <View style={styles.form_card}>
+        <View style={[styles.form_card, { backgroundColor: colors.surface }]}>
             {ACCOUNT_EDIT_FIELDS?.map(render_edit_field)}
         </View>
     );
 
     return (
-        <SafeAreaView style={styles.safe_area}>
+        <SafeAreaView
+            style={[styles.safe_area, { backgroundColor: colors.background }]}
+        >
             <Header
                 container_style={styles.header_container}
-                title={<Text style={styles.header_title}>MY ACCOUNT</Text>}
+                title={
+                    <Text style={[styles.header_title, { color: colors.text }]}>
+                        MY ACCOUNT
+                    </Text>
+                }
                 left_section={
                     <TouchableOpacity
                         onPress={() =>
@@ -439,7 +460,13 @@ const AccountDetails = ({ navigation }: any) => {
                                 type="secondary"
                                 width="100%"
                                 onClick={handle_cancel}
-                                style={styles.cancel_button}
+                                style={[
+                                    styles.cancel_button,
+                                    {
+                                        backgroundColor: colors.surfaceElevated,
+                                        borderColor: colors.border,
+                                    },
+                                ]}
                             />
                         </View>
                         <View style={styles.action_button_wrap}>
@@ -465,7 +492,6 @@ export default AccountDetails;
 
 const styles = StyleSheet.create({
     safe_area: {
-        backgroundColor: "#fff",
         flex: 1,
     },
     flex: {
@@ -479,7 +505,6 @@ const styles = StyleSheet.create({
     header_title: {
         fontSize: 17,
         fontWeight: "700",
-        color: "#1a1a1a",
         letterSpacing: 0.5,
     },
     edit_text: {
@@ -504,13 +529,11 @@ const styles = StyleSheet.create({
         marginTop: 24,
     },
     card: {
-        backgroundColor: "rgb(245, 245, 248)",
         borderRadius: 12,
         paddingHorizontal: 16,
         paddingVertical: 4,
     },
     form_card: {
-        backgroundColor: "rgb(245, 245, 248)",
         borderRadius: 12,
         paddingHorizontal: 16,
         paddingVertical: 16,
@@ -534,22 +557,18 @@ const styles = StyleSheet.create({
     row_label: {
         flex: 1,
         fontSize: 15,
-        color: "#8a8a8a",
         fontWeight: "400",
     },
     row_value: {
         flex: 1.2,
         fontSize: 15,
-        color: "#1a1a1a",
         fontWeight: "400",
         textAlign: "right",
     },
     row_value_multiline: {
         lineHeight: 22,
     },
-    row_divider: {
-        backgroundColor: "#e6e6e6",
-    },
+    row_divider: {},
     action_bar: {
         flexDirection: "row",
         alignItems: "center",
@@ -562,9 +581,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     cancel_button: {
-        backgroundColor: "#fff",
         borderWidth: 1,
-        borderColor: "#e0e0e0",
         borderRadius: 10,
         paddingVertical: 12,
     },

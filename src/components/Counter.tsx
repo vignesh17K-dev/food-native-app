@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { useAppTheme } from "../hooks/useAppTheme";
 
 interface Props {
   initial_count?: number;
@@ -23,6 +24,7 @@ const Counter = ({
   from_cart = false,
   style,
 }: Props) => {
+  const { colors, darkMode } = useAppTheme();
   const is_controlled = value !== undefined;
   const [internal_count, set_internal_count] = useState(initial_count);
   const count = is_controlled ? value : internal_count;
@@ -42,12 +44,24 @@ const Counter = ({
   };
 
   const icon_size = from_cart ? 25 : 30;
+  const count_color = from_cart ? colors.fieldText : colors.text;
+  const icon_disabled = darkMode
+    ? "rgba(0, 0, 0, 0.2)"
+    : "rgba(0, 0, 0, 0.12)";
+  const minus_enabled = from_cart ? colors.textSecondary : "grey";
 
   return (
     <View
       style={[
         styles.container,
-        from_cart && styles.container_cart,
+        { backgroundColor: colors.surface },
+        from_cart && [
+          styles.container_cart,
+          {
+            backgroundColor: colors.surfaceElevated,
+            borderColor: colors.border,
+          },
+        ],
         style,
       ]}
     >
@@ -60,13 +74,19 @@ const Counter = ({
       >
         <MaterialCommunityIcons
           name="minus"
-          color={disabled_decrement ? "rgba(0, 0, 0, 0.12)" : "grey"}
+          color={disabled_decrement ? icon_disabled : minus_enabled}
           size={icon_size}
         />
       </TouchableOpacity>
 
       <View style={[styles.count_box, from_cart && styles.count_box_cart]}>
-        <Text style={[styles.count_text, from_cart && styles.count_text_cart]}>
+        <Text
+          style={[
+            styles.count_text,
+            { color: count_color },
+            from_cart && styles.count_text_cart,
+          ]}
+        >
           {count}
         </Text>
       </View>
@@ -77,7 +97,7 @@ const Counter = ({
       >
         <MaterialCommunityIcons
           name="plus"
-          color={disable_increment ? "rgba(0, 0, 0, 0.12)" : "#ed7550"}
+          color={disable_increment ? icon_disabled : "#ed7550"}
           size={icon_size}
         />
       </TouchableOpacity>
@@ -109,8 +129,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     gap: 2,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "black",
-    backgroundColor: "#fff",
   },
   count_box_cart: {
     minWidth: 45,

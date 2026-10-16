@@ -29,8 +29,10 @@ import {
   set_product_filters,
 } from "../../../store/slices/SearchSlice";
 import CartIcon from "../../components/CartIcon";
+import { useAppTheme } from "../../hooks/useAppTheme";
 
 const Home = ({ navigation }: any) => {
+  const { colors } = useAppTheme();
   const section_data = useSelector((state: any) => state?.home?.section_data);
   const navigate: any = useNavigation();
   const dispatch = useDispatch();
@@ -65,7 +67,11 @@ const Home = ({ navigation }: any) => {
         ]}
       >
         <Header
-          title={<Text style={{ fontSize: 20, fontWeight: "700" }}>HOME</Text>}
+          title={
+            <Text style={{ fontSize: 20, fontWeight: "700", color: colors.text }}>
+              HOME
+            </Text>
+          }
           right_section={<CartIcon />}
           left_section={
             <TouchableOpacity >
@@ -105,7 +111,9 @@ const Home = ({ navigation }: any) => {
 
   const handle_render_search = () => {
     return (
-      <View style={styles.search_container}>
+      <View
+        style={[styles.search_container, { backgroundColor: colors.searchBackground }]}
+      >
         <TouchableOpacity
           style={styles.search_input_area}
           onPress={handle_click}
@@ -113,9 +121,11 @@ const Home = ({ navigation }: any) => {
           <Image
             source={ImageLinks.search}
             alt="search"
-            style={{ height: 25, width: 25, tintColor: "black" }}
+            style={{ height: 25, width: 25, tintColor: colors.icon }}
           />
-          <Text style={styles.placeholder_text}>{"search food..."}</Text>
+          <Text style={[styles.placeholder_text, { color: colors.placeholder }]}>
+            {"search food..."}
+          </Text>
         </TouchableOpacity>
       </View>
     );
@@ -129,7 +139,7 @@ const Home = ({ navigation }: any) => {
           <Text
             numberOfLines={1}
             ellipsizeMode="tail"
-            style={styles.deliver_address}
+            style={[styles.deliver_address, { color: colors.text }]}
           >
             {mock_data?.my_profile?.address}
           </Text>
@@ -171,11 +181,11 @@ const Home = ({ navigation }: any) => {
   }, []);
 
   return (
-    <View style={{ backgroundColor: "#fff" }}>
+    <View style={{ backgroundColor: colors.background }}>
       <Animated.View
         style={[
           styles.header,
-          { transform: [{ translateY: translateHeader }] },
+          { transform: [{ translateY: translateHeader }], backgroundColor: colors.background },
         ]}
       >
         {handle_render_header()}
@@ -185,7 +195,7 @@ const Home = ({ navigation }: any) => {
         data={section_data}
         renderItem={render_section}
         keyExtractor={(item) => item?.section}
-        contentContainerStyle={styles?.content}
+        contentContainerStyle={[styles?.content, { backgroundColor: colors.background }]}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: true },
@@ -207,7 +217,6 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 24,
     paddingTop: 215,
-    backgroundColor: "#fff",
     gap: 20,
     paddingBottom: 24,
   },
@@ -219,11 +228,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     height: 200,
     alignItems: "stretch",
-    backgroundColor: "#fff",
     justifyContent: "flex-end",
   },
   search_container: {
-    backgroundColor: "#f5f5f5",
     padding: SIZES.height * 0.015,
     borderRadius: 16,
     marginTop: 10,
@@ -240,10 +247,8 @@ const styles = StyleSheet.create({
   filter_icon: {
     height: 22,
     width: 22,
-    tintColor: "black",
   },
   placeholder_text: {
-    color: "#bdbdc1",
     fontSize: 18,
     fontWeight: "500",
   },

@@ -5,8 +5,10 @@ import { useSelector } from "react-redux";
 import { Messages } from "../../../../utils/text";
 import React from "react";
 import ImageLinks from "../../../../assets/ImageLink";
+import { useAppTheme } from "../../../hooks/useAppTheme";
 
 function LoginContainer() {
+  const { colors } = useAppTheme();
   const login_type = useSelector((state:any) => state.login.loginType);
 
 
@@ -21,10 +23,10 @@ function LoginContainer() {
           height: 100,
         }}
       />
-      <Text style={styles.title}>
+      <Text style={[styles.title, { color: colors.text }]}>
         {login_type === "signup" ? Messages.signUpTitle : Messages.loginTitle}
       </Text>
-      <Text style={styles.text}>
+      <Text style={[styles.text, { color: colors.textSecondary }]}>
         {login_type === "signup"
           ? Messages.signUpSubTitle
           : Messages.loginSubTitle}

@@ -2,7 +2,7 @@
 import { View } from "native-base";
 import { useAppToast } from "../../context/AppToast";
 import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import ThemedScreen from "../../components/ThemedScreen";
 import { COLORS, SIZES } from "../../../constants";
 import { Platform, StyleSheet } from "react-native";
 import Button from "../../components/Button";
@@ -48,7 +48,7 @@ function ForgotPassword() {
   });
 
   return (
-    <SafeAreaView style={{ flex: 1, justifyContent: "space-between" }}>
+    <ThemedScreen style={{ flex: 1, justifyContent: "space-between" }}>
       <LogoHeader
         allow_back={true}
         title="Password Recovery"
@@ -83,7 +83,7 @@ function ForgotPassword() {
           width={SIZES.width * 0.88}
         />
       </View>
-    </SafeAreaView>
+    </ThemedScreen>
   );
 }
 

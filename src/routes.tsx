@@ -13,9 +13,10 @@ import CategoryDetails from "./screens/CategoryDetails/CategoryDetails";
 import { useAppSelector } from "../store/hooks";
 import Terms from "./screens/Settings/TermsCondition";
 import PrivacyPolicy from "./screens/Settings/PrivacyPolicy";
-import CheckUpdateScreen from "./screens/CheckUpdate/CheckUpdateScreen";
+import CheckUpdateScreen from "./screens/Settings/CheckUpdateScreen";
 import AccountDetails from "./screens/Settings/AccountDetails";
 import ChangePassword from "./screens/Settings/ChangePassword";
+import Preferences from "./screens/Settings/Preferences";
 
 export type RootStackParamList = {
   onBoarding: undefined;
@@ -32,6 +33,7 @@ export type RootStackParamList = {
   privacypolicy: undefined;
   accountdetails: undefined;
   changepassword: undefined;
+  preferences: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -92,6 +94,10 @@ const Routes = () => {
        <Stack.Screen
         name={route_names.ChangePassword}
         component={ChangePassword}
+      />
+      <Stack.Screen
+        name={route_names.Preferences}
+        component={Preferences}
       />
     </Stack.Navigator>
   );

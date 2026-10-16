@@ -12,8 +12,10 @@ import product from "../../../../utils/api/product";
 import { Skeleton } from "native-base";
 import { useNavigation } from "@react-navigation/native";
 import constants from "../../../../utils/constants";
+import { useAppTheme } from "../../../hooks/useAppTheme";
 
 const CategoryRail = () => {
+  const { colors } = useAppTheme();
   const [category_data, set_category_data] = useState([]);
   const [loading, set_loading] = useState(true);
   const arr = Array.from({ length: 3 }, (v, i) => i);
@@ -56,6 +58,7 @@ const CategoryRail = () => {
           onPress={() => navigate.navigate(constants.route_names.CategoryDetails, { category_id: item?.id , name: item?.name })}
           style={[
             styles.categoryContainer,
+            { backgroundColor: colors.surface },
           ]}
         >
           <Image
@@ -63,9 +66,7 @@ const CategoryRail = () => {
             style={item?.style ? item?.style : styles.categoryIcon}
           />
           <Text
-            style={[
-              styles.categoryText,
-            ]}
+            style={[styles.categoryText, { color: colors.text }]}
           >
             {item.name}
           </Text>
@@ -93,7 +94,6 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     gap: 4,
     paddingHorizontal: 10,
-    backgroundColor: "#f7f8fa",
     borderRadius: 15,
   },
   categoryIcon: {

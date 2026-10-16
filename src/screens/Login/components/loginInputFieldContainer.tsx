@@ -14,8 +14,10 @@ import { useAppToast } from "../../../context/AppToast";
 import PhoneNumberField from "../../../components/PhoneNumberField";
 import _ from "lodash";
 import constants from "../../../../utils/constants";
+import { useAppTheme } from "../../../hooks/useAppTheme";
 
 const loginInputFieldContainer = ({ navigation }: any) => {
+  const { colors, darkMode } = useAppTheme();
   const [loading, set_loading] = useState(false);
   const navigate: any = useNavigation();
   const loginType = useSelector((state: any) => state.login.loginType);
@@ -172,7 +174,12 @@ const loginInputFieldContainer = ({ navigation }: any) => {
         }}
       >
         <Text
-          style={styles.forgot_password_style}
+          style={[
+            styles.forgot_password_style,
+            darkMode
+              ? { color: "#ffffff", opacity: 1 }
+              : { color: colors.text, opacity: 1 },
+          ]}
           onPress={() => navigate.navigate(constants.route_names.ForgotPassword)}
         >
           Forgot Password?
@@ -189,7 +196,7 @@ const loginInputFieldContainer = ({ navigation }: any) => {
         />
       </View>
 
-      <Text style={styles.sub_text_style}>
+      <Text style={[styles.sub_text_style, { color: colors.textSecondary }]}>
         {loginType === "signup" ? (
           <React.Fragment>
             {Messages.signUpText}{" "}

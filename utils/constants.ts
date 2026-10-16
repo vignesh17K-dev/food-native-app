@@ -21,7 +21,8 @@ const constants = {
         PrivacyPolicy: 'privacypolicy',
         CheckUpdate: 'checkupdate',
         AccountDetails:'accountdetails',
-        ChangePassword:'changepassword'
+        ChangePassword:'changepassword',
+        Preferences: 'preferences',
     } as const,
     bottom_tabs: [
         {
