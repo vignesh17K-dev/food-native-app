@@ -19,6 +19,7 @@ export type AddCardRequest = {
   last4: string;
   expiryMonth: number;
   expiryYear: number;
+  cardholderName: string;
 };
 
 type ApiResponse<T> = {
@@ -84,6 +85,7 @@ export function buildAddCardPayload(
   cardNumber: string,
   expiryDate: string,
   brand: CardBrand = "Visa",
+  cardholderName = "",
 ): AddCardRequest | null {
   const digits = cardNumber.replace(/\D/g, "");
   if (digits.length < 13) {
@@ -95,10 +97,16 @@ export function buildAddCardPayload(
     return null;
   }
 
+  const trimmedName = cardholderName.trim();
+  if (!trimmedName) {
+    return null;
+  }
+
   return {
     brand,
     last4: digits.slice(-4),
     expiryMonth: expiry.expiryMonth,
     expiryYear: expiry.expiryYear,
+    cardholderName: trimmedName,
   };
 }

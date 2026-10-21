@@ -260,6 +260,7 @@ function AddCard({ navigation }: any) {
       values.card_number,
       values.expiry_date,
       brand,
+      values.cardholder_name,
     );
     if (!payload) {
       toast.show({

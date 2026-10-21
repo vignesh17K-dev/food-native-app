@@ -26,6 +26,8 @@ const constants = {
         CardInfo: 'cardinfo',
         AddCard: 'addcard',
         Checkout: 'checkout',
+        OrderConfirmed: 'orderconfirmed',
+        DeliveryStatus: 'deliverystatus',
     } as const,
     storage_keys: {
         deliveryAddress: "delivery_address",

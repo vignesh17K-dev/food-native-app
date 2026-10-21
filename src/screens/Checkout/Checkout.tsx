@@ -26,6 +26,9 @@ import { ACCENT } from "../../../utils/theme/appTheme";
 import paymentCards, { type SavedCard } from "../../../utils/api/payment";
 import { map } from "lodash";
 import SavedPaymentCardRow from "../../components/SavedPaymentCardRow";
+import order from "../../../utils/api/order";
+import { useAppToast } from "../../context/AppToast";
+import Button from "../../components/Button";
 
 function isDeliveryAddress(value: unknown): value is DeliveryAddress {
     if (!value || typeof value !== "object") {
@@ -41,6 +44,7 @@ function isDeliveryAddress(value: unknown): value is DeliveryAddress {
 
 const Checkout = ({ navigation }: any) => {
     const { colors, darkMode } = useAppTheme();
+    const toast = useAppToast();
     const checkout_footer_background = darkMode
         ? colors.surface
         : colors.surfaceElevated;
@@ -49,13 +53,13 @@ const Checkout = ({ navigation }: any) => {
     const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
     const [cardsLoading, setCardsLoading] = useState(true);
     const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
 
     const cart_data = useSelector((state: any) => state?.cart?.cart_data);
     const cart_items = useMemo(
         () => flattenCartProducts(cart_data?.products),
         [cart_data?.products],
     );
-
 
     const cart_subtotal = useMemo(
         () => calculateCartSubtotal(cart_items),
@@ -108,8 +112,29 @@ const Checkout = ({ navigation }: any) => {
     );
 
 
-    const handle_place_order = ()=>{
-
+    const handle_place_order = async () => {
+        setLoading(true);
+        if (cart_data?.cart_id && selectedCardId) {
+            try {
+                const response = await order.create_order({
+                    cart_id: cart_data?.cart_id,
+                    payment_method_id: selectedCardId,
+                });
+                if (response?.status === 201) {
+                    navigation.navigate(constants.route_names.OrderConfirmed);
+                    return;
+                }
+            } catch (error) {
+                toast.show({
+                    title: "Failed to place order",
+                    background: "red.800",
+                });
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            setLoading(false);
+        }
     };
 
     const render_summary_row = (label: string, amount: number, bold = false) => (
@@ -281,7 +306,7 @@ const Checkout = ({ navigation }: any) => {
                         </Text>
                     }
                     ListFooterComponent={
-                        <View style={{ flexDirection: 'column' , gap: 10}}>
+                        <View style={{ flexDirection: 'column', gap: 10 }}>
                             {handle_render_delivery_address()}
                             {handle_render_payment_method()}
                         </View>
@@ -305,13 +330,15 @@ const Checkout = ({ navigation }: any) => {
                     style={[styles.summary_divider, { backgroundColor: colors.border }]}
                 />
                 {render_summary_row("Total:", cart_total, true)}
-                <TouchableOpacity
+                <Button
                     style={styles.place_order_btn}
-                    activeOpacity={0.85}
-                    onPress={() => handle_place_order()}
-                >
-                    <Text style={styles.place_order_text}>Place your Order</Text>
-                </TouchableOpacity>
+                    onClick={handle_place_order}
+                    text="Place your Order"
+                    type="primary"
+                    width="100%"
+                    loading={loading}
+                    disabled={loading}
+                />
             </View>
         </ThemedScreen>
     );

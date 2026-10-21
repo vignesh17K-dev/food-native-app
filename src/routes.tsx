@@ -20,6 +20,8 @@ import Preferences from "./screens/Settings/Preferences";
 import CardInfo from "./screens/Settings/CardInfo";
 import AddCard from "./screens/Settings/AddCard";
 import Checkout from "./screens/Checkout/Checkout";
+import OrderConfirmed from "./screens/Checkout/OrderConfirmed";
+import DeliveryStatus from "./screens/Checkout/DeliveryStatus";
 
 export type RootStackParamList = {
   onBoarding: undefined;
@@ -40,6 +42,8 @@ export type RootStackParamList = {
   cardinfo: undefined;
   addcard: { brand: "Visa" | "Mastercard" };
   checkout: undefined;
+  orderconfirmed: undefined;
+  deliverystatus: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -111,6 +115,14 @@ const Routes = () => {
       />
       <Stack.Screen name={route_names.AddCard} component={AddCard} />
       <Stack.Screen name={route_names.Checkout} component={Checkout} />
+      <Stack.Screen
+        name={route_names.OrderConfirmed}
+        component={OrderConfirmed}
+      />
+      <Stack.Screen
+        name={route_names.DeliveryStatus}
+        component={DeliveryStatus}
+      />
     </Stack.Navigator>
   );
 };

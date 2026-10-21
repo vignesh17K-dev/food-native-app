@@ -22,7 +22,7 @@ import {
   hasActiveFilters,
   ProductPagination,
   PRODUCT_PAGE_LIMIT,
-} from "../../../utils/api/buildProductFilterParams";
+} from "../../../utils/buildProductFilterParams";
 import constants from "../../../utils/constants";
 import { FontAwesome } from "@expo/vector-icons";
 import { debounce, find } from "lodash";

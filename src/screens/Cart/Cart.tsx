@@ -359,6 +359,11 @@ const Cart = ({ navigation }: any) => {
             {
               backgroundColor: checkout_footer_background,
               borderTopColor: colors.border,
+
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
             },
           ]}
         >
@@ -396,7 +401,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
-    elevation: 8,
+    elevation: 8
   },
   summary_row: {
     flexDirection: "row",
@@ -482,10 +487,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.35,
     shadowRadius: 16,
     elevation: 8,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
   },
   empty_cart_icon: {
     width: 44,
