@@ -2,12 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   FlatList,
   Image,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import ThemedScreen from "../../components/ThemedScreen";
+import { useAppTheme } from "../../hooks/useAppTheme";
 import Header from "../../components/Header";
 import ImageLinks from "../../../assets/ImageLink";
 import { SIZES } from "../../../constants/theme";
@@ -25,6 +26,7 @@ import {
 } from "../../../actions/wishlist";
 
 const CategoryDetails = ({ route, navigation }) => {
+  const { colors } = useAppTheme();
   const { category_id, name } = route.params;
   const [products, set_products] = useState<any[]>([]);
   const [loading, set_loading] = useState<boolean>(false);
@@ -100,7 +102,7 @@ const CategoryDetails = ({ route, navigation }) => {
 
     return (
       <TouchableOpacity
-        style={styles.card_container}
+        style={[styles.card_container, { backgroundColor: colors.surface }]}
         onPress={() =>
           navigation.navigate(constants.route_names.ProductDetails, {
             id: item?.id,
@@ -138,20 +140,20 @@ const CategoryDetails = ({ route, navigation }) => {
 
         <View style={styles.card_content}>
           <Text
-            style={styles.card_title}
+            style={[styles.card_title, { color: colors.text }]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
             {item?.name}
           </Text>
           <Text
-            style={styles.card_description}
+            style={[styles.card_description, { color: colors.textSecondary }]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
             {item?.description}
           </Text>
-          <Text style={styles.card_price} numberOfLines={1}>
+          <Text style={[styles.card_price, { color: colors.text }]} numberOfLines={1}>
             ${item?.price}
           </Text>
         </View>
@@ -169,7 +171,9 @@ const CategoryDetails = ({ route, navigation }) => {
 
     return (
       <View style={styles.count_container}>
-        <Text style={styles.results_count}>{result_label}</Text>
+        <Text style={[styles.results_count, { color: colors.textSecondary }]}>
+          {result_label}
+        </Text>
       </View>
     );
   };
@@ -183,7 +187,9 @@ const CategoryDetails = ({ route, navigation }) => {
             style={styles.empty_image}
             resizeMode="contain"
           />
-          <Text style={styles.empty_text}>No products in this category</Text>
+          <Text style={[styles.empty_text, { color: colors.textSecondary }]}>
+            No products in this category
+          </Text>
         </View>
       );
     }
@@ -212,7 +218,9 @@ const CategoryDetails = ({ route, navigation }) => {
                 style={styles.back_icon}
               />
             </TouchableOpacity>
-            <Text style={{ fontSize: 20, fontWeight: "700" }}>{name}</Text>
+            <Text style={{ fontSize: 20, fontWeight: "700", color: colors.text }}>
+              {name}
+            </Text>
           </View>
         }
         container_style={{
@@ -223,11 +231,11 @@ const CategoryDetails = ({ route, navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ThemedScreen style={styles.container}>
       {handle_render_header()}
       {handle_render_product_count()}
       {loading ? handle_render_skeleton() : handle_render_content()}
-    </SafeAreaView>
+    </ThemedScreen>
   );
 };
 
@@ -236,7 +244,6 @@ export default CategoryDetails;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   back_icon: {
     resizeMode: "contain",
@@ -262,7 +269,6 @@ const styles = StyleSheet.create({
   results_count: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#888",
   },
   list_content: {
     paddingHorizontal: 20,
@@ -274,7 +280,6 @@ const styles = StyleSheet.create({
   },
   card_container: {
     flex: 1,
-    backgroundColor: "#f7f8fa",
     borderRadius: 16,
     padding: 14,
     overflow: "hidden",
@@ -326,18 +331,15 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "700",
     marginBottom: 4,
-    color: "#000",
   },
   card_description: {
     fontSize: 11,
     marginBottom: 8,
-    color: "#888",
     lineHeight: 14,
   },
   card_price: {
     fontSize: 14,
     fontWeight: "900",
-    color: "#000",
   },
   empty_container: {
     flex: 1,
@@ -353,7 +355,6 @@ const styles = StyleSheet.create({
   },
   empty_text: {
     fontSize: 16,
-    color: "#888",
     fontWeight: "600",
     textAlign: "center",
   },

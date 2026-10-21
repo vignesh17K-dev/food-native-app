@@ -23,7 +23,8 @@ import cart from "../../../utils/api/cart";
 import { upsert_cart_item } from "../../../store/slices/CartSlice";
 import { applyCartItemResponse } from "../../../utils/cart/applyCartItemResponse";
 import { head } from "lodash";
-import { SafeAreaView } from "react-native-safe-area-context";
+import ThemedScreen from "../../components/ThemedScreen";
+import { useAppTheme } from "../../hooks/useAppTheme";
 
 interface PayloadProps {
   product_id: string,
@@ -33,6 +34,7 @@ interface PayloadProps {
 }
 
 const Wishlist = ({ navigation }: any) => {
+  const { colors } = useAppTheme();
   const [add_to_cart_loading, set_add_to_cart_loading] = useState(false)
   const wishlist_data = useSelector(
     (state: any) => state?.wishlist?.wishlist_data
@@ -121,7 +123,7 @@ const Wishlist = ({ navigation }: any) => {
               }}
             >
               <Text
-                style={styles.wishlist_name}
+                style={[styles.wishlist_name, { color: colors.text }]}
                 numberOfLines={2}
                 ellipsizeMode="tail"
               >
@@ -181,7 +183,7 @@ const Wishlist = ({ navigation }: any) => {
           <View
             {...pan_responder?.panHandlers}
             key={item?.id}
-            style={styles.wishlist_item}
+            style={[styles.wishlist_item, { backgroundColor: colors.surface }]}
           >
             {handle_render_item(item, is_product_in_cart)}
           </View>
@@ -206,12 +208,7 @@ const Wishlist = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView
-      style={{
-        backgroundColor: "#fff",
-        flex: 1,
-      }}
-    >
+    <ThemedScreen>
       <Header
         container_style={{
           marginRight: 18,
@@ -219,7 +216,9 @@ const Wishlist = ({ navigation }: any) => {
           marginBottom: 10,
         }}
         title={
-          <Text style={{ fontSize: 20, fontWeight: "700" }}>Wishlist</Text>
+          <Text style={{ fontSize: 20, fontWeight: "700", color: colors.text }}>
+            Wishlist
+          </Text>
         }
         left_section={
           <TouchableOpacity onPress={() => navigation?.goBack()}>
@@ -238,14 +237,16 @@ const Wishlist = ({ navigation }: any) => {
 
       {wishlist_data?.length === 0 ? (
         <View style={styles.empty_wrap}>
-          <View style={styles.empty_glow}>
+          <View style={[styles.empty_glow, { backgroundColor: colors.accentSoft }]}>
             <View style={styles.empty_icon_circle}>
               <FontAwesome name="heart" size={40} color="#fff" />
             </View>
           </View>
 
-          <Text style={styles.empty_title}>No favorites yet</Text>
-          <Text style={styles.empty_subtitle}>
+          <Text style={[styles.empty_title, { color: colors.text }]}>
+            No favorites yet
+          </Text>
+          <Text style={[styles.empty_subtitle, { color: colors.textSecondary }]}>
             Tap the heart on dishes you love and find them here later.
           </Text>
 
@@ -273,7 +274,7 @@ const Wishlist = ({ navigation }: any) => {
           showsVerticalScrollIndicator={false}
         />
       )}
-    </SafeAreaView>
+    </ThemedScreen>
   );
 };
 
@@ -285,7 +286,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   wishlist_item: {
-    backgroundColor: "#f6f6f8",
     borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
@@ -323,7 +323,6 @@ const styles = StyleSheet.create({
     width: 160,
     height: 160,
     borderRadius: 80,
-    backgroundColor: "#fff3ee",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 28,
@@ -344,14 +343,12 @@ const styles = StyleSheet.create({
   empty_title: {
     fontSize: 22,
     fontWeight: "800",
-    color: "#1a1a1a",
     textAlign: "center",
     marginBottom: 10,
   },
   empty_subtitle: {
     fontSize: 15,
     fontWeight: "400",
-    color: "#8a8a8a",
     textAlign: "center",
     lineHeight: 22,
     marginBottom: 28,

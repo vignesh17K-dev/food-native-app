@@ -20,6 +20,7 @@ import { SIZES } from "../../../constants";
 import { useAppToast } from "../../context/AppToast";
 import { changePassword } from "../../../utils/auth/changePassword";
 import { useAppSelector } from "../../../store/hooks";
+import { useAppTheme } from "../../hooks/useAppTheme";
 
 type ChangePasswordFormValues = {
   current_password: string;
@@ -30,6 +31,7 @@ type ChangePasswordFormValues = {
 const PASSWORD_VALIDATIONS = { required: true, minLength: 6 } as const;
 
 function ChangePassword({ navigation }: any) {
+  const { colors } = useAppTheme();
   const toast = useAppToast();
   const [loading, set_loading] = useState(false);
   const auth_user = useAppSelector(
@@ -87,10 +89,16 @@ function ChangePassword({ navigation }: any) {
   });
 
   return (
-    <SafeAreaView style={styles.safe_area}>
+    <SafeAreaView
+      style={[styles.safe_area, { backgroundColor: colors.background }]}
+    >
       <Header
         container_style={styles.header_container}
-        title={<Text style={styles.header_title}>CHANGE PASSWORD</Text>}
+        title={
+          <Text style={[styles.header_title, { color: colors.text }]}>
+            CHANGE PASSWORD
+          </Text>
+        }
         left_section={
           <TouchableOpacity onPress={() => navigation?.goBack()}>
             <Image
@@ -112,7 +120,7 @@ function ChangePassword({ navigation }: any) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.form_card}>
+          <View style={[styles.form_card, { backgroundColor: colors.surface }]}>
             <Password
               name="current_password"
               label="Current Password"
@@ -156,7 +164,6 @@ export default ChangePassword;
 
 const styles = StyleSheet.create({
   safe_area: {
-    backgroundColor: "#fff",
     flex: 1,
   },
   flex: {
@@ -170,7 +177,6 @@ const styles = StyleSheet.create({
   header_title: {
     fontSize: 17,
     fontWeight: "700",
-    color: "#1a1a1a",
     letterSpacing: 0.5,
   },
   back_arrow: {
@@ -186,7 +192,6 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   form_card: {
-    backgroundColor: "rgb(245, 245, 248)",
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 16,

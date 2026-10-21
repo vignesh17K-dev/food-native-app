@@ -20,6 +20,11 @@ import _delete from './icons/delete.png';
 import cross from './icons/cross.png';
 import cart from './icons/cart.png';
 import empty_wishlist from './images/empty_wishlist.png';
+import credit_card from './icons/credit_card.png';
+import visa_card from './icons/visa_card.png';
+import master_card from './icons/master_card.png';
+import location from './icons/location.png';
+import party_popper from './images/party_popper.png';
 
 const ImageLinks = {
     google_icon,
@@ -43,7 +48,12 @@ const ImageLinks = {
     cross,
     cart,
     _delete,
-    empty_wishlist
+    empty_wishlist,
+    credit_card,
+    visa_card,
+    master_card,
+    location,
+    party_popper,
 };
 
 export default ImageLinks;

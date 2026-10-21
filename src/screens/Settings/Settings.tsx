@@ -13,11 +13,13 @@ import { useDispatch } from "react-redux";
 import { setLogin } from "../../../store/slices/LoginSlice";
 import { useNavigation } from "@react-navigation/native";
 import { store } from "../../../store/store";
+import { useAppTheme } from "../../hooks/useAppTheme";
 
 const Settings = ({ navigation }: any) => {
   const toast = useAppToast();
   const dispatch = useDispatch();
   const navigate: any = useNavigation();
+  const { colors } = useAppTheme();
 
 
   const handle_logout = async () => {
@@ -53,6 +55,10 @@ const Settings = ({ navigation }: any) => {
         return navigation.navigate(constants.route_names.AccountDetails);
       case 'change_password':
         return navigation.navigate(constants.route_names.ChangePassword);
+      case 'preferences':
+        return navigation.navigate(constants.route_names.Preferences);
+      case 'card_info':
+        return navigation.navigate(constants.route_names.CardInfo);
       default:
         return;
     }
@@ -69,7 +75,7 @@ const Settings = ({ navigation }: any) => {
               source={item?.icon}
               style={styles.image_style}
             />
-            <Text>{item?.name}</Text>
+            <Text style={{ color: colors.text }}>{item?.name}</Text>
           </View>
         </TouchableOpacity>
 
@@ -82,7 +88,7 @@ const Settings = ({ navigation }: any) => {
   return (
     <SafeAreaView
       style={{
-        backgroundColor: "#fff",
+        backgroundColor: colors.background,
         flex: 1,
       }}
     >
@@ -94,7 +100,9 @@ const Settings = ({ navigation }: any) => {
           marginVertical: 20
         }}
         title={
-          <Text style={{ fontSize: 20, fontWeight: "700" }}>Settings</Text>
+          <Text style={{ fontSize: 20, fontWeight: "700", color: colors.text }}>
+            Settings
+          </Text>
         }
         left_section={
           <TouchableOpacity onPress={() => navigation?.goBack()}>
@@ -114,7 +122,10 @@ const Settings = ({ navigation }: any) => {
         data={constants.settings}
         renderItem={render_item}
         keyExtractor={(item) => `${item?.key?.toString()}${item?.name}`}
-        contentContainerStyle={styles.settings_container}
+        contentContainerStyle={[
+          styles.settings_container,
+          { backgroundColor: colors.surface },
+        ]}
         showsVerticalScrollIndicator={false}
       />
 
@@ -130,7 +141,6 @@ const styles = StyleSheet.create({
   settings_container: {
     gap: 12,
     marginHorizontal: 25,
-    backgroundColor: 'rgb(245,245,248)',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 10

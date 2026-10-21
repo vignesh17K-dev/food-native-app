@@ -12,7 +12,8 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import ThemedScreen from "../../components/ThemedScreen";
+import { useAppTheme } from "../../hooks/useAppTheme";
 import Header from "../../components/Header";
 import { SIZES } from "../../../constants";
 import ImageLinks from "../../../assets/ImageLink";
@@ -42,6 +43,8 @@ import { store } from "../../../store/store";
 const QUANTITY_SYNC_DEBOUNCE_MS = 500;
 
 const ProductDetails = ({ route, navigation }: any) => {
+  const { colors, darkMode } = useAppTheme();
+  const footer_background = darkMode ? colors.surface : colors.surfaceElevated;
   const { id } = route.params;
   const [loading, set_loading] = useState(false);
   const [product_details, set_product_details] = useState<any>({});
@@ -166,7 +169,7 @@ const ProductDetails = ({ route, navigation }: any) => {
         icon: (
           <MaterialCommunityIcons
             name="clock-time-four-outline"
-            color="#000"
+            color={colors.icon}
             size={24}
           />
         ),
@@ -178,14 +181,14 @@ const ProductDetails = ({ route, navigation }: any) => {
 
     if (product_details?.isFreeShipping) {
       product_info_arr.push({
-        icon: <Fontisto name="dollar" color="#000" size={20} />,
+        icon: <Fontisto name="dollar" color={colors.icon} size={20} />,
         text: "Free shipping",
         style: {},
         text_style: {},
       });
     }
     return product_info_arr;
-  }, [product_details]);
+  }, [product_details, colors.icon]);
 
   const handle_get_details = async () => {
     try {
@@ -241,7 +244,14 @@ const ProductDetails = ({ route, navigation }: any) => {
         }}
       >
         {icon}
-        <Text style={{ fontSize: 16, fontWeight: "500", ...text_style }}>
+        <Text
+          style={{
+            fontSize: 16,
+            fontWeight: "500",
+            color: colors.text,
+            ...text_style,
+          }}
+        >
           {text}
         </Text>
       </View>
@@ -252,7 +262,7 @@ const ProductDetails = ({ route, navigation }: any) => {
     return (
       <View
         style={{
-          backgroundColor: "rgb(246,246,248)",
+          backgroundColor: colors.surface,
           borderRadius: 15,
         }}
       >
@@ -309,18 +319,32 @@ const ProductDetails = ({ route, navigation }: any) => {
           gap: 10,
         }}
       >
-        <Text style={{ fontSize: 38, fontWeight: "800", lineHeight: 40 }}>
+        <Text
+          style={{
+            fontSize: 38,
+            fontWeight: "800",
+            lineHeight: 40,
+            color: colors.text,
+          }}
+        >
           {product_details?.name}
         </Text>
 
-        <Text style={{ fontSize: 28, fontWeight: "900", lineHeight: 40 }}>
+        <Text
+          style={{
+            fontSize: 28,
+            fontWeight: "900",
+            lineHeight: 40,
+            color: colors.text,
+          }}
+        >
           ${product_details?.price}
         </Text>
 
         <Text
           style={{
             fontSize: 18,
-            color: "grey",
+            color: colors.textSecondary,
             lineHeight: 28,
             fontWeight: "500",
             textAlign: "justify",
@@ -349,7 +373,9 @@ const ProductDetails = ({ route, navigation }: any) => {
         </View>
 
         <View style={{ gap: 10 }}>
-          <Text style={{ fontSize: 18, fontWeight: "700" }}>Sizes:</Text>
+          <Text style={{ fontSize: 18, fontWeight: "700", color: colors.text }}>
+            Sizes:
+          </Text>
 
           <View
             style={{
@@ -358,25 +384,37 @@ const ProductDetails = ({ route, navigation }: any) => {
               gap: 15,
             }}
           >
-            {map(product_details?.sizes, (size) => (
-              <TouchableOpacity
-                key={size}
-                style={
-                  selected_size === size ? styles.active_size : styles.size
-                }
-                onPress={() => set_selected_size(size)}
-              >
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: "600",
-                    color: selected_size === size ? "white" : "black",
-                  }}
+            {map(product_details?.sizes, (size) => {
+              const is_selected = selected_size === size;
+
+              return (
+                <TouchableOpacity
+                  key={size}
+                  style={
+                    is_selected
+                      ? styles.active_size
+                      : [
+                          styles.size,
+                          {
+                            backgroundColor: colors.surfaceElevated,
+                            borderColor: colors.border,
+                          },
+                        ]
+                  }
+                  onPress={() => set_selected_size(size)}
                 >
-                  {size}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: "600",
+                      color: is_selected ? "#ffffff" : colors.fieldText,
+                    }}
+                  >
+                    {size}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
       </View>
@@ -550,19 +588,18 @@ const ProductDetails = ({ route, navigation }: any) => {
   };
 
   return (
-    <SafeAreaView
-      style={{
-        backgroundColor: "#fff",
-        flex: 1,
-      }}
-    >
+    <ThemedScreen>
       <Header
         container_style={{
           marginRight: 18,
           marginHorizontal: SIZES.width * 0.02,
           marginBottom: 10,
         }}
-        title={<Text style={{ fontSize: 20, fontWeight: "700" }}>DETAILS</Text>}
+        title={
+          <Text style={{ fontSize: 20, fontWeight: "700", color: colors.text }}>
+            DETAILS
+          </Text>
+        }
         left_section={
           <TouchableOpacity onPress={() => navigation?.goBack()}>
             <Image
@@ -594,7 +631,16 @@ const ProductDetails = ({ route, navigation }: any) => {
             {handle_render_product_info()}
           </ScrollView>
 
-          <View style={styles.footer_section} onLayout={handleFooterLayout}>
+          <View
+            style={[
+              styles.footer_section,
+              {
+                backgroundColor: footer_background,
+                borderTopColor: colors.border,
+              },
+            ]}
+            onLayout={handleFooterLayout}
+          >
             {is_in_cart ? (
               <View
                 style={{
@@ -610,6 +656,7 @@ const ProductDetails = ({ route, navigation }: any) => {
                   minCount={0}
                   disable_increment={add_to_cart_loading}
                   disable_decrement={add_to_cart_loading}
+                  from_cart={darkMode}
                   style={{ flex: 1 }}
                 />
 
@@ -617,7 +664,12 @@ const ProductDetails = ({ route, navigation }: any) => {
                   <Image
                     source={ImageLinks.cart}
                     alt="cart"
-                    style={styles.cart_image}
+                    style={[
+                      styles.cart_image,
+                      {
+                        tintColor: darkMode ? "#ffffff" : colors.icon,
+                      },
+                    ]}
                   />
 
                   <Text
@@ -625,6 +677,7 @@ const ProductDetails = ({ route, navigation }: any) => {
                       fontSize: 20,
                       fontWeight: "700",
                       marginLeft: 10,
+                      color: colors.text,
                     }}
                   >
                     ${Math.floor(cart_quantity * product_details?.price)?.toFixed(2)}
@@ -637,7 +690,7 @@ const ProductDetails = ({ route, navigation }: any) => {
           </View>
         </>
       )}
-    </SafeAreaView>
+    </ThemedScreen>
   );
 };
 
@@ -664,7 +717,6 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     resizeMode: "contain",
-    tintColor: "black",
   },
 
   footer_section: {
@@ -676,9 +728,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,
+    borderTopWidth: StyleSheet.hairlineWidth,
     zIndex: 5,
     position: "absolute",
-    backgroundColor: "white",
     bottom: 0,
     left: 0,
     right: 0,
@@ -701,12 +753,10 @@ const styles = StyleSheet.create({
   },
 
   size: {
-    backgroundColor: "white",
     borderRadius: 10,
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderWidth: 1,
-    borderColor: "grey",
     borderStyle: "solid",
   },
 

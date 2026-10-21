@@ -13,9 +13,15 @@ import CategoryDetails from "./screens/CategoryDetails/CategoryDetails";
 import { useAppSelector } from "../store/hooks";
 import Terms from "./screens/Settings/TermsCondition";
 import PrivacyPolicy from "./screens/Settings/PrivacyPolicy";
-import CheckUpdateScreen from "./screens/CheckUpdate/CheckUpdateScreen";
+import CheckUpdateScreen from "./screens/Settings/CheckUpdateScreen";
 import AccountDetails from "./screens/Settings/AccountDetails";
 import ChangePassword from "./screens/Settings/ChangePassword";
+import Preferences from "./screens/Settings/Preferences";
+import CardInfo from "./screens/Settings/CardInfo";
+import AddCard from "./screens/Settings/AddCard";
+import Checkout from "./screens/Checkout/Checkout";
+import OrderConfirmed from "./screens/Checkout/OrderConfirmed";
+import DeliveryStatus from "./screens/Checkout/DeliveryStatus";
 
 export type RootStackParamList = {
   onBoarding: undefined;
@@ -32,6 +38,12 @@ export type RootStackParamList = {
   privacypolicy: undefined;
   accountdetails: undefined;
   changepassword: undefined;
+  preferences: undefined;
+  cardinfo: undefined;
+  addcard: { brand: "Visa" | "Mastercard" };
+  checkout: undefined;
+  orderconfirmed: undefined;
+  deliverystatus: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -92,6 +104,24 @@ const Routes = () => {
        <Stack.Screen
         name={route_names.ChangePassword}
         component={ChangePassword}
+      />
+      <Stack.Screen
+        name={route_names.Preferences}
+        component={Preferences}
+      />
+      <Stack.Screen
+        name={route_names.CardInfo}
+        component={CardInfo}
+      />
+      <Stack.Screen name={route_names.AddCard} component={AddCard} />
+      <Stack.Screen name={route_names.Checkout} component={Checkout} />
+      <Stack.Screen
+        name={route_names.OrderConfirmed}
+        component={OrderConfirmed}
+      />
+      <Stack.Screen
+        name={route_names.DeliveryStatus}
+        component={DeliveryStatus}
       />
     </Stack.Navigator>
   );

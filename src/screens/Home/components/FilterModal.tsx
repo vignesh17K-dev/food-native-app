@@ -14,6 +14,7 @@ import { COLORS, SIZES } from "../../../../constants";
 import ImageLinks from "../../../../assets/ImageLink";
 import constants from "../../../../utils/constants";
 import Button from "../../../components/Button";
+import { useAppTheme } from "../../../hooks/useAppTheme";
 
 const THUMB_SIZE = 30;
 const PRIMARY = "#ed7550";
@@ -55,6 +56,7 @@ const RangeSlider = ({
   onChange,
   formatLabel,
 }: RangeSliderProps) => {
+  const { colors, darkMode } = useAppTheme();
   const [trackWidth, setTrackWidth] = useState(0);
   const trackWidthRef = useRef(0);
   const startPos = useRef(0);
@@ -140,7 +142,16 @@ const RangeSlider = ({
   return (
     <View style={styles.rangeSlider}>
       <View style={styles.trackContainer} onLayout={handleLayout}>
-        <View style={styles.track} />
+        <View
+          style={[
+            styles.track,
+            {
+              backgroundColor: darkMode
+                ? colors.searchBackground
+                : colors.inputMuted,
+            },
+          ]}
+        />
         <View
           style={[
             styles.trackFilled,
@@ -151,17 +162,27 @@ const RangeSlider = ({
           ]}
         />
         <View
-          style={[styles.thumb, { left: lowPosition }]}
+          style={[
+            styles.thumb,
+            { left: lowPosition, borderColor: colors.surfaceElevated },
+          ]}
           {...lowPan.panHandlers}
         />
         <View
-          style={[styles.thumb, { left: highPosition }]}
+          style={[
+            styles.thumb,
+            { left: highPosition, borderColor: colors.surfaceElevated },
+          ]}
           {...highPan.panHandlers}
         />
       </View>
       <View style={styles.rangeLabels}>
-        <Text style={styles.rangeLabel}>{formatLabel(low)}</Text>
-        <Text style={styles.rangeLabel}>{formatLabel(high)}</Text>
+        <Text style={[styles.rangeLabel, { color: colors.text }]}>
+          {formatLabel(low)}
+        </Text>
+        <Text style={[styles.rangeLabel, { color: colors.text }]}>
+          {formatLabel(high)}
+        </Text>
       </View>
     </View>
   );
@@ -180,7 +201,24 @@ const FilterModal = ({
   onApply,
   initialFilters,
 }: FilterModalProps) => {
+  const { colors, darkMode } = useAppTheme();
   const [filters, setFilters] = useState<FilterValues>(DEFAULT_FILTER_VALUES);
+
+  const sheet_background = darkMode ? colors.surface : colors.surfaceElevated;
+
+  const chip_style = (selected: boolean) =>
+    selected
+      ? styles.chipSelected
+      : {
+          backgroundColor: darkMode
+            ? colors.surfaceElevated
+            : colors.inputMuted,
+        };
+
+  const chip_text_style = (selected: boolean) =>
+    selected
+      ? styles.chipTextSelected
+      : { color: darkMode ? colors.fieldText : colors.textSecondary };
 
   useEffect(() => {
     if (visible) {
@@ -211,11 +249,19 @@ const FilterModal = ({
     >
       <View style={styles.overlay}>
         <TouchableOpacity style={styles.backdrop} onPress={onClose} />
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, { backgroundColor: sheet_background }]}>
           <View style={styles.header}>
-            <Text style={styles.title}>Filter Your Search</Text>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <Image source={ImageLinks.cross} style={styles.closeIcon} />
+            <Text style={[styles.title, { color: colors.text }]}>
+              Filter Your Search
+            </Text>
+            <TouchableOpacity
+              style={[styles.closeButton, { borderColor: colors.border }]}
+              onPress={onClose}
+            >
+              <Image
+                source={ImageLinks.cross}
+                style={[styles.closeIcon, { tintColor: colors.icon }]}
+              />
             </TouchableOpacity>
           </View>
 
@@ -223,7 +269,9 @@ const FilterModal = ({
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.content}
           >
-            <Text style={styles.sectionTitle}>Distance</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Distance
+            </Text>
             <RangeSlider
               min={0}
               max={20}
@@ -235,14 +283,16 @@ const FilterModal = ({
               formatLabel={(value) => `${value} km`}
             />
 
-            <Text style={styles.sectionTitle}>Delivery Time</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Delivery Time
+            </Text>
             <View style={styles.chipRow}>
               {constants.delivery_time.map((item) => {
                 const selected = filters.deliveryTime === item.id;
                 return (
                   <TouchableOpacity
                     key={item.id}
-                    style={[styles.chip, selected && styles.chipSelected]}
+                    style={[styles.chip, chip_style(selected)]}
                     onPress={() =>
                       setFilters((prev) => ({
                         ...prev,
@@ -250,12 +300,7 @@ const FilterModal = ({
                       }))
                     }
                   >
-                    <Text
-                      style={[
-                        styles.chipText,
-                        selected && styles.chipTextSelected,
-                      ]}
-                    >
+                    <Text style={[styles.chipText, chip_text_style(selected)]}>
                       {item.label}
                     </Text>
                   </TouchableOpacity>
@@ -263,7 +308,9 @@ const FilterModal = ({
               })}
             </View>
 
-            <Text style={styles.sectionTitle}>Pricing Range</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Pricing Range
+            </Text>
             <RangeSlider
               min={0}
               max={100}
@@ -275,14 +322,16 @@ const FilterModal = ({
               formatLabel={(value) => `$${value}`}
             />
 
-            <Text style={styles.sectionTitle}>Ratings</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Ratings
+            </Text>
             <View style={styles.chipRow}>
               {constants.ratings.map((item) => {
                 const selected = filters.rating === item.id;
                 return (
                   <TouchableOpacity
                     key={item.id}
-                    style={[styles.chip, selected && styles.chipSelected]}
+                    style={[styles.chip, chip_style(selected)]}
                     onPress={() =>
                       setFilters((prev) => ({
                         ...prev,
@@ -290,12 +339,7 @@ const FilterModal = ({
                       }))
                     }
                   >
-                    <Text
-                      style={[
-                        styles.chipText,
-                        selected && styles.chipTextSelected,
-                      ]}
-                    >
+                    <Text style={[styles.chipText, chip_text_style(selected)]}>
                       {item.label} ★
                     </Text>
                   </TouchableOpacity>
@@ -303,22 +347,19 @@ const FilterModal = ({
               })}
             </View>
 
-            <Text style={styles.sectionTitle}>Tags</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Tags
+            </Text>
             <View style={styles.chipRow}>
               {constants.tags.map((item) => {
                 const selected = filters.tags.includes(item.id);
                 return (
                   <TouchableOpacity
                     key={item.id}
-                    style={[styles.chip, selected && styles.chipSelected]}
+                    style={[styles.chip, chip_style(selected)]}
                     onPress={() => toggleTag(item.id)}
                   >
-                    <Text
-                      style={[
-                        styles.chipText,
-                        selected && styles.chipTextSelected,
-                      ]}
-                    >
+                    <Text style={[styles.chipText, chip_text_style(selected)]}>
                       {item.label}
                     </Text>
                   </TouchableOpacity>
@@ -327,7 +368,7 @@ const FilterModal = ({
             </View>
           </ScrollView>
 
-          <View style={styles.footer}>
+          <View style={[styles.footer, { borderTopColor: colors.border }]}>
             <Button
               text="Apply Filters"
               type="primary"
@@ -352,7 +393,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sheet: {
-    backgroundColor: COLORS.white,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: "88%",
@@ -373,7 +413,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: COLORS.black,
   },
   closeButton: {
     width: 36,
@@ -387,7 +426,6 @@ const styles = StyleSheet.create({
   closeIcon: {
     width: 14,
     height: 14,
-    tintColor: COLORS.black,
   },
   content: {
     paddingHorizontal: SIZES.padding,
@@ -397,7 +435,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: COLORS.black,
     marginTop: 8,
   },
   rangeSlider: {
@@ -410,7 +447,6 @@ const styles = StyleSheet.create({
   track: {
     height: 10,
     borderRadius: 2,
-    backgroundColor: COLORS.lightGray1,
   },
   trackFilled: {
     position: "absolute",
@@ -425,7 +461,6 @@ const styles = StyleSheet.create({
     borderRadius: THUMB_SIZE / 2,
     backgroundColor: PRIMARY,
     borderWidth: 4,
-    borderColor: "white",
     top: 0,
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 2 },
@@ -441,7 +476,6 @@ const styles = StyleSheet.create({
   rangeLabel: {
     fontSize: 16,
     fontWeight: "600",
-    color: COLORS.black,
   },
   chipRow: {
     flexDirection: "row",
@@ -453,7 +487,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 12,
-    backgroundColor: COLORS.lightGray2,
   },
   chipSelected: {
     backgroundColor: PRIMARY,
@@ -461,7 +494,6 @@ const styles = StyleSheet.create({
   chipText: {
     fontSize: 16,
     fontWeight: "600",
-    color: COLORS.darkGray,
   },
   chipTextSelected: {
     color: COLORS.white,
@@ -470,6 +502,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: SIZES.padding,
     paddingVertical: 16,
     borderTopWidth: 1,
-    borderTopColor: COLORS.lightGray2,
   },
 });

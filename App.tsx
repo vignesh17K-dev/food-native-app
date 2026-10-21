@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Provider } from "react-redux";
 import { store, persistor } from "./store/store";
 import { NativeBaseProvider } from "native-base";
@@ -9,9 +9,20 @@ import DeepLinkHandler from "./src/components/DeepLinking";
 import { PersistGate } from "redux-persist/integration/react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AppToastProvider, useAppToast } from "./src/context/AppToast";
+import { StatusBar } from "react-native";
+import { useAppSelector } from "./store/hooks";
+import {
+  navigationDarkTheme,
+  navigationLightTheme,
+} from "./utils/theme/appTheme";
 
 function AppContent() {
   const toast = useAppToast();
+  const darkMode = useAppSelector((state) => state.preferences.darkMode);
+  const navigationTheme = useMemo(
+    () => (darkMode ? navigationDarkTheme : navigationLightTheme),
+    [darkMode],
+  );
 
   useEffect(() => {
     if (__DEV__) {
@@ -38,12 +49,25 @@ function AppContent() {
   }, [toast]);
 
   return (
-    <NavigationContainer>
-      <PersistGate persistor={persistor}>
-        <MainApp />
-      </PersistGate>
-      <DeepLinkHandler />
-    </NavigationContainer>
+    <>
+      <StatusBar barStyle={darkMode ? "light-content" : "dark-content"} />
+      <NavigationContainer theme={navigationTheme}>
+        <PersistGate persistor={persistor}>
+          <MainApp />
+        </PersistGate>
+        <DeepLinkHandler />
+      </NavigationContainer>
+    </>
+  );
+}
+
+function ThemedProviders({ children }: { children: React.ReactNode }) {
+  const darkMode = useAppSelector((state) => state.preferences.darkMode);
+
+  return (
+    <NativeBaseProvider colorMode={darkMode ? "dark" : "light"}>
+      <SafeAreaProvider>{children}</SafeAreaProvider>
+    </NativeBaseProvider>
   );
 }
 
@@ -54,13 +78,11 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <NativeBaseProvider>
-        <SafeAreaProvider>
-          <AppToastProvider>
-            <AppContent />
-          </AppToastProvider>
-        </SafeAreaProvider>
-      </NativeBaseProvider>
+      <ThemedProviders>
+        <AppToastProvider>
+          <AppContent />
+        </AppToastProvider>
+      </ThemedProviders>
     </Provider>
   );
 }

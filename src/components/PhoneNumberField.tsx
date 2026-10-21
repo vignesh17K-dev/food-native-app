@@ -14,6 +14,7 @@ import { CountryPicker } from "react-native-country-codes-picker";
 import apply_validations from "../../utils/rules";
 import ImageLinks from "../../assets/ImageLink";
 import { SIZES } from "../../constants";
+import { useAppTheme } from "../hooks/useAppTheme";
 
 interface Props {
   name: string;
@@ -45,6 +46,7 @@ const PhoneNumberField = ({
   variant = "default",
 }: Props) => {
   const is_account = variant === "account";
+  const { colors, darkMode } = useAppTheme();
   const [show_country, set_show_country] = useState(false);
   const [selected_country_code, set_selected_country_code] = useState(
     default_selected_country ? default_selected_country : "+1"
@@ -77,6 +79,14 @@ const PhoneNumberField = ({
                 style={[
                   styles.label_style,
                   is_account && styles.label_style_account,
+                  {
+                    color: darkMode
+                      ? colors.fieldLabel
+                      : is_account
+                        ? colors.textSecondary
+                        : undefined,
+                    opacity: darkMode || is_account ? 1 : undefined,
+                  },
                 ]}
               >
                 {label}
@@ -85,7 +95,14 @@ const PhoneNumberField = ({
             <View
               style={[
                 styles.inputRow,
-                is_account && styles.inputRowAccount,
+                {
+                  backgroundColor: is_account
+                    ? colors.surfaceElevated
+                    : colors.inputMuted,
+                  opacity: darkMode || is_account ? 1 : 0.4,
+                  borderWidth: darkMode || is_account ? StyleSheet.hairlineWidth : 0,
+                  borderColor: colors.border,
+                },
                 disabled && styles.inputRowDisabled,
               ]}
             >
@@ -95,7 +112,7 @@ const PhoneNumberField = ({
                 onPress={() => !disabled && set_show_country(true)}
                 disabled={disabled}
               >
-                <Text style={styles.countryCodeText}>
+                <Text style={[styles.countryCodeText, { color: colors.textSecondary }]}>
                   {selected_country_code}
                 </Text>
                 <Image
@@ -127,8 +144,8 @@ const PhoneNumberField = ({
                 }}
                 keyboardType="phone-pad"
                 placeholder={placeholder}
-                placeholderTextColor="#666"
-                style={styles.input_field}
+                placeholderTextColor={colors.fieldPlaceholder}
+                style={[styles.input_field, { color: colors.fieldText }]}
                 autoCapitalize="none"
                 autoCorrect={false}
                 textContentType="telephoneNumber"

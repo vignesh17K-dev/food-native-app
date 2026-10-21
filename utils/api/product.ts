@@ -1,5 +1,5 @@
 import utils from "../utils";
-import { ProductSearchBody } from "./buildProductFilterParams";
+import { ProductSearchBody } from "../buildProductFilterParams";
 
 const product = {
 	get_products: (body: ProductSearchBody = {}) => {

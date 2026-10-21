@@ -3,6 +3,7 @@ import React from "react";
 import ImageLinks from "../../assets/ImageLink";
 import { COLORS, SIZES } from "../../constants";
 import { useNavigation } from "@react-navigation/native";
+import { useAppTheme } from "../hooks/useAppTheme";
 
 interface Props {
   allow_back?: boolean;
@@ -18,6 +19,7 @@ const LogoHeader = ({
   style = {},
 }: Props) => {
   const navigation = useNavigation();
+  const { colors } = useAppTheme();
 
   return (
     <View style={{...style}}>
@@ -69,8 +71,14 @@ const LogoHeader = ({
           </View>
         )}
       </View>
-      {title && <Text style={styles.title}>{title}</Text>}
-      {sub_title && <Text style={styles.text}>{sub_title}</Text>}
+      {title && (
+        <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+      )}
+      {sub_title && (
+        <Text style={[styles.text, { color: colors.textSecondary }]}>
+          {sub_title}
+        </Text>
+      )}
     </View>
   );
 };

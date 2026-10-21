@@ -10,6 +10,7 @@ import { SIZES } from "../../constants";
 import { MaterialIcons } from "@expo/vector-icons";
 import apply_validations from "../../utils/rules";
 import { Controller } from "react-hook-form";
+import { useAppTheme } from "../hooks/useAppTheme";
 
 interface Props {
   style?: any;
@@ -30,6 +31,7 @@ const Password = ({
 }: Props) => {
   const is_account = variant === "account";
   const [show, setShow] = useState(false);
+  const { colors, darkMode } = useAppTheme();
 
   return (
     <View style={style}>
@@ -40,25 +42,46 @@ const Password = ({
         render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
           <React.Fragment>
             <Text
-              style={[styles.textLabel, is_account && styles.textLabelAccount]}
+              style={[
+                styles.textLabel,
+                is_account && styles.textLabelAccount,
+                {
+                  color: darkMode
+                    ? colors.fieldLabel
+                    : is_account
+                      ? colors.textSecondary
+                      : undefined,
+                  opacity: darkMode || is_account ? 1 : undefined,
+                },
+              ]}
             >
               {label}
             </Text>
             <View
-              style={[styles.inputRow, is_account && styles.inputRowAccount]}
+              style={[
+                styles.inputRow,
+                {
+                  backgroundColor: is_account
+                    ? colors.surfaceElevated
+                    : colors.inputMuted,
+                  opacity: darkMode || is_account ? 1 : 0.4,
+                  borderColor: is_account || darkMode ? colors.border : "transparent",
+                  borderWidth: is_account || darkMode ? StyleSheet.hairlineWidth : 0,
+                },
+              ]}
             >
               <TextInput
                 onChangeText={onChange}
                 onBlur={onBlur}
                 value={value ?? ""}
-                style={styles.inputFieldStyle}
+                style={[styles.inputFieldStyle, { color: colors.fieldText }]}
                 secureTextEntry={!show}
                 autoCapitalize="none"
                 returnKeyType="next"
                 autoComplete="password"
                 autoCorrect={false}
                 textContentType="password"
-                placeholderTextColor="#b0b0b0"
+                placeholderTextColor={colors.fieldPlaceholder}
               />
               <Pressable
                 onPress={() => setShow(!show)}
@@ -68,7 +91,7 @@ const Password = ({
                 <MaterialIcons
                   name={show ? "visibility" : "visibility-off"}
                   size={22}
-                  color="#666"
+                  color={darkMode ? colors.fieldPlaceholder : colors.fieldText}
                 />
               </Pressable>
             </View>
@@ -92,19 +115,11 @@ const styles = StyleSheet.create({
     height: SIZES.height * 0.055,
     borderRadius: 10,
     borderWidth: 0,
-    backgroundColor: "rgb(211, 211, 211)",
-    opacity: 0.4,
     paddingHorizontal: 10,
-  },
-  inputRowAccount: {
-    backgroundColor: "#fff",
-    opacity: 1,
-    borderWidth: 0,
   },
   inputFieldStyle: {
     flex: 1,
     fontSize: 16,
-    color: "#000",
     paddingVertical: 8,
   },
   visibilityButton: {
@@ -118,7 +133,6 @@ const styles = StyleSheet.create({
   },
   textLabelAccount: {
     opacity: 1,
-    color: "#8a8a8a",
     fontWeight: "600",
     fontSize: 14,
     marginBottom: 6,

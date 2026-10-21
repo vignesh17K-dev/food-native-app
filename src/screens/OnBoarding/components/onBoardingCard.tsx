@@ -4,8 +4,10 @@ import { ImageBackground } from "react-native";
 import { StyleSheet } from "react-native";
 import { COLORS, SIZES } from "../../../../constants";
 import { Platform } from "react-native";
+import { useAppTheme } from "../../../hooks/useAppTheme";
 
 function OnBoardingCard({ background, image, title, text, index }) {
+  const { colors } = useAppTheme();
   return (
     <View style={styles.scrollContainer}>
       <View style={{ flex: 3 }}>
@@ -26,8 +28,8 @@ function OnBoardingCard({ background, image, title, text, index }) {
       </View>
 
       <View style={styles.textBox}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.text}>{text}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+        <Text style={[styles.text, { color: colors.textSecondary }]}>{text}</Text>
       </View>
     </View>
   );

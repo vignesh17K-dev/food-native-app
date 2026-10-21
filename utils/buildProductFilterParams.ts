@@ -1,5 +1,5 @@
-import constants from "../constants";
-import { FilterValues } from "../../src/screens/Home/components/FilterModal";
+import constants from "./constants";
+import { FilterValues } from "../src/screens/Home/components/FilterModal";
 
 export type ProductFilters = {
   minPrice?: number;

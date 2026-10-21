@@ -3,6 +3,7 @@ import { StyleSheet, TextInput, View, Text } from "react-native";
 import { SIZES } from "../../constants";
 import { Controller } from "react-hook-form";
 import apply_validations from "../../utils/rules";
+import { useAppTheme } from "../hooks/useAppTheme";
 
 interface Props {
   style?: any;
@@ -26,6 +27,7 @@ const InputField = ({
   multiline = false,
 }: Props) => {
   const is_account = variant === "account";
+  const { colors, darkMode } = useAppTheme();
 
   return (
     <View style={style}>
@@ -36,7 +38,18 @@ const InputField = ({
         render={({ field: { onChange, value }, fieldState: { error } }) => (
           <React.Fragment>
             <Text
-              style={[styles.textLabel, is_account && styles.textLabelAccount]}
+              style={[
+                styles.textLabel,
+                is_account && styles.textLabelAccount,
+                {
+                  color: darkMode
+                    ? colors.fieldLabel
+                    : is_account
+                      ? colors.textSecondary
+                      : undefined,
+                  opacity: darkMode || is_account ? 1 : undefined,
+                },
+              ]}
             >
               {label}
             </Text>
@@ -45,6 +58,7 @@ const InputField = ({
               autoCapitalize="none"
               value={value ?? ""}
               placeholder={placeholder}
+              placeholderTextColor={colors.fieldPlaceholder}
               onChangeText={onChange}
               multiline={multiline}
               textAlignVertical={multiline ? "top" : "center"}
@@ -53,8 +67,14 @@ const InputField = ({
                 borderRadius: 10,
                 borderColor: "transparent",
                 fontSize: 16,
-                ...styles.inputFieldStyle,
-                ...(is_account ? styles.inputFieldAccount : null),
+                color: colors.fieldText,
+                borderWidth: 0,
+                padding: 10,
+                marginBottom: 1,
+                backgroundColor: is_account
+                  ? colors.surfaceElevated
+                  : colors.inputMuted,
+                opacity: darkMode || is_account ? 1 : 0.4,
               }}
             />
 
@@ -71,14 +91,6 @@ const InputField = ({
 };
 
 const styles = StyleSheet.create({
-  inputFieldStyle: {
-    backgroundColor: "rgb(211, 211, 211)",
-    opacity: 0.4,
-    color: "black",
-    borderWidth: 0,
-    padding: 10,
-    marginBottom: 1,
-  },
   formItemError: {
     color: "red",
     fontSize: 14,
@@ -92,16 +104,10 @@ const styles = StyleSheet.create({
   },
   textLabelAccount: {
     opacity: 1,
-    color: "#8a8a8a",
     fontWeight: "600",
     fontSize: 14,
     marginBottom: 6,
     marginTop: 4,
-  },
-  inputFieldAccount: {
-    backgroundColor: "#fff",
-    opacity: 1,
-    borderWidth: 0,
   },
 });
 

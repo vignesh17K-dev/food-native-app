@@ -4,6 +4,7 @@ import HomeReducer from "./slices/HomeSlice";
 import WishlistReducer from "./slices/WishlistSlice";
 import SearchReducer from "./slices/SearchSlice";
 import CartReducer from "./slices/CartSlice";
+import PreferencesReducer from "./slices/PreferencesSlice";
 import { createStore, combineReducers, applyMiddleware, AnyAction } from "redux";
 import { persistStore, persistReducer } from "redux-persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -16,6 +17,7 @@ const main_reducer = combineReducers({
   wishlist: WishlistReducer,
   search: SearchReducer,
   cart: CartReducer,
+  preferences: PreferencesReducer,
 });
 
 export type RootState = ReturnType<typeof main_reducer>;
@@ -25,7 +27,12 @@ const root_reducer = (
   action: AnyAction,
 ): RootState => {
   if (action.type === "USER_LOGOUT") {
-    return main_reducer(undefined, action);
+    const saved_preferences = state?.preferences;
+    const next_state = main_reducer(undefined, action);
+    return {
+      ...next_state,
+      preferences: saved_preferences ?? next_state.preferences,
+    };
   }
   return main_reducer(state, action);
 };

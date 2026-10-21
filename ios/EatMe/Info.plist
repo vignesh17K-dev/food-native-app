@@ -57,6 +57,8 @@
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Expo Dev Launcher uses the local network to discover and connect to development servers running on your computer.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Eat Me uses your location to set your delivery address and show nearby options.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

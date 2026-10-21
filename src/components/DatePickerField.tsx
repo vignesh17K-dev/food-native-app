@@ -13,6 +13,7 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import { Feather } from "@expo/vector-icons";
 import { SIZES } from "../../constants";
+import { useAppTheme } from "../hooks/useAppTheme";
 
 export type DatePickerFieldProps = {
   value: Date | null;
@@ -46,6 +47,7 @@ const DatePickerField = ({
   variant = "default",
 }: DatePickerFieldProps) => {
   const is_account = variant === "account";
+  const { colors, darkMode } = useAppTheme();
   const [android_visible, set_android_visible] = useState(false);
   const [ios_visible, set_ios_visible] = useState(false);
   const [ios_draft, set_ios_draft] = useState<Date>(value ?? new Date());
@@ -90,7 +92,18 @@ const DatePickerField = ({
     <View style={style}>
       {label ? (
         <Text
-          style={[styles.label, is_account && styles.label_account]}
+          style={[
+            styles.label,
+            is_account && styles.label_account,
+            {
+              color: darkMode
+                ? colors.fieldLabel
+                : is_account
+                  ? colors.textSecondary
+                  : undefined,
+              opacity: darkMode || is_account ? 1 : undefined,
+            },
+          ]}
         >
           {label}
         </Text>
@@ -101,7 +114,14 @@ const DatePickerField = ({
         disabled={disabled}
         style={({ pressed }) => [
           styles.field,
-          is_account ? styles.field_account : styles.field_default,
+          {
+            backgroundColor: is_account
+              ? colors.surfaceElevated
+              : colors.inputMuted,
+            opacity: darkMode || is_account ? 1 : 0.4,
+            borderWidth: darkMode || is_account ? StyleSheet.hairlineWidth : 0,
+            borderColor: colors.border,
+          },
           disabled && styles.field_disabled,
           pressed && !disabled && styles.field_pressed,
         ]}
@@ -111,7 +131,7 @@ const DatePickerField = ({
         <Text
           style={[
             styles.field_text,
-            !has_value && styles.placeholder_text,
+            { color: has_value ? colors.fieldText : colors.fieldPlaceholder },
             disabled && styles.field_text_disabled,
           ]}
         >
@@ -120,7 +140,7 @@ const DatePickerField = ({
         <Feather
           name="calendar"
           size={20}
-          color={disabled ? "#c8c8c8" : "#b0b0b0"}
+          color={disabled ? colors.fieldPlaceholder : colors.fieldPlaceholder}
         />
       </Pressable>
 
@@ -138,8 +158,11 @@ const DatePickerField = ({
       {Platform.OS === "ios" ? (
         <Modal visible={ios_visible} transparent animationType="slide">
           <Pressable style={styles.backdrop} onPress={handle_ios_cancel}>
-            <Pressable style={styles.ios_sheet} onPress={() => {}}>
-              <View style={styles.ios_toolbar}>
+            <Pressable
+              style={[styles.ios_sheet, { backgroundColor: colors.surfaceElevated }]}
+              onPress={() => {}}
+            >
+              <View style={[styles.ios_toolbar, { borderBottomColor: colors.border }]}>
                 <Pressable onPress={handle_ios_cancel} hitSlop={8}>
                   <Text style={styles.ios_toolbar_action}>Cancel</Text>
                 </Pressable>
@@ -160,7 +183,7 @@ const DatePickerField = ({
                     set_ios_draft(date);
                   }
                 }}
-                themeVariant="light"
+                themeVariant={darkMode ? "dark" : "light"}
               />
             </Pressable>
           </Pressable>
