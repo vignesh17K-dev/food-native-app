@@ -7,9 +7,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  PanResponder,
-  Animated,
-  ActivityIndicator,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import ThemedScreen from "../../components/ThemedScreen";
@@ -21,55 +18,15 @@ import ImageLinks from "../../../assets/ImageLink";
 import constants from "../../../utils/constants";
 import { ensureProductsMap, remove_cart_item, set_cart, upsert_cart_item } from "../../../store/slices/CartSlice";
 import cart from "../../../utils/api/cart";
+import { calculateCartSubtotal } from "../../../utils/cart/cartTotals";
 import {
-  calculateCartSubtotal,
-  calculateLineTotal,
-} from "../../../utils/cart/cartTotals";
-import Counter from "../../components/Counter";
+  flattenCartProducts,
+  type CartLineItem,
+} from "../../../utils/cart/flattenCartProducts";
+import CartLineItemCard from "../../components/CartLineItemCard";
 import { debounce } from "lodash";
 import { store } from "../../../store/store";
 import { applyCartItemResponse } from "../../../utils/cart/applyCartItemResponse";
-
-type CartLineItem = {
-  product_id: string;
-  cart_item_id: string;
-  id?: string;
-  name?: string;
-  image?: string;
-  price?: number;
-  quantity?: number;
-  selectedSize?: string;
-  products?: CartProductsMap;
-};
-
-type CartProductsMap = Record<
-  string,
-  Record<string, Omit<CartLineItem, "product_id" | "cart_item_id">>
->;
-
-const flatten_cart_products = (
-  products: CartProductsMap | CartLineItem[] | null | undefined,
-): CartLineItem[] => {
-  if (!products) {
-    return [];
-  }
-
-  if (Array.isArray(products)) {
-    return products;
-  }
-
-  return Object.entries(products).flatMap(([product_id, variants]) => {
-    if (!variants || typeof variants !== "object") {
-      return [];
-    }
-
-    return Object.entries(variants).map(([cart_item_id, item]) => ({
-      product_id,
-      cart_item_id,
-      ...item,
-    }));
-  });
-};
 
 const Cart = ({ navigation }: any) => {
   const { colors, darkMode } = useAppTheme();
@@ -88,7 +45,7 @@ const Cart = ({ navigation }: any) => {
 
   const cart_products = cart_data?.products;
   const cart_items = useMemo(
-    () => flatten_cart_products(cart_products),
+    () => flattenCartProducts(cart_products),
     [cart_products],
   );
 
@@ -240,44 +197,11 @@ const Cart = ({ navigation }: any) => {
     [navigation],
   );
 
-  const handle_render_item = (item: CartLineItem) => {
-    const line_total = calculateLineTotal(item);
-
-    return (
-      <TouchableOpacity
-        activeOpacity={0.7}
-        style={styles.cart_item_main}
-        onPress={() => handle_open_product(item)}
-      >
-        <View style={styles.item_row}>
-          <Image src={item?.image} style={styles.item_image} alt="img" />
-
-          <View style={styles.item_info}>
-            <Text
-              style={[styles.cart_name, { color: colors.text }]}
-              numberOfLines={2}
-              ellipsizeMode="tail"
-            >
-              {item?.name}
-            </Text>
-            {!!item?.selectedSize && (
-              <Text style={[styles.item_meta, { color: colors.textSecondary }]}>
-                Size: {item.selectedSize}
-              </Text>
-            )}
-            <Text style={styles.cart_price}>${line_total.toFixed(2)}</Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
   useFocusEffect(
     useCallback(() => {
       handle_get_cart_details();
     }, [handle_get_cart_details]),
   );
-
 
   useEffect(() => {
     return () => {
@@ -286,63 +210,17 @@ const Cart = ({ navigation }: any) => {
     };
   }, [sync_cart_quantity_api]);
 
-  const render_item = ({ item }: { item: CartLineItem }) => {
-    const translateX = new Animated.Value(0);
-    const pan_responder = PanResponder.create({
-      onStartShouldSetPanResponder: () => false,
-      onMoveShouldSetPanResponder: (_evt, gestureState) =>
-        Math.abs(gestureState.dx) > 8 &&
-        Math.abs(gestureState.dx) > Math.abs(gestureState.dy),
-      onPanResponderMove: (_evt, gestureState) => {
-        if (gestureState.dx < 0) {
-          translateX.setValue(gestureState.dx);
-        }
-      },
-      onPanResponderRelease: (_evt, gestureState) => {
-        if (gestureState.dx < -50) {
-          Animated.spring(translateX, {
-            toValue: -110,
-            useNativeDriver: true,
-          }).start();
-        } else {
-          Animated.spring(translateX, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start();
-        }
-      },
-    });
-
-    return (
-      <View style={{ flexDirection: "row" }}>
-        <Animated.View style={{ transform: [{ translateX }] }}>
-          <View
-            {...pan_responder.panHandlers}
-            style={[styles.cart_item, { backgroundColor: colors.surface }]}
-          >
-            {handle_render_item(item)}
-            <Counter
-              minCount={0}
-              disable_increment={add_to_cart_loading}
-              disable_decrement={add_to_cart_loading}
-              from_cart value={item?.quantity ?? 1}
-              onChange={(count) => handle_update_quantity(item, count)} />
-          </View>
-        </Animated.View>
-
-        <TouchableOpacity
-          style={styles.delete_btn}
-          onPress={() => handle_delete(item)}
-        >
-          {delete_loading ? (
-            <ActivityIndicator size="small" color={colors.icon} />
-          ) : (
-            <Text style={styles.delete_text}>Delete</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    );
-  };
+  const render_item = ({ item }: { item: CartLineItem }) => (
+    <CartLineItemCard
+      item={item}
+      editable
+      onPress={() => handle_open_product(item)}
+      onQuantityChange={(count) => handle_update_quantity(item, count)}
+      onDelete={() => handle_delete(item)}
+      deleteLoading={delete_loading}
+      quantityDisabled={add_to_cart_loading}
+    />
+  );
 
   const render_skeleton = () => (
     <View style={styles.skeleton_container}>
@@ -493,7 +371,9 @@ const Cart = ({ navigation }: any) => {
           <TouchableOpacity
             style={styles.place_order_btn}
             activeOpacity={0.85}
-            onPress={() => {}}
+            onPress={() => {
+              navigation.navigate(constants.route_names.Checkout);
+            }}
           >
             <Text style={styles.place_order_text}>Place your Order</Text>
           </TouchableOpacity>
@@ -560,65 +440,6 @@ const styles = StyleSheet.create({
   cart_container_with_footer: {
     paddingBottom: 220,
   },
-  cart_item: {
-    borderRadius: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    width: SIZES.width - 40,
-  },
-  cart_item_main: {
-    flex: 1,
-    minWidth: 0,
-  },
-  item_row: {
-    flex: 1,
-    minWidth: 0,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  item_image: {
-    resizeMode: "contain",
-    height: SIZES.height * 0.1,
-    width: SIZES.width * 0.2,
-  },
-  item_info: {
-    flex: 1,
-    minWidth: 0,
-    justifyContent: "center",
-    gap: 4,
-  },
-  cart_name: {
-    fontSize: 18,
-    flexShrink: 1,
-  },
-  item_meta: {
-    fontSize: 13,
-  },
-  cart_price: {
-    color: "#ed7550",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  delete_btn: {
-    justifyContent: "center",
-    backgroundColor: "#ed7550",
-    width: 100,
-    alignItems: "center",
-    borderRadius: 12,
-    position: "absolute",
-    right: 0,
-    height: "100%",
-    zIndex: -1,
-  },
-  delete_text: {
-    fontSize: 18,
-    color: "#fff",
-    fontWeight: "700",
-  },
   skeleton_container: {
     marginHorizontal: 20,
     gap: 12,
@@ -661,6 +482,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.35,
     shadowRadius: 16,
     elevation: 8,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   empty_cart_icon: {
     width: 44,

@@ -25,6 +25,7 @@ const constants = {
         Preferences: 'preferences',
         CardInfo: 'cardinfo',
         AddCard: 'addcard',
+        Checkout: 'checkout',
     } as const,
     storage_keys: {
         deliveryAddress: "delivery_address",

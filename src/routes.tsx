@@ -19,6 +19,7 @@ import ChangePassword from "./screens/Settings/ChangePassword";
 import Preferences from "./screens/Settings/Preferences";
 import CardInfo from "./screens/Settings/CardInfo";
 import AddCard from "./screens/Settings/AddCard";
+import Checkout from "./screens/Checkout/Checkout";
 
 export type RootStackParamList = {
   onBoarding: undefined;
@@ -37,7 +38,8 @@ export type RootStackParamList = {
   changepassword: undefined;
   preferences: undefined;
   cardinfo: undefined;
-  addcard: undefined;
+  addcard: { brand: "Visa" | "Mastercard" };
+  checkout: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -108,6 +110,7 @@ const Routes = () => {
         component={CardInfo}
       />
       <Stack.Screen name={route_names.AddCard} component={AddCard} />
+      <Stack.Screen name={route_names.Checkout} component={Checkout} />
     </Stack.Navigator>
   );
 };

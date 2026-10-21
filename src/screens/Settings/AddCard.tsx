@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -20,6 +20,32 @@ import ImageLinks from "../../../assets/ImageLink";
 import { SIZES } from "../../../constants";
 import { useAppTheme } from "../../hooks/useAppTheme";
 import { useAppToast } from "../../context/AppToast";
+import { RouteProp, useRoute } from "@react-navigation/native";
+import paymentCards, {
+  buildAddCardPayload,
+  formatExpiryMmYy,
+  parseCardExpiry,
+  type CardBrand,
+} from "../../../utils/api/payment";
+import type { RootStackParamList } from "../../routes";
+
+function apiErrorMessage(error: unknown, fallback: string) {
+  if (typeof error === "string") {
+    return error;
+  }
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof (error as { message: unknown }).message === "string"
+  ) {
+    return (error as { message: string }).message;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return fallback;
+}
 
 type AddCardFormValues = {
   card_number: string;
@@ -50,11 +76,36 @@ function formatDigitsOnly(text: string, maxDigits: number) {
 }
 
 function formatExpiryInput(text: string) {
-  const digits = formatDigitsOnly(text, 4);
+  let digits = formatDigitsOnly(text, 4);
+
+  // Keep month in 01–12 while typing (MM/YY).
+  if (digits.length >= 1) {
+    const first = Number(digits[0]);
+    if (first > 1) {
+      digits = `0${digits}`.slice(0, 4);
+    }
+  }
+  if (digits.length >= 2) {
+    const month = Number(digits.slice(0, 2));
+    if (month === 0) {
+      digits = `01${digits.slice(2)}`;
+    } else if (month > 12) {
+      digits = `12${digits.slice(2)}`;
+    }
+  }
+
   if (digits.length <= 2) {
     return digits;
   }
   return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+}
+
+function displayExpiryOnCard(expiryDate: string) {
+  const parsed = parseCardExpiry(expiryDate);
+  if (parsed) {
+    return formatExpiryMmYy(parsed.expiryMonth, parsed.expiryYear);
+  }
+  return expiryDate.trim() || "MM/YY";
 }
 
 function formatCardholderName(text: string) {
@@ -129,28 +180,51 @@ function CardField({
   );
 }
 
+function brandPreviewIcon(brand: CardBrand) {
+  if (brand === "Mastercard") {
+    return ImageLinks.master_card;
+  }
+  return ImageLinks.visa_card;
+}
+
 function CardPreview({
   cardNumber,
   cardholderName,
   expiryDate,
+  brand,
 }: {
   cardNumber: string;
   cardholderName: string;
   expiryDate: string;
+  brand: CardBrand;
 }) {
   const displayNumber =
     cardNumber.length > 0 ? cardNumber : "1234123412341234";
   const displayName = cardholderName.trim() || "HOLDER NAME";
-  const displayExpiry = expiryDate.trim() || "10/25";
+  const displayExpiry = displayExpiryOnCard(expiryDate);
+  const isVisa = brand === "Visa";
 
   return (
-    <View style={styles.card_preview}>
-      <View style={styles.card_orb} />
-      <Ionicons
-        name="logo-apple"
-        size={28}
-        color="#1e3a5f"
-        style={styles.card_apple}
+    <View
+      style={[
+        styles.card_preview,
+        isVisa ? styles.card_preview_visa : styles.card_preview_mastercard,
+      ]}
+    >
+      <View
+        style={[
+          styles.card_orb,
+          isVisa ? styles.card_orb_visa : styles.card_orb_mastercard,
+        ]}
+      />
+      <Image
+        source={brandPreviewIcon(brand)}
+        style={[
+          styles.card_brand_icon,
+          isVisa ? styles.card_brand_icon_left : styles.card_brand_icon_right,
+        ]}
+        resizeMode="contain"
+        accessibilityLabel={brand}
       />
       <Text style={styles.card_preview_name}>{displayName}</Text>
       <Text style={styles.card_preview_number}>{displayNumber}</Text>
@@ -162,8 +236,11 @@ function CardPreview({
 function AddCard({ navigation }: any) {
   const { colors } = useAppTheme();
   const toast = useAppToast();
+  const route = useRoute<RouteProp<RootStackParamList, "addcard">>();
+  const brand: CardBrand = route.params?.brand ?? "Visa";
+  const [loading, setLoading] = useState(false);
 
-  const { control, handleSubmit, watch, getValues, formState } =
+  const { control, handleSubmit, watch, formState } =
     useForm<AddCardFormValues>({
       defaultValues: {
         card_number: "",
@@ -178,15 +255,36 @@ function AddCard({ navigation }: any) {
   const cardholderName = watch("cardholder_name");
   const expiryDate = watch("expiry_date");
 
+  const on_submit = handleSubmit(async (values) => {
+    const payload = buildAddCardPayload(
+      values.card_number,
+      values.expiry_date,
+      brand,
+    );
+    if (!payload) {
+      toast.show({
+        title: "Invalid card details",
+        background: "red.800",
+      });
+      return;
+    }
 
-  console.log(getValues());
-
-  const on_submit = handleSubmit(() => {
-    toast.show({
-      title: "Card saved locally — payment integration coming soon",
-      background: "green.800",
-    });
-    navigation.goBack();
+    setLoading(true);
+    try {
+      const response = await paymentCards.add_card(payload);
+      toast.show({
+        title: response?.message ?? "Card added successfully",
+        background: "green.800",
+      });
+      navigation.goBack();
+    } catch (error) {
+      toast.show({
+        title: apiErrorMessage(error, "Failed to add card"),
+        background: "red.800",
+      });
+    } finally {
+      setLoading(false);
+    }
   });
 
   return (
@@ -204,7 +302,7 @@ function AddCard({ navigation }: any) {
           <TouchableOpacity onPress={() => navigation?.goBack()}>
             <Image
               source={ImageLinks.back_arrow}
-              style={[styles.back_arrow, { tintColor: colors.icon }]}
+              style={[styles.back_arrow]}
             />
           </TouchableOpacity>
         }
@@ -223,6 +321,7 @@ function AddCard({ navigation }: any) {
             cardNumber={cardNumber}
             cardholderName={cardholderName}
             expiryDate={expiryDate}
+            brand={brand}
           />
 
           <CardField
@@ -270,7 +369,7 @@ function AddCard({ navigation }: any) {
               label="Expiry Date"
               control={control}
               name="expiry_date"
-              placeholder="10/25"
+              placeholder="MM/YY"
               keyboardType="number-pad"
               maxLength={5}
               formatValue={formatExpiryInput}
@@ -278,13 +377,12 @@ function AddCard({ navigation }: any) {
               rules={{
                 required: "Expiry date is required",
                 pattern: {
-                  value: /^\d{2}\/\d{2}$/,
-                  message: "Use MM/YY format (numbers only)",
+                  value: /^(0[1-9]|1[0-2])\/\d{2}$/,
+                  message: "Use MM/YY format",
                 },
-                validate: (value) => {
-                  const digits = value.replace(/\D/g, "");
-                  return digits.length === 4 || "Enter a valid expiry date";
-                },
+                validate: (value) =>
+                  parseCardExpiry(value) != null ||
+                  "Enter a valid expiry date (MM/YY)",
               }}
             />
             <CardField
@@ -321,9 +419,14 @@ function AddCard({ navigation }: any) {
             text="Add Card"
             type="primary"
             width="100%"
-            disabled={!formState.isValid}
+            disabled={!formState.isValid || loading}
+            loading={loading}
             onClick={on_submit}
-            style={!formState.isValid ? styles.button_disabled : undefined}
+            style={
+              !formState.isValid || loading
+                ? styles.button_disabled
+                : undefined
+            }
           />
         </View>
       </KeyboardAvoidingView>
@@ -362,25 +465,43 @@ const styles = StyleSheet.create({
   card_preview: {
     height: SIZES.height * 0.22,
     borderRadius: 20,
-    backgroundColor: "#f2815a",
     overflow: "hidden",
     padding: 20,
     marginBottom: 8,
+  },
+  card_preview_visa: {
+    backgroundColor: "#1a3c8b",
+  },
+  card_preview_mastercard: {
+    backgroundColor: "#f2815a",
   },
   card_orb: {
     position: "absolute",
     width: SIZES.width * 0.55,
     height: SIZES.width * 0.55,
     borderRadius: SIZES.width * 0.275,
-    backgroundColor: "#f5b942",
     bottom: -SIZES.width * 0.2,
     right: -SIZES.width * 0.08,
     opacity: 0.95,
   },
-  card_apple: {
+  card_orb_visa: {
+    backgroundColor: "#2f6fd6",
+  },
+  card_orb_mastercard: {
+    backgroundColor: "#f5b942",
+  },
+  card_brand_icon: {
     position: "absolute",
-    top: 18,
-    right: 20,
+    top: 16,
+    width: 56,
+    height: 36,
+    borderRadius: 6,
+  },
+  card_brand_icon_left: {
+    left: 16,
+  },
+  card_brand_icon_right: {
+    right: 16,
   },
   card_preview_name: {
     position: "absolute",
