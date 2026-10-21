@@ -30,6 +30,7 @@ import {
 } from "../../../store/slices/SearchSlice";
 import CartIcon from "../../components/CartIcon";
 import { useAppTheme } from "../../hooks/useAppTheme";
+import DeliveryAddressButton from "./components/DeliveryAddress";
 
 const Home = ({ navigation }: any) => {
   const { colors } = useAppTheme();
@@ -131,28 +132,10 @@ const Home = ({ navigation }: any) => {
     );
   };
 
-  const handle_render_deliver_section = () => {
-    return (
-      <View style={styles.deliver_to_section}>
-        <Text style={styles.deliver_text}>DELIVERY TO</Text>
-        <View style={{ flexDirection: "row" }}>
-          <Text
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            style={[styles.deliver_address, { color: colors.text }]}
-          >
-            {mock_data?.my_profile?.address}
-          </Text>
-          <Image source={ImageLinks?.down_arrow} style={styles.icon_style} />
-        </View>
-      </View>
-    );
-  };
-
   const render_section = ({ item }: any) => {
     switch (item.section) {
       case "delivery":
-        return handle_render_deliver_section();
+        return <DeliveryAddressButton onAddressSelected={() => { }} />;
       case "category":
         return <CategoryRail />;
       case "popular":

@@ -31,6 +31,7 @@ const password_change = require("../assets/icons/password_change.png")
 const terms = require("../assets/icons/terms.png")
 const update = require("../assets/icons/update.png")
 const privacy =  require("../assets/icons/privacy.png")
+const card = require("../assets/icons/card.png")
 
 
 
@@ -67,7 +68,8 @@ const icons = {
     password_change,
     terms,
     update,
-    privacy
+    privacy,
+    card
 }
 
 export default icons

@@ -23,7 +23,12 @@ const constants = {
         AccountDetails:'accountdetails',
         ChangePassword:'changepassword',
         Preferences: 'preferences',
+        CardInfo: 'cardinfo',
+        AddCard: 'addcard',
     } as const,
+    storage_keys: {
+        deliveryAddress: "delivery_address",
+    },
     bottom_tabs: [
         {
             id: 0,
@@ -180,6 +185,11 @@ const constants = {
             name: 'Account Details',
             key: 'account_details',
             icon: icons.account
+        },
+        {
+            name: 'Card Info',
+            key: 'card_info',
+            icon: icons.card
         },
         {
             name: 'Change Password',

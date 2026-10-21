@@ -574,6 +574,8 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   item_row: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
@@ -584,12 +586,14 @@ const styles = StyleSheet.create({
     width: SIZES.width * 0.2,
   },
   item_info: {
+    flex: 1,
+    minWidth: 0,
     justifyContent: "center",
     gap: 4,
   },
   cart_name: {
     fontSize: 18,
-    width: 180,
+    flexShrink: 1,
   },
   item_meta: {
     fontSize: 13,

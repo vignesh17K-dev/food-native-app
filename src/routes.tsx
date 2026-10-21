@@ -17,6 +17,8 @@ import CheckUpdateScreen from "./screens/Settings/CheckUpdateScreen";
 import AccountDetails from "./screens/Settings/AccountDetails";
 import ChangePassword from "./screens/Settings/ChangePassword";
 import Preferences from "./screens/Settings/Preferences";
+import CardInfo from "./screens/Settings/CardInfo";
+import AddCard from "./screens/Settings/AddCard";
 
 export type RootStackParamList = {
   onBoarding: undefined;
@@ -34,6 +36,8 @@ export type RootStackParamList = {
   accountdetails: undefined;
   changepassword: undefined;
   preferences: undefined;
+  cardinfo: undefined;
+  addcard: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -99,6 +103,11 @@ const Routes = () => {
         name={route_names.Preferences}
         component={Preferences}
       />
+      <Stack.Screen
+        name={route_names.CardInfo}
+        component={CardInfo}
+      />
+      <Stack.Screen name={route_names.AddCard} component={AddCard} />
     </Stack.Navigator>
   );
 };

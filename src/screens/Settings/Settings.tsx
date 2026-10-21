@@ -57,6 +57,8 @@ const Settings = ({ navigation }: any) => {
         return navigation.navigate(constants.route_names.ChangePassword);
       case 'preferences':
         return navigation.navigate(constants.route_names.Preferences);
+      case 'card_info':
+        return navigation.navigate(constants.route_names.CardInfo);
       default:
         return;
     }

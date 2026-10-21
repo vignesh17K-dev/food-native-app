@@ -22,7 +22,7 @@ interface Props {
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
   activityIndicatorProps?: any
-  disabled: boolean;
+  disabled?: boolean;
 }
 
 const Button = ({ text, type, width, onClick, loading, style, activityIndicatorProps, disabled }: Props) => {

@@ -187,8 +187,6 @@ const AccountDetails = ({ navigation }: any) => {
     const toast = useAppToast();
     const auth_user = useAppSelector((state) => state.user.session?.session?.user);
 
-    console.log("auth_user", auth_user);
-
     const [edit_mode, set_edit_mode] = useState(false);
     const [saving, set_saving] = useState(false);
 
