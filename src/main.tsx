@@ -8,33 +8,14 @@ import { setLogin } from "../store/slices/LoginSlice";
 import { useDispatch } from "react-redux";
 import { useAppToast } from "./context/AppToast";
 import { setSession } from "../store/slices/User";
-import { set_cart, clear_cart } from "../store/slices/CartSlice";
+import { clear_cart } from "../store/slices/CartSlice";
 import Loader from "./components/Loader";
-import cart from "../utils/api/cart";
-import { useAppSelector } from "../store/hooks";
+import { initializeUserCart } from "../utils/cart/initializeUserCart";
 
 const MainApp = () => {
   const dispatch = useDispatch();
   const toast = useAppToast();
   const [loading, set_loading] = useState(false);
-
-
-  const initialize_user_cart = async (user_id?: string | null) => {
-    if (!user_id) {
-      return;
-    }
-
-    try {
-      const response = await cart.initialize_cart({ user_id });
-      const cart_data = response?.data ?? response;
-      if (cart_data) {
-        dispatch(set_cart(cart_data));
-      }
-    } catch (error) {
-      console.error("Initialize Cart Error:", error);
-    }
-  };
-
 
   const handle_session_change = (
     event: AuthChangeEvent,
@@ -49,7 +30,7 @@ const MainApp = () => {
     }
 
     if (event === "SIGNED_IN" && session?.user?.id) {
-      initialize_user_cart(session.user.id);
+      initializeUserCart(dispatch, session.user.id);
     }
   };
 
@@ -68,7 +49,7 @@ const MainApp = () => {
       dispatch(setLogin(!!data.session));
 
       if (data.session?.user?.id) {
-        await initialize_user_cart(data.session.user.id);
+        await initializeUserCart(dispatch, data.session.user.id);
       }
     } catch (error) {
       const message =
@@ -78,7 +59,6 @@ const MainApp = () => {
       set_loading(false);
     }
   };
-
 
   useEffect(() => {
     fetch_session();

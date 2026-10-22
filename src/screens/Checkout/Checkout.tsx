@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import {
     ActivityIndicator,
+    Alert,
     FlatList,
     Image,
     StyleSheet,
@@ -9,7 +10,7 @@ import {
     View,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Header from "../../components/Header";
 import { SIZES } from "../../../constants";
 import ImageLinks from "../../../assets/ImageLink";
@@ -29,6 +30,14 @@ import SavedPaymentCardRow from "../../components/SavedPaymentCardRow";
 import order from "../../../utils/api/order";
 import { useAppToast } from "../../context/AppToast";
 import Button from "../../components/Button";
+import Loader from "../../components/Loader";
+import { getRazorpayCheckout } from "../../../utils/razorpayCheckout";
+import { clear_cart } from "../../../store/slices/CartSlice";
+import { initializeUserCart } from "../../../utils/cart/initializeUserCart";
+import {
+    formatPhoneFull,
+    resolvePhoneParts,
+} from "../../../utils/account/profileHelpers";
 
 function isDeliveryAddress(value: unknown): value is DeliveryAddress {
     if (!value || typeof value !== "object") {
@@ -45,21 +54,29 @@ function isDeliveryAddress(value: unknown): value is DeliveryAddress {
 const Checkout = ({ navigation }: any) => {
     const { colors, darkMode } = useAppTheme();
     const toast = useAppToast();
+    const dispatch = useDispatch();
     const checkout_footer_background = darkMode
         ? colors.surface
         : colors.surfaceElevated;
+
     const [deliveryAddress, setDeliveryAddress] =
         useState<DeliveryAddress | null>(null);
     const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
     const [cardsLoading, setCardsLoading] = useState(true);
     const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-
+    const [verifyingPayment, setVerifyingPayment] = useState(false);
     const cart_data = useSelector((state: any) => state?.cart?.cart_data);
+    const auth_user = useSelector(
+        (state: any) => state?.user?.session?.session?.user,
+    );
+
     const cart_items = useMemo(
         () => flattenCartProducts(cart_data?.products),
         [cart_data?.products],
     );
+
+    console.log("cart_data", cart_data);
 
     const cart_subtotal = useMemo(
         () => calculateCartSubtotal(cart_items),
@@ -111,6 +128,134 @@ const Checkout = ({ navigation }: any) => {
         }, []),
     );
 
+    const handle_order_confirmed = async (data: { razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string }) => {
+        try {
+            const response = await order.verify_order(data);
+            if (response?.status === "paid") {
+                return response;
+            }
+        } catch (error) {
+            console.log("error", error);
+            toast.show({
+                title: "Failed to confirm order",
+                background: "red.800",
+            });
+        }
+    }
+
+    const handle_razorpay_payment = async (razorpay_data: any) => {
+        const RazorpayCheckout = getRazorpayCheckout();
+        if (!RazorpayCheckout) {
+            toast.show({
+                title: "Razorpay is not available. Rebuild the app after installing the SDK.",
+                background: "red.800",
+            });
+            return;
+        }
+
+        const amount = Math.round(Number(razorpay_data?.amount));
+        const key = razorpay_data?.razorpayKeyId;
+        const orderId =
+            razorpay_data?.razorpayOrderId;
+        const currency = razorpay_data?.currency ?? "INR";
+
+        const phone_parts = resolvePhoneParts(auth_user);
+        const contact = formatPhoneFull(phone_parts);
+        const prefill = {
+            name: auth_user?.user_metadata?.username,
+            email: auth_user?.email,
+            contact: contact,
+        };
+
+        if (!key || !orderId || !Number.isFinite(amount) || amount <= 0) {
+            toast.show({
+                title: "Invalid Razorpay order details",
+                background: "red.800",
+            });
+            return;
+        }
+        setLoading(false);
+
+        const options = {
+            key,
+            amount,
+            currency,
+            name: "Eat Me",
+            description: "Food order payment",
+            order_id: orderId,
+            prefill,
+            theme: { color: "#ed7550" },
+        };
+
+        try {
+            const razorpay_payment: any = await RazorpayCheckout.open(options);
+
+            if (!razorpay_payment?.razorpay_payment_id) {
+                Alert.alert(
+                    "Payment pending",
+                    "We could not confirm your payment yet. Check your order status before retrying.",
+                );
+                return;
+            }
+
+            setVerifyingPayment(true);
+            try {
+                const response = await handle_order_confirmed({
+                    razorpay_order_id: razorpay_data?.razorpayOrderId,
+                    razorpay_payment_id: razorpay_payment?.razorpay_payment_id,
+                    razorpay_signature: razorpay_payment?.razorpay_signature,
+                });
+
+                if (response) {
+                    toast.show({
+                        title: "Payment successful. Order confirmed",
+                        background: "green.800",
+                    });
+                    dispatch(clear_cart());
+                    await initializeUserCart(dispatch, auth_user?.id);
+                    setVerifyingPayment(false);
+                    navigation.navigate(constants.route_names.OrderConfirmed);
+                }
+            } finally {
+                setVerifyingPayment(false);
+            }
+        } catch (error) {
+            console.log("error", error);
+            setVerifyingPayment(false);
+            toast.show({
+                title: "Payment cancelled or failed",
+                background: "red.800",
+            });
+        }
+    };
+
+    const handle_place_order_with_razorpay = async () => {
+        if (!cart_data?.cart_id) return;
+
+        setLoading(true);
+        try {
+            const response = await order.create_order({
+                cart_id: cart_data?.cart_id,
+                provider: "razorpay",
+                delivery_address: deliveryAddress,
+            });
+            const data = response?.data;
+            if (response?.status === 201) {
+                await handle_razorpay_payment({
+                    ...data,
+                    ...data?.order_data,
+                    ...data?.razorpay_data,
+                });
+            }
+        } catch (error) {
+            toast.show({
+                title: "Failed to place order",
+                background: "red.800",
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handle_place_order = async () => {
         setLoading(true);
@@ -119,10 +264,13 @@ const Checkout = ({ navigation }: any) => {
                 const response = await order.create_order({
                     cart_id: cart_data?.cart_id,
                     payment_method_id: selectedCardId,
+                    provider: "demo",
+                    delivery_address: deliveryAddress,
                 });
                 if (response?.status === 201) {
+                    dispatch(clear_cart());
+                    await initializeUserCart(dispatch, auth_user?.id);
                     navigation.navigate(constants.route_names.OrderConfirmed);
-                    return;
                 }
             } catch (error) {
                 toast.show({
@@ -261,6 +409,7 @@ const Checkout = ({ navigation }: any) => {
 
     return (
         <ThemedScreen>
+            {verifyingPayment ? <Loader /> : null}
             <Header
                 container_style={{
                     marginRight: 18,
@@ -330,6 +479,18 @@ const Checkout = ({ navigation }: any) => {
                     style={[styles.summary_divider, { backgroundColor: colors.border }]}
                 />
                 {render_summary_row("Total:", cart_total, true)}
+
+                <Button
+                    style={styles.razorpay_order_btn}
+                    onClick={handle_place_order_with_razorpay}
+                    text="Place your Order With RazorPay"
+                    type="primary"
+                    width="100%"
+                    loading={loading}
+                    disabled={loading}
+                    icon={ImageLinks.razorpay}
+                    iconStyle={styles.razorpay_icon}
+                />
                 <Button
                     style={styles.place_order_btn}
                     onClick={handle_place_order}
@@ -339,6 +500,7 @@ const Checkout = ({ navigation }: any) => {
                     loading={loading}
                     disabled={loading}
                 />
+
             </View>
         </ThemedScreen>
     );
@@ -462,6 +624,19 @@ const styles = StyleSheet.create({
         paddingVertical: 18,
         alignItems: "center",
         justifyContent: "center",
+    },
+    razorpay_order_btn: {
+        marginTop: 12,
+        backgroundColor: "#000000",
+        borderRadius: 14,
+        paddingVertical: 18,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    razorpay_icon: {
+        width: 24,
+        height: 24,
+        borderRadius: 4,
     },
     place_order_text: {
         color: "#fff",

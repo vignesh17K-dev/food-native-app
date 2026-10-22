@@ -25,6 +25,7 @@ import visa_card from './icons/visa_card.png';
 import master_card from './icons/master_card.png';
 import location from './icons/location.png';
 import party_popper from './images/party_popper.png';
+import razorpay from './icons/razorpay.png';
 
 const ImageLinks = {
     google_icon,
@@ -54,6 +55,7 @@ const ImageLinks = {
     master_card,
     location,
     party_popper,
+    razorpay,
 };
 
 export default ImageLinks;
