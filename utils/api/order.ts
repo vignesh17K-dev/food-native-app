@@ -8,6 +8,17 @@ const order = {
             data: order_data,
         });
     },
+    verify_order: (data: { razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string }) => {
+        return utils.api_request({
+            url: 'api/order/verify_order',
+            method: 'POST',
+            data: {
+                razorpay_order_id: data.razorpay_order_id,
+                razorpay_payment_id: data.razorpay_payment_id,
+                razorpay_signature: data.razorpay_signature,
+            },
+        });
+    },
 };
 
 export default order;

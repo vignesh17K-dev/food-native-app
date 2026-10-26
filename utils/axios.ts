@@ -7,7 +7,7 @@ const BASE_URL = 'https://food-app-backend-flame-omega.vercel.app';
 const BASE_URL_STAGING = 'https://food-app-backend-git-staging-vignesh17-projects.vercel.app/';
 
 const axiosInstance = axios.create({
-  baseURL: BASE_URL,
+  baseURL: BASE_URL_STAGING,
   timeout: 3800 * 1000,
   headers: {
     'Content-Type': 'application/json',

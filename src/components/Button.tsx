@@ -8,6 +8,9 @@ import {
   ViewStyle,
   StyleProp,
   ActivityIndicator,
+  Image,
+  ImageSourcePropType,
+  ImageStyle,
 } from "react-native";
 import { SIZES } from "../../constants";
 import { ACCENT } from "../../utils/theme/appTheme";
@@ -23,6 +26,8 @@ interface Props {
   style?: StyleProp<ViewStyle>;
   activityIndicatorProps?: any;
   disabled?: boolean;
+  icon?: ImageSourcePropType;
+  iconStyle?: StyleProp<ImageStyle>;
 }
 
 const Button = ({
@@ -34,8 +39,35 @@ const Button = ({
   style,
   activityIndicatorProps,
   disabled,
+  icon,
+  iconStyle,
 }: Props) => {
   const isDisabled = Boolean(disabled || loading);
+
+  const renderContent = (textStyle: StyleProp<any>, disabledTextStyle: StyleProp<any>) => {
+    if (loading) {
+      return (
+        <ActivityIndicator
+          color="#ffffff"
+          size="small"
+          {...activityIndicatorProps}
+        />
+      );
+    }
+
+    return (
+      <View style={styles.content_row}>
+        {icon ? (
+          <Image
+            source={icon}
+            style={[styles.icon, iconStyle]}
+            resizeMode="contain"
+          />
+        ) : null}
+        <Text style={[textStyle, isDisabled && disabledTextStyle]}>{text}</Text>
+      </View>
+    );
+  };
 
   const renderButton = () => {
     switch (type) {
@@ -50,21 +82,9 @@ const Button = ({
                 width !== undefined ? { width } : null,
               ]}
             >
-              {loading ? (
-                <ActivityIndicator
-                  color="#ffffff"
-                  size="small"
-                  {...activityIndicatorProps}
-                />
-              ) : (
-                <Text
-                  style={[
-                    styles.primaryButtonText,
-                    isDisabled && styles.primaryButtonTextDisabled,
-                  ]}
-                >
-                  {text}
-                </Text>
+              {renderContent(
+                styles.primaryButtonText,
+                styles.primaryButtonTextDisabled,
               )}
             </View>
           </TouchableOpacity>
@@ -80,14 +100,10 @@ const Button = ({
                 width !== undefined ? { width } : null,
               ]}
             >
-              <Text
-                style={[
-                  styles.secondaryButtonText,
-                  isDisabled && styles.secondaryButtonTextDisabled,
-                ]}
-              >
-                {text}
-              </Text>
+              {renderContent(
+                styles.secondaryButtonText,
+                styles.secondaryButtonTextDisabled,
+              )}
             </View>
           </TouchableOpacity>
         );
@@ -98,6 +114,16 @@ const Button = ({
 };
 
 const styles = StyleSheet.create({
+  content_row: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+  },
+  icon: {
+    width: 22,
+    height: 22,
+  },
   secondaryButton: {
     borderRadius: 10,
   },

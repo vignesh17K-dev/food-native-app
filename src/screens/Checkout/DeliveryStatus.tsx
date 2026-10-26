@@ -71,8 +71,8 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   back_arrow: {
-    width: 24,
-    height: 24,
+    width: 30,
+    height: 30,
     resizeMode: "contain",
   },
   content: {
