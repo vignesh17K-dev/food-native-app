@@ -211,10 +211,10 @@ const Checkout = ({ navigation }: any) => {
                         title: "Payment successful. Order confirmed",
                         background: "green.800",
                     });
-                    dispatch(clear_cart());
-                    await initializeUserCart(dispatch, auth_user?.id);
                     setVerifyingPayment(false);
                     navigation.navigate(constants.route_names.OrderConfirmed);
+                    dispatch(clear_cart());
+                    await initializeUserCart(dispatch, auth_user?.id);
                 }
             } finally {
                 setVerifyingPayment(false);
@@ -255,6 +255,8 @@ const Checkout = ({ navigation }: any) => {
         } finally {
             setLoading(false);
         }
+
+        
     };
 
     const handle_place_order = async () => {
@@ -268,9 +270,9 @@ const Checkout = ({ navigation }: any) => {
                     delivery_address: deliveryAddress,
                 });
                 if (response?.status === 201) {
+                    navigation.navigate(constants.route_names.OrderConfirmed);
                     dispatch(clear_cart());
                     await initializeUserCart(dispatch, auth_user?.id);
-                    navigation.navigate(constants.route_names.OrderConfirmed);
                 }
             } catch (error) {
                 toast.show({
@@ -455,11 +457,10 @@ const Checkout = ({ navigation }: any) => {
                         </Text>
                     }
                     ListFooterComponent={
-                        <View style={{ flexDirection: 'column', gap: 10 }}>
+                        <View style={styles.list_footer}>
                             {handle_render_delivery_address()}
                             {handle_render_payment_method()}
                         </View>
-
                     }
                 />
             </View>
@@ -572,7 +573,12 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         gap: 12,
         marginHorizontal: 20,
-        paddingBottom: 16,
+        paddingBottom: 24,
+    },
+    list_footer: {
+        flexDirection: "column",
+        gap: 10,
+        paddingBottom: 12,
     },
     empty_text: {
         textAlign: "center",
@@ -590,10 +596,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.08,
         shadowRadius: 12,
         elevation: 8,
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
     },
     summary_row: {
         flexDirection: "row",
