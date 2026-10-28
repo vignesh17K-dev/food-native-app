@@ -48,13 +48,14 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Eat Me uses your location to set your delivery address and show nearby options.",
+          "locationWhenInUsePermission": "Eat Me uses your location to set your delivery address and show nearby options."
         }
       ],
       "expo-status-bar",
       "expo-web-browser",
       "expo-font",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "react-native-maps"
     ]
   }
 }

@@ -35,7 +35,7 @@ interface PayloadProps {
 
 const Wishlist = ({ navigation }: any) => {
   const { colors } = useAppTheme();
-  const [add_to_cart_loading, set_add_to_cart_loading] = useState(false)
+  const [add_to_cart_loading, set_add_to_cart_loading] = useState({ is_loading: false, product_id: "" })
   const wishlist_data = useSelector(
     (state: any) => state?.wishlist?.wishlist_data
   );
@@ -51,9 +51,9 @@ const Wishlist = ({ navigation }: any) => {
 
 
   const handle_add_products_to_cart = async (product: any) => {
-    if (add_to_cart_loading) return;
+    if (add_to_cart_loading?.is_loading) return;
 
-    set_add_to_cart_loading(true);
+    set_add_to_cart_loading({ is_loading: true, product_id: product?.id });
     try {
       const payload: PayloadProps = {
         product_id: product?.id,
@@ -83,7 +83,7 @@ const Wishlist = ({ navigation }: any) => {
     } catch (error) {
       console.log(error);
     } finally {
-      set_add_to_cart_loading(false);
+      set_add_to_cart_loading({ is_loading: false, product_id: "" });
     }
   };
 
@@ -135,7 +135,7 @@ const Wishlist = ({ navigation }: any) => {
         </TouchableOpacity>
 
         {!is_product_in_cart ? <Button
-          loading={add_to_cart_loading}
+          loading={add_to_cart_loading?.is_loading && add_to_cart_loading?.product_id === item?.id}
           onClick={() => handle_add_products_to_cart(item)}
           text={"Add To Cart"}
           type="primary"

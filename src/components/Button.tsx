@@ -11,6 +11,7 @@ import {
   Image,
   ImageSourcePropType,
   ImageStyle,
+  DimensionValue,
 } from "react-native";
 import { SIZES } from "../../constants";
 import { ACCENT } from "../../utils/theme/appTheme";
@@ -20,7 +21,7 @@ type ButtonType = "primary" | "secondary";
 interface Props {
   text: string;
   type: ButtonType;
-  width?: number | string;
+  width?: DimensionValue;
   onClick?: () => void;
   loading?: boolean;
   style?: StyleProp<ViewStyle>;

@@ -21,6 +21,7 @@ const constants = {
         PrivacyPolicy: 'privacypolicy',
         CheckUpdate: 'checkupdate',
         AccountDetails:'accountdetails',
+        User: 'user',
         ChangePassword:'changepassword',
         Preferences: 'preferences',
         CardInfo: 'cardinfo',
@@ -28,6 +29,7 @@ const constants = {
         Checkout: 'checkout',
         OrderConfirmed: 'orderconfirmed',
         DeliveryStatus: 'deliverystatus',
+        MapView: 'mapview',
     } as const,
     storage_keys: {
         deliveryAddress: "delivery_address",
@@ -224,7 +226,35 @@ const constants = {
             key: 'logout',
             icon: icons.logout
         },
-    ]
+    ],
+    default_map_region: {
+        latitude: 37.774929,
+        longitude: -122.419416,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+    },
+    delivery_steps: [
+        {
+            id: "order_confirmed",
+            title: "Order Confirmed",
+            subtitle: "Your order has been received",
+        },
+        {
+            id: "order_preparing",
+            title: "Order Prepared",
+            subtitle: "Your order has been prepared",
+        },
+        {
+            id: "on_the_way",
+            title: "Delivery in Progress",
+            subtitle: "Hang on!, your food is on the way",
+        },
+        {
+            id: "delivered",
+            title: "Delivered",
+            subtitle: "Enjoy your meal!",
+        },
+    ],
 }
 
 
