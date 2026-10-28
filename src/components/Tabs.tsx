@@ -19,6 +19,7 @@ import Settings from "../screens/Settings/Settings";
 import Wishlist from "../screens/Wishlist/Wishlist";
 import { useNavigation, useNavigationState } from "@react-navigation/native";
 import { useAppTheme } from "../hooks/useAppTheme";
+import OrderStatusBanner from "./OrderStatusBanner";
 
 const Tab = createBottomTabNavigator();
 
@@ -107,6 +108,7 @@ const TabView = () => {
       shadowOpacity: 0.1,
       elevation: 5,
     }}>
+      <OrderStatusBanner />
       <View
         style={[
           styles.tab_container,

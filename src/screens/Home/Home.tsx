@@ -75,10 +75,12 @@ const Home = ({ navigation }: any) => {
           }
           right_section={<CartIcon />}
           left_section={
-            <TouchableOpacity >
+            <TouchableOpacity
+              onPress={() => navigate.navigate(constants.route_names.User)}
+            >
               <Image
                 source={ImageLinks.profile}
-                alt="search"
+                alt="profile"
                 style={{ height: 45, width: 45, borderRadius: 10 }}
               />
             </TouchableOpacity>

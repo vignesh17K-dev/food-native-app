@@ -22,6 +22,8 @@ import AddCard from "./screens/Settings/AddCard";
 import Checkout from "./screens/Checkout/Checkout";
 import OrderConfirmed from "./screens/Checkout/OrderConfirmed";
 import DeliveryStatus from "./screens/Checkout/DeliveryStatus";
+import MapScreen from "./screens/Checkout/MapScreen";
+import User from "./screens/User/User";
 
 export type RootStackParamList = {
   onBoarding: undefined;
@@ -37,6 +39,7 @@ export type RootStackParamList = {
   "terms&condition": undefined;
   privacypolicy: undefined;
   accountdetails: undefined;
+  user: undefined;
   changepassword: undefined;
   preferences: undefined;
   cardinfo: undefined;
@@ -44,6 +47,7 @@ export type RootStackParamList = {
   checkout: undefined;
   orderconfirmed: undefined;
   deliverystatus: undefined;
+  mapview: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -123,6 +127,8 @@ const Routes = () => {
         name={route_names.DeliveryStatus}
         component={DeliveryStatus}
       />
+      <Stack.Screen name={route_names.MapView} component={MapScreen} />
+      <Stack.Screen name={route_names.User} component={User} />
     </Stack.Navigator>
   );
 };
