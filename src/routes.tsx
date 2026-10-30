@@ -24,6 +24,8 @@ import OrderConfirmed from "./screens/Checkout/OrderConfirmed";
 import DeliveryStatus from "./screens/Checkout/DeliveryStatus";
 import MapScreen from "./screens/Checkout/MapScreen";
 import User from "./screens/User/User";
+import MyOrders from "./screens/User/MyOrders";
+import Notifications from "./screens/User/Notifications";
 
 export type RootStackParamList = {
   onBoarding: undefined;
@@ -40,6 +42,8 @@ export type RootStackParamList = {
   privacypolicy: undefined;
   accountdetails: undefined;
   user: undefined;
+  myorders: undefined;
+  notifications: undefined;
   changepassword: undefined;
   preferences: undefined;
   cardinfo: undefined;
@@ -129,6 +133,11 @@ const Routes = () => {
       />
       <Stack.Screen name={route_names.MapView} component={MapScreen} />
       <Stack.Screen name={route_names.User} component={User} />
+      <Stack.Screen name={route_names.MyOrders} component={MyOrders} />
+      <Stack.Screen
+        name={route_names.Notifications}
+        component={Notifications}
+      />
     </Stack.Navigator>
   );
 };

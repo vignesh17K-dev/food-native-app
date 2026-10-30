@@ -276,6 +276,14 @@ PODS:
   - hermes-engine (250829098.0.17):
     - hermes-engine/Pre-built (= 250829098.0.17)
   - hermes-engine/Pre-built (250829098.0.17)
+  - NWWebSocket (0.5.10)
+  - pusher-websocket-react-native (1.3.5):
+    - PusherSwift (~> 10.1.10)
+    - React
+  - PusherSwift (10.1.10):
+    - NWWebSocket (~> 0.5.10)
+    - PusherTweetNacl (~> 1.2.0)
+  - PusherTweetNacl (1.2.0)
   - razorpay-core-pod (1.0.9)
   - razorpay-pod (1.5.8):
     - razorpay-core-pod (= 1.0.9)
@@ -2623,6 +2631,7 @@ DEPENDENCIES:
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
+  - "pusher-websocket-react-native (from `../node_modules/@pusher/pusher-websocket-react-native`)"
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
   - RCTRequired (from `../node_modules/react-native/Libraries/Required`)
   - RCTSwiftUI (from `../node_modules/react-native/ReactApple/RCTSwiftUI`)
@@ -2711,6 +2720,9 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - NWWebSocket
+    - PusherSwift
+    - PusherTweetNacl
     - razorpay-core-pod
     - razorpay-pod
     - ReachabilitySwift
@@ -2779,6 +2791,8 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-v250829098.0.17
+  pusher-websocket-react-native:
+    :path: "../node_modules/@pusher/pusher-websocket-react-native"
   RCTDeprecation:
     :path: "../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation"
   RCTRequired:
@@ -2980,6 +2994,10 @@ SPEC CHECKSUMS:
   EXUpdatesInterface: 4c96533f11c8cefe879bd506564cc2d537f56804
   FBLazyVector: 2138c6c2ab66c31bf5754dc18097fbc498a49c7f
   hermes-engine: 63c5db7d529c36335fada6582fd293ae2a105d77
+  NWWebSocket: 873eb4b18acd0317da70cdba388d792a3187ce00
+  pusher-websocket-react-native: abc07fda5976027d80d6728ddb69b655116befcb
+  PusherSwift: 6022fe6584b4317dc5c177091292b2a4d80a8c35
+  PusherTweetNacl: 015f56f2cf010e718703f2bd9bca66fdcc91b208
   razorpay-core-pod: 7ecea8ed3c47751e6a958f6c88126ea068f8c8fc
   razorpay-pod: 3fc296eacb28a059c55144286ea7c04d33d894f5
   RCTDeprecation: 96f68ebf33f8762466b01d57d6e873c4f30efb07

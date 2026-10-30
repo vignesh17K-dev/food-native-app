@@ -118,7 +118,7 @@ const DatePickerField = ({
             backgroundColor: is_account
               ? colors.surfaceElevated
               : colors.inputMuted,
-            opacity: darkMode || is_account ? 1 : 0.4,
+            opacity: 1,
             borderWidth: darkMode || is_account ? StyleSheet.hairlineWidth : 0,
             borderColor: colors.border,
           },
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   },
   field_default: {
     backgroundColor: "rgb(211, 211, 211)",
-    opacity: 0.4,
+    opacity: 1,
     borderWidth: 1,
     borderColor: "transparent",
   },

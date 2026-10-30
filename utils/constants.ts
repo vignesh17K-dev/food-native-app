@@ -22,6 +22,8 @@ const constants = {
         CheckUpdate: 'checkupdate',
         AccountDetails:'accountdetails',
         User: 'user',
+        MyOrders: 'myorders',
+        Notifications: 'notifications',
         ChangePassword:'changepassword',
         Preferences: 'preferences',
         CardInfo: 'cardinfo',

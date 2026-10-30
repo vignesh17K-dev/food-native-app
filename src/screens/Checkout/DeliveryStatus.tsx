@@ -24,10 +24,7 @@ const DeliveryStatus = ({ navigation }: any) => {
   const { colors, darkMode } = useAppTheme();
 
   const handle_back_home = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: constants.route_names.MainApp }],
-    });
+    navigation.goBack();
   };
 
   return (
