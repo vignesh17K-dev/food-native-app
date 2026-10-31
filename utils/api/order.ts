@@ -19,6 +19,20 @@ const order = {
             },
         });
     },
+
+    get_orders: () => {
+        return utils.api_request({
+            url: 'api/order/get_orders',
+            method: 'GET',
+        });
+    },
+
+    get_order: (order_id: string) => {
+        return utils.api_request({
+            url: `api/order/get_order/${order_id}`,
+            method: 'GET',
+        });
+    },
 };
 
 export default order;

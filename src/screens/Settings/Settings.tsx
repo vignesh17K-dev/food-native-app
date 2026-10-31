@@ -14,13 +14,20 @@ import { setLogin } from "../../../store/slices/LoginSlice";
 import { useNavigation } from "@react-navigation/native";
 import { store } from "../../../store/store";
 import { useAppTheme } from "../../hooks/useAppTheme";
+import { useAppSelector } from "../../../store/hooks";
 
 const Settings = ({ navigation }: any) => {
   const toast = useAppToast();
   const dispatch = useDispatch();
   const navigate: any = useNavigation();
   const { colors } = useAppTheme();
-
+  const auth_user = useAppSelector(
+    (state) => state.user.session?.session?.user,
+  );
+  const is_phone_provider = auth_user?.app_metadata?.provider === "phone";
+  const settings_list = is_phone_provider
+    ? constants.settings.filter((item) => item.key !== "change_password")
+    : constants.settings;
 
   const handle_logout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -65,24 +72,20 @@ const Settings = ({ navigation }: any) => {
   };
 
   const render_item = ({ item, index }: any) => {
-    const is_last = index === constants.settings?.length - 1
+    const is_last = index === settings_list.length - 1;
 
     return (
       <React.Fragment>
         <TouchableOpacity onPress={() => handle_click(item)}>
-          <View style={styles.item_container} >
-            <Image
-              source={item?.icon}
-              style={styles.image_style}
-            />
+          <View style={styles.item_container}>
+            <Image source={item?.icon} style={styles.image_style} />
             <Text style={{ color: colors.text }}>{item?.name}</Text>
           </View>
         </TouchableOpacity>
 
-
         {!is_last && <Divider style={{ marginTop: 8 }} />}
       </React.Fragment>
-    )
+    );
   };
 
   return (
@@ -119,7 +122,7 @@ const Settings = ({ navigation }: any) => {
       />
 
       <FlatList
-        data={constants.settings}
+        data={settings_list}
         renderItem={render_item}
         keyExtractor={(item) => `${item?.key?.toString()}${item?.name}`}
         contentContainerStyle={[

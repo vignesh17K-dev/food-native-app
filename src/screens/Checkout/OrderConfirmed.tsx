@@ -10,18 +10,19 @@ import { SIZES } from "../../../constants";
 
 const REDIRECT_SECONDS = 5;
 
-const OrderConfirmed = ({ navigation }: any) => {
+const OrderConfirmed = ({ navigation, route }: any) => {
   const { colors } = useAppTheme();
   const insets = useSafeAreaInsets();
+  const { order_id } = route.params
   const [secondsLeft, setSecondsLeft] = useState(REDIRECT_SECONDS);
 
   const go_to_delivery_status = () => {
-    navigation.replace(constants.route_names.DeliveryStatus);
+    navigation.replace(constants.route_names.DeliveryStatus, { order_id });
   };
 
   useEffect(() => {
     if (secondsLeft <= 0) {
-      navigation.replace(constants.route_names.DeliveryStatus);
+      navigation.replace(constants.route_names.DeliveryStatus, { order_id });
       return;
     }
 

@@ -12,6 +12,7 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import Header from "../../components/Header";
 import ImageLinks from "../../../assets/ImageLink";
 import { COLORS, SIZES } from "../../../constants";
+import constants from "../../../utils/constants";
 import { useAppSelector } from "../../../store/hooks";
 import { displayValue } from "../../../utils/account/profileHelpers";
 import { useAppTheme } from "../../hooks/useAppTheme";
@@ -23,13 +24,13 @@ const MENU_ITEMS = [
     key: "orders",
     label: "My Orders",
     icon: "package-variant-closed",
-    route: null,
+    route: constants.route_names.MyOrders,
   },
   {
     key: "notifications",
     label: "My Notifications",
     icon: "bell-outline",
-    route: null,
+    route: constants.route_names.Notifications,
   },
 ] as const;
 
@@ -40,9 +41,10 @@ const User = ({ navigation }: any) => {
   const { colors, darkMode } = useAppTheme();
 
   const full_name =
-    (auth_user?.user_metadata?.full_name as string | undefined) ||
-    auth_user?.email?.split("@")[0] ||
+    (auth_user?.user_metadata?.username as string | undefined) ||
+    auth_user?.email?.split("@")?.[0] ||
     "User";
+
   const email = auth_user?.email ?? "";
   const phone = displayValue(
     (auth_user?.user_metadata?.phone as string | undefined) ||
@@ -96,7 +98,7 @@ const User = ({ navigation }: any) => {
                     {full_name}
                   </Text>
                   <View style={{ backgroundColor: COLORS.primary, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
-                    <Text style={{ fontSize: 12, fontWeight: "600", color: colors.text }}
+                    <Text style={{ fontSize: 12, fontWeight: "600", color: 'white'}}
                     >
                       Gold Member
                     </Text>

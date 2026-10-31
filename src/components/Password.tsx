@@ -64,7 +64,7 @@ const Password = ({
                   backgroundColor: is_account
                     ? colors.surfaceElevated
                     : colors.inputMuted,
-                  opacity: darkMode || is_account ? 1 : 0.4,
+                  opacity: 1,
                   borderColor: is_account || darkMode ? colors.border : "transparent",
                   borderWidth: is_account || darkMode ? StyleSheet.hairlineWidth : 0,
                 },

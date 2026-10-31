@@ -22,6 +22,8 @@ const constants = {
         CheckUpdate: 'checkupdate',
         AccountDetails:'accountdetails',
         User: 'user',
+        MyOrders: 'myorders',
+        Notifications: 'notifications',
         ChangePassword:'changepassword',
         Preferences: 'preferences',
         CardInfo: 'cardinfo',
@@ -34,6 +36,11 @@ const constants = {
     storage_keys: {
         deliveryAddress: "delivery_address",
     },
+    pusher: {
+        apiKey: "3b9ac8d21967a2239e94",
+        cluster: "ap2",
+    },
+
     bottom_tabs: [
         {
             id: 0,
@@ -255,8 +262,30 @@ const constants = {
             subtitle: "Enjoy your meal!",
         },
     ],
+    order_statuses: [
+        {
+            key: "confirmed",
+            title: "Order Confirmed",
+            description: "Restaurant has confirmed your order",
+        },
+        {
+            key: "prepared",
+            title: "Food Prepared",
+            description: "Your food is ready",
+        },
+        {
+            key: "out_for_delivery",
+            title: "Out for Delivery",
+            description: "Your order is on its way",
+        },
+        {
+            key: "delivered",
+            title: "Delivered",
+            description: "Your order has been delivered",
+        },
+    ],
 }
 
-
+export const ORDER_STATUSES = constants.order_statuses;
 
 export default constants

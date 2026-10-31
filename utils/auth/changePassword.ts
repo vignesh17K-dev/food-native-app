@@ -16,8 +16,6 @@ export async function changePassword(
     password: oldPassword,
   });
 
-  debugger;
-
   if (signInError) {
     throw new Error("Your current password is incorrect.");
   }
@@ -25,7 +23,6 @@ export async function changePassword(
   const { error: updateError } = await supabase.auth.updateUser({
     password: newPassword,
   });
-  debugger;
 
   if (updateError) {
     throw updateError;

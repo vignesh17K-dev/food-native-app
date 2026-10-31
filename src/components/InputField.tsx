@@ -74,7 +74,7 @@ const InputField = ({
                 backgroundColor: is_account
                   ? colors.surfaceElevated
                   : colors.inputMuted,
-                opacity: darkMode || is_account ? 1 : 0.4,
+                opacity: 1,
               }}
             />
 

@@ -16,7 +16,7 @@ import {
 import { SIZES } from "../../constants";
 import { ACCENT } from "../../utils/theme/appTheme";
 
-type ButtonType = "primary" | "secondary";
+type ButtonType = "primary" | "secondary" | "soft";
 
 interface Props {
   text: string;
@@ -45,11 +45,15 @@ const Button = ({
 }: Props) => {
   const isDisabled = Boolean(disabled || loading);
 
-  const renderContent = (textStyle: StyleProp<any>, disabledTextStyle: StyleProp<any>) => {
+  const renderContent = (
+    textStyle: StyleProp<any>,
+    disabledTextStyle: StyleProp<any>,
+    loaderColor = "#ffffff",
+  ) => {
     if (loading) {
       return (
         <ActivityIndicator
-          color="#ffffff"
+          color={loaderColor}
           size="small"
           {...activityIndicatorProps}
         />
@@ -90,6 +94,25 @@ const Button = ({
             </View>
           </TouchableOpacity>
         );
+      case "soft":
+        return (
+          <TouchableOpacity disabled={isDisabled} onPress={onClick}>
+            <View
+              style={[
+                styles.softButton,
+                isDisabled && styles.softButtonDisabled,
+                style,
+                width !== undefined ? { width } : null,
+              ]}
+            >
+              {renderContent(
+                styles.softButtonText,
+                styles.softButtonTextDisabled,
+                ACCENT,
+              )}
+            </View>
+          </TouchableOpacity>
+        );
       default:
         return (
           <TouchableOpacity disabled={isDisabled} onPress={onClick}>
@@ -104,6 +127,7 @@ const Button = ({
               {renderContent(
                 styles.secondaryButtonText,
                 styles.secondaryButtonTextDisabled,
+                "rgb(159,164,169)",
               )}
             </View>
           </TouchableOpacity>
@@ -147,6 +171,23 @@ const styles = StyleSheet.create({
   },
   primaryButtonTextDisabled: {
     color: "rgba(255,255,255,0.85)",
+  },
+  softButton: {
+    backgroundColor: "#ffdfd6",
+    padding: SIZES.height * 0.015,
+    borderRadius: 10,
+  },
+  softButtonDisabled: {
+    opacity: 0.55,
+  },
+  softButtonText: {
+    color: ACCENT,
+    fontWeight: "700",
+    fontSize: Dimensions.get("window").width * 0.04,
+    textAlign: "center",
+  },
+  softButtonTextDisabled: {
+    color: "#f3b9a5",
   },
   secondaryButtonText: {
     color: "rgb(159,164,169)",

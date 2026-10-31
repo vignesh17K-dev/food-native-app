@@ -380,7 +380,7 @@ const Cart = ({ navigation }: any) => {
               navigation.navigate(constants.route_names.Checkout);
             }}
           >
-            <Text style={styles.place_order_text}>Place your Order</Text>
+            <Text style={styles.place_order_text}>Proceed to Checkout</Text>
           </TouchableOpacity>
         </View>
       )}

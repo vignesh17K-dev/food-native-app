@@ -76,7 +76,6 @@ const Checkout = ({ navigation }: any) => {
         [cart_data?.products],
     );
 
-    console.log("cart_data", cart_data);
 
     const cart_subtotal = useMemo(
         () => calculateCartSubtotal(cart_items),
@@ -128,10 +127,10 @@ const Checkout = ({ navigation }: any) => {
         }, []),
     );
 
-    const handle_order_confirmed = async (data: { razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string }) => {
+    const handle_verify_order = async (data: { razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string }) => {
         try {
             const response = await order.verify_order(data);
-            if (response?.status === "paid") {
+            if (response?.payment_status === "paid") {
                 return response;
             }
         } catch (error) {
@@ -157,7 +156,7 @@ const Checkout = ({ navigation }: any) => {
         const key = razorpay_data?.razorpayKeyId;
         const orderId =
             razorpay_data?.razorpayOrderId;
-        const currency = razorpay_data?.currency ?? "INR";
+        const currency = razorpay_data?.currency ?? "USD";
 
         const phone_parts = resolvePhoneParts(auth_user);
         const contact = formatPhoneFull(phone_parts);
@@ -200,7 +199,7 @@ const Checkout = ({ navigation }: any) => {
 
             setVerifyingPayment(true);
             try {
-                const response = await handle_order_confirmed({
+                const response = await handle_verify_order({
                     razorpay_order_id: razorpay_data?.razorpayOrderId,
                     razorpay_payment_id: razorpay_payment?.razorpay_payment_id,
                     razorpay_signature: razorpay_payment?.razorpay_signature,
@@ -212,7 +211,7 @@ const Checkout = ({ navigation }: any) => {
                         background: "green.800",
                     });
                     setVerifyingPayment(false);
-                    navigation.navigate(constants.route_names.OrderConfirmed);
+                    navigation.navigate(constants.route_names.OrderConfirmed , { order_id: razorpay_data?.order_id });
                     dispatch(clear_cart());
                     await initializeUserCart(dispatch, auth_user?.id);
                 }
@@ -269,8 +268,9 @@ const Checkout = ({ navigation }: any) => {
                     provider: "demo",
                     delivery_address: deliveryAddress,
                 });
+
                 if (response?.status === 201) {
-                    navigation.navigate(constants.route_names.OrderConfirmed);
+                    navigation.navigate(constants.route_names.OrderConfirmed , { order_id: response?.data?.order_data?.order_id });
                     dispatch(clear_cart());
                     await initializeUserCart(dispatch, auth_user?.id);
                 }
