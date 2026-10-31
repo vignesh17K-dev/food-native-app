@@ -1,3 +1,5 @@
+import type { RestaurantSummary } from "./restaurant";
+
 export type Product = {
   id: string;
   name: string;
@@ -11,6 +13,8 @@ export type Product = {
   deliveryDistance?: number;
   tags?: string[];
   rating?: number;
+  restaurant_id?: string;
+  restaurant?: RestaurantSummary | null;
 };
 
 export type Category = {

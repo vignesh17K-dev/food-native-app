@@ -76,6 +76,8 @@ const Wishlist = ({ navigation }: any) => {
               name: product?.name,
               price: product?.price,
               image: product?.image,
+              restaurant_id: product?.restaurant_id,
+              restaurant: product?.restaurant ?? null,
             },
           }),
         ),

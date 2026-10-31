@@ -24,6 +24,7 @@ import orderApi from "../../../utils/api/order";
 import { setOrderDeliveryStatus } from "../../../store/slices/OrderStatusSlice";
 import { getCurrencySymbol } from "../../../utils/currency";
 import { ACCENT } from "../../../utils/theme/appTheme";
+import { getFirstRestaurant } from "../../../utils/order/getFirstRestaurant";
 
 const ORDER_STATUS_STEPS = constants.order_statuses.map((status) => ({
   id: status.key,
@@ -151,15 +152,19 @@ const DeliveryStatus = ({ navigation, route }: any) => {
     const flattened_products = flatMap(cart_products, (product_data: any) =>
       flatMap(product_data, (item: any) => item),
     );
-    const order_image = head(flattened_products)?.image;
+    const first_product = head(flattened_products);
+    const restaurant_logo = first_product?.restaurant?.logo;
+    const order_image =
+      typeof restaurant_logo === "string" && restaurant_logo.length > 0
+        ? restaurant_logo
+        : first_product?.image;
     const image_source =
       typeof order_image === "string" && order_image.length > 0
         ? { uri: order_image }
         : null;
     const date_value = order_detail?.created_at || order_detail?.createdAt;
     const is_razorpay_order =
-      order_detail?.payment_details?.provider === "razorpay" ||
-      Boolean(order_detail?.razorpayOrderId);
+      order_detail?.payment_details?.provider === "razorpay" 
 
     return {
       order_id: order_detail?.order_id ?? order_id,
@@ -195,6 +200,9 @@ const DeliveryStatus = ({ navigation, route }: any) => {
             amount: order?.amount,
             currency: order?.currency,
             estimated_delivery_time: order?.estimated_delivery_time ?? undefined,
+            restaurant:
+              order?.restaurant ??
+              getFirstRestaurant(order?.cart_details?.products),
           }),
         );
       }

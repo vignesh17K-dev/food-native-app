@@ -1,6 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 import { useAppTheme } from "../hooks/useAppTheme";
 import { ACCENT } from "../../utils/theme/appTheme";
 import { map } from "lodash";
@@ -16,42 +24,94 @@ type VerticalStepperProps = {
   currentStep: number;
 };
 
+const ActiveDot = ({ railColor }: { railColor: string }) => {
+  const pulse = useSharedValue(1);
+  const opacity = useSharedValue(1);
+
+  useEffect(() => {
+    pulse.value = withRepeat(
+      withSequence(
+        withTiming(1.22, { duration: 550, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 550, easing: Easing.inOut(Easing.ease) }),
+      ),
+      -1,
+      false,
+    );
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(0.72, { duration: 550, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 550, easing: Easing.inOut(Easing.ease) }),
+      ),
+      -1,
+      false,
+    );
+  }, [pulse, opacity]);
+
+  const animated_style = useAnimatedStyle(() => ({
+    transform: [{ scale: pulse.value }],
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View
+      style={[
+        styles.dot,
+        styles.dot_active,
+        {
+          backgroundColor: ACCENT,
+          borderColor: railColor,
+        },
+        animated_style,
+      ]}
+    >
+      <View style={styles.dot_inner} />
+    </Animated.View>
+  );
+};
+
 const VerticalStepper = ({ steps, currentStep }: VerticalStepperProps) => {
   const { colors } = useAppTheme();
 
   return (
     <View style={styles.container}>
       {map(steps, (step, index) => {
-        const done = index < currentStep;
-        const active = index === currentStep;
+        const is_delivered_step =
+          step.id === "delivered" && index === currentStep;
+        const done = index < currentStep || is_delivered_step;
+        const active = index === currentStep && !is_delivered_step;
         const upcoming = index > currentStep;
-        const railColor = done || active ? ACCENT : '#CCCCCC';
+        const railColor = done || active ? ACCENT : "#CCCCCC";
         const isLast = index === steps.length - 1;
 
         return (
           <View key={step.id} style={styles.row}>
             <View style={styles.rail}>
-              <View
-                style={[
-                  styles.dot,
-                  {
-                    backgroundColor: done || active ? ACCENT : colors.surface,
-                    borderColor: railColor,
-                  },
-                  active && styles.dot_active,
-                ]}
-              >
-                {done ? (
-                  <MaterialCommunityIcons name="check" size={24} color="#fff" />
-                ) : active ? (
-                  <View style={styles.dot_inner} />
-                ) : null}
-              </View>
+              {active ? (
+                <ActiveDot railColor={railColor} />
+              ) : (
+                <View
+                  style={[
+                    styles.dot,
+                    {
+                      backgroundColor: done ? ACCENT : colors.surface,
+                      borderColor: railColor,
+                    },
+                  ]}
+                >
+                  {done ? (
+                    <MaterialCommunityIcons
+                      name="check"
+                      size={24}
+                      color="#fff"
+                    />
+                  ) : null}
+                </View>
+              )}
               {!isLast && (
                 <View
                   style={[
                     styles.line,
-                    { backgroundColor: done ? ACCENT : '#CCCCCC' },
+                    { backgroundColor: done ? ACCENT : "#CCCCCC" },
                   ]}
                 />
               )}
@@ -121,7 +181,6 @@ const styles = StyleSheet.create({
     width: 2,
     flex: 1,
     minHeight: 50,
-
   },
   label: {
     flex: 1,

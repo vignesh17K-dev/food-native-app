@@ -115,7 +115,12 @@ const MyOrders = ({ navigation }: any) => {
       });
     });
 
-    const order_image = head(flattened_products)?.image;
+    const first_product = head(flattened_products);
+    const restaurant_logo = first_product?.restaurant?.logo;
+    const order_image =
+      typeof restaurant_logo === "string" && restaurant_logo.length > 0
+        ? restaurant_logo
+        : first_product?.image;
     const image_source =
       typeof order_image === "string" && order_image.length > 0
         ? { uri: order_image }
