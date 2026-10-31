@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Dimensions,
   FlatList,
+  Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
   StyleSheet,
@@ -45,29 +46,56 @@ type OrderStatusBannerRowProps = {
   on_dismiss?: (order_id: string) => void;
 };
 
-const InProgressIcon = ({ icon_name }: { icon_name: string }) => {
-  const pulse = useSharedValue(1);
+type StatusIconProps = {
+  icon_name: string;
+  pulse?: boolean;
+};
+
+const StatusIcon = ({ icon_name, pulse = false }: StatusIconProps) => {
+  const pulse_scale = useSharedValue(1);
+  const pulse_opacity = useSharedValue(1);
 
   useEffect(() => {
-    pulse.value = withRepeat(
+    if (!pulse) {
+      pulse_scale.value = 1;
+      pulse_opacity.value = 1;
+      return;
+    }
+
+    pulse_scale.value = withRepeat(
       withSequence(
-        withTiming(1.04, { duration: 700, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 700, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1.22, { duration: 550, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 550, easing: Easing.inOut(Easing.ease) }),
       ),
       -1,
       false,
     );
-  }, [pulse]);
+    pulse_opacity.value = withRepeat(
+      withSequence(
+        withTiming(0.72, { duration: 550, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 550, easing: Easing.inOut(Easing.ease) }),
+      ),
+      -1,
+      false,
+    );
+  }, [pulse, pulse_scale, pulse_opacity]);
 
   const animated_style = useAnimatedStyle(() => ({
-    transform: [{ scale: pulse.value }],
+    transform: [{ scale: pulse_scale.value }],
+    opacity: pulse_opacity.value,
   }));
 
-  return (
-    <Animated.View style={[styles.icon_wrap, { backgroundColor: ACCENT }, animated_style]}>
+  const content = (
+    <View style={[styles.icon_wrap, { backgroundColor: ACCENT }]}>
       <MaterialCommunityIcons name={icon_name} size={18} color="#fff" />
-    </Animated.View>
+    </View>
   );
+
+  if (!pulse) {
+    return content;
+  }
+
+  return <Animated.View style={animated_style}>{content}</Animated.View>;
 };
 
 const OrderStatusBannerRow = ({
@@ -87,6 +115,11 @@ const OrderStatusBannerRow = ({
   const subtitle = status_meta?.description ?? "Tap to track delivery";
   const icon_name =
     STATUS_ICONS[order.order_status] ?? "package-variant-closed";
+  const restaurant_logo =
+    typeof order.restaurant?.logo === "string" &&
+    order.restaurant.logo.length > 0
+      ? order.restaurant.logo
+      : undefined;
 
   const handle_press = () => {
     const params = { order_id: order.order_id };
@@ -114,19 +147,20 @@ const OrderStatusBannerRow = ({
         onPress={handle_press}
         style={styles.banner_pressable}
       >
-        {is_in_progress ? (
-          <InProgressIcon icon_name={icon_name} />
-        ) : (
-          <View style={[styles.icon_wrap, { backgroundColor: ACCENT }]}>
-            <MaterialCommunityIcons name={icon_name} size={18} color="#fff" />
-          </View>
-        )}
+        <StatusIcon icon_name={icon_name} pulse={is_in_progress} />
         <View style={styles.text_wrap}>
           <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             {subtitle}
           </Text>
         </View>
+        {restaurant_logo ? (
+          <Image
+            source={{ uri: restaurant_logo }}
+            style={styles.restaurant_logo}
+            resizeMode="cover"
+          />
+        ) : null}
         {!is_delivered ? (
           <MaterialCommunityIcons
             name="chevron-right"
@@ -259,6 +293,11 @@ const styles = StyleSheet.create({
     borderRadius: 17,
     alignItems: "center",
     justifyContent: "center",
+  },
+  restaurant_logo: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
   },
   text_wrap: {
     flex: 1,

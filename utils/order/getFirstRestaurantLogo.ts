@@ -1,0 +1,1 @@
+export { getFirstRestaurantLogo } from "./getFirstRestaurant";
