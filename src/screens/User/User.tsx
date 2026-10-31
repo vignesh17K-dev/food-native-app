@@ -41,9 +41,10 @@ const User = ({ navigation }: any) => {
   const { colors, darkMode } = useAppTheme();
 
   const full_name =
-    (auth_user?.user_metadata?.full_name as string | undefined) ||
-    auth_user?.email?.split("@")[0] ||
+    (auth_user?.user_metadata?.username as string | undefined) ||
+    auth_user?.email?.split("@")?.[0] ||
     "User";
+
   const email = auth_user?.email ?? "";
   const phone = displayValue(
     (auth_user?.user_metadata?.phone as string | undefined) ||

@@ -127,7 +127,7 @@ const Checkout = ({ navigation }: any) => {
         }, []),
     );
 
-    const handle_order_confirmed = async (data: { razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string }) => {
+    const handle_verify_order = async (data: { razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string }) => {
         try {
             const response = await order.verify_order(data);
             if (response?.payment_status === "paid") {
@@ -199,7 +199,7 @@ const Checkout = ({ navigation }: any) => {
 
             setVerifyingPayment(true);
             try {
-                const response = await handle_order_confirmed({
+                const response = await handle_verify_order({
                     razorpay_order_id: razorpay_data?.razorpayOrderId,
                     razorpay_payment_id: razorpay_payment?.razorpay_payment_id,
                     razorpay_signature: razorpay_payment?.razorpay_signature,
@@ -211,7 +211,7 @@ const Checkout = ({ navigation }: any) => {
                         background: "green.800",
                     });
                     setVerifyingPayment(false);
-                    navigation.navigate(constants.route_names.OrderConfirmed);
+                    navigation.navigate(constants.route_names.OrderConfirmed , { order_id: razorpay_data?.order_id });
                     dispatch(clear_cart());
                     await initializeUserCart(dispatch, auth_user?.id);
                 }
@@ -268,8 +268,9 @@ const Checkout = ({ navigation }: any) => {
                     provider: "demo",
                     delivery_address: deliveryAddress,
                 });
+
                 if (response?.status === 201) {
-                    navigation.navigate(constants.route_names.OrderConfirmed);
+                    navigation.navigate(constants.route_names.OrderConfirmed , { order_id: response?.data?.order_data?.order_id });
                     dispatch(clear_cart());
                     await initializeUserCart(dispatch, auth_user?.id);
                 }

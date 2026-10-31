@@ -11,6 +11,7 @@ import { setSession } from "../store/slices/User";
 import { clear_cart } from "../store/slices/CartSlice";
 import Loader from "./components/Loader";
 import { initializeUserCart } from "../utils/cart/initializeUserCart";
+import { connectPusher, disconnectPusher } from "../pusher.config";
 
 const MainApp = () => {
   const dispatch = useDispatch();
@@ -26,11 +27,17 @@ const MainApp = () => {
 
     if (event === "SIGNED_OUT") {
       dispatch(clear_cart());
+      disconnectPusher().catch((error) => {
+        console.log("Pusher disconnect on logout failed:", error);
+      });
       return;
     }
 
     if (event === "SIGNED_IN" && session?.user?.id) {
       initializeUserCart(dispatch, session.user.id);
+      connectPusher(session.user.id).catch((error) => {
+        console.log("Pusher connect on login failed:", error);
+      });
     }
   };
 
@@ -50,6 +57,7 @@ const MainApp = () => {
 
       if (data.session?.user?.id) {
         await initializeUserCart(dispatch, data.session.user.id);
+        await connectPusher(data.session.user.id);
       }
     } catch (error) {
       const message =

@@ -20,8 +20,11 @@ import { useAppTheme } from "../../hooks/useAppTheme";
 import { ACCENT } from "../../../utils/theme/appTheme";
 import { flatMap, head } from "lodash";
 import Button from "../../components/Button";
+import { getCurrencySymbol } from "../../../utils/currency";
 
 type OrderItem = {
+  user_id?: string;
+  currency?: string;
   cart_details?: {
     products?: {
       name?: string;
@@ -29,10 +32,20 @@ type OrderItem = {
       price?: number;
     }[];
   };
+  payment_details:{
+    provider?: string;
+    order_id?: string;
+    amount?: number;
+    currency?: string;
+    status?: string;
+    created_at?: string;
+  }
   id?: string;
   _id?: string;
   order_id?: string;
+  razorpayOrderId?: string;
   payment_status?: string;
+  provider?: string;
   total?: number;
   amount?: number;
   created_at?: string;
@@ -93,6 +106,8 @@ const MyOrders = ({ navigation }: any) => {
     const total = item?.amount;
     const date_value = item.created_at || item.createdAt;
     const cart_products: any = item?.cart_details?.products;
+    const currencySymbol = getCurrencySymbol(item?.currency);
+    const is_razorpay_order = Boolean(item?.payment_details?.provider === "razorpay");
 
     const flattened_products = flatMap(cart_products, (product_data: any) => {
       return flatMap(product_data, (item: any) => {
@@ -117,9 +132,6 @@ const MyOrders = ({ navigation }: any) => {
               : colors.border,
           },
         ]}
-      // onPress={() =>
-      //   navigation.navigate(constants.route_names.DeliveryStatus)
-      // }
       >
 
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
@@ -139,33 +151,37 @@ const MyOrders = ({ navigation }: any) => {
             )}
           </View>
           <View style={styles.order_info}>
-            <Text style={[styles.order_id, { color: colors.text }]}>
-              #{String(orderId).slice(-6).toUpperCase()}
-            </Text>
+            <View style={styles.order_id_row}>
+              <Text style={[styles.order_id, { color: colors.text }]}>
+                #{String(orderId).slice(-6).toUpperCase()}
+              </Text>
+              {is_razorpay_order ? (
+                <Image
+                  source={ImageLinks.razorpay}
+                  style={styles.razorpay_logo}
+                  resizeMode="contain"
+                  accessibilityLabel="Paid with Razorpay"
+                />
+              ) : null}
+            </View>
             <Text style={[styles.order_meta, { color: colors.textSecondary }]}>
-
               {date_value ? `${formatOrderDate(date_value)}` : ""}
-              {flattened_products.length > 0 ? ` · ${flattened_products.length} items` : ''}
+              {flattened_products.length > 0
+                ? ` · ${flattened_products.length} items`
+                : ""}
             </Text>
-
-
           </View>
 
           <Text style={[styles.order_total, { color: COLORS.primary }]}>
-            ₹{Number(total).toFixed(0)}
+            {currencySymbol}{Number(total).toFixed(0)}
           </Text>
         </View>
 
 
         <View style={{ flexDirection: "row", width: '100%', justifyContent: 'space-between' }}>
-          <Button text="View Order" type="primary" width={SIZES.width * 0.40} onClick={() => navigation.navigate(constants.route_names.DeliveryStatus)} />
+          <Button text="View Order" type="primary" width={SIZES.width * 0.40} onClick={() => navigation.navigate(constants.route_names.DeliveryStatus, { order_id: orderId })} />
           <Button text="Rate" type="soft" width={SIZES.width * 0.40} onClick={() => { }} />
         </View>
-
-
-
-
-
       </View>
     );
   };
@@ -291,10 +307,18 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 3,
   },
+  order_id_row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   order_id: {
     fontSize: 15,
     fontWeight: "700",
   },
+  razorpay_logo: {
+    width: 56,
+    height: 18,  },
   order_meta: {
     fontSize: 14,
     fontWeight: "500",
