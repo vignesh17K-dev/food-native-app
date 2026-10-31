@@ -32,6 +32,7 @@ const constants = {
         OrderConfirmed: 'orderconfirmed',
         DeliveryStatus: 'deliverystatus',
         MapView: 'mapview',
+        Restaurant: 'restaurant',
     } as const,
     storage_keys: {
         deliveryAddress: "delivery_address",
@@ -77,6 +78,7 @@ const constants = {
         { section: "delivery", data: [] },
         { section: "category", data: mock_data.categories },
         { section: "popular", data: mock_data.popular_rails },
+        { section: "restaurants", data: [] },
         { section: "menu", data: mock_data.menu_data },
     ],
     onboarding_screens: [

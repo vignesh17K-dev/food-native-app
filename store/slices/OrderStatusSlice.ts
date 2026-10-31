@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { RestaurantSummary } from "../../types/restaurant";
 
 export type OrderDeliveryStatus =
   | "confirmed"
@@ -14,6 +15,7 @@ export type OrderStatusEvent = {
   amount?: number;
   currency?: string;
   estimated_delivery_time?: string;
+  restaurant?: RestaurantSummary | null;
   [key: string]: unknown;
 };
 
@@ -33,7 +35,12 @@ const OrderStatusSlice = createSlice({
       state,
       { payload }: PayloadAction<OrderStatusEvent>,
     ) => {
-      state.statusesByOrderId[payload.order_id] = payload;
+      const existing = state.statusesByOrderId[payload.order_id];
+      state.statusesByOrderId[payload.order_id] = {
+        ...existing,
+        ...payload,
+        restaurant: payload.restaurant ?? existing?.restaurant ?? null,
+      };
     },
     removeOrderDeliveryStatus: (
       state,

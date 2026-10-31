@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import CategoryRail from "./components/CategoryRails";
 import PopularRails from "./components/PopularRails";
 import RecommendedRails from "./components/RecommendedRails";
+import RestaurantRails from "./components/RestaurantRails";
 import _ from "lodash";
 import constants from "../../../utils/constants";
 import MenuRails from "./components/MenuRails";
@@ -142,6 +143,8 @@ const Home = ({ navigation }: any) => {
         return <CategoryRail />;
       case "popular":
         return <PopularRails />;
+      case "restaurants":
+        return <RestaurantRails />;
       case "recommended":
         return <RecommendedRails />;
       case "menu":
