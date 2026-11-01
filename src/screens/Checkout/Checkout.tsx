@@ -38,6 +38,11 @@ import {
     formatPhoneFull,
     resolvePhoneParts,
 } from "../../../utils/account/profileHelpers";
+import {
+    getFirstRestaurant,
+    getFirstRestaurantLocation,
+} from "../../../utils/order/getFirstRestaurant";
+import type { LocationWithAddress } from "../../../types/restaurant";
 
 function isDeliveryAddress(value: unknown): value is DeliveryAddress {
     if (!value || typeof value !== "object") {
@@ -49,6 +54,19 @@ function isDeliveryAddress(value: unknown): value is DeliveryAddress {
         typeof record.longitude === "number" &&
         typeof record.formattedAddress === "string"
     );
+}
+
+function toLocationWithAddress(
+    value: DeliveryAddress | LocationWithAddress | null | undefined,
+): LocationWithAddress | null {
+    if (!value || !isDeliveryAddress(value)) {
+        return null;
+    }
+    return {
+        formattedAddress: value.formattedAddress,
+        latitude: value.latitude,
+        longitude: value.longitude,
+    };
 }
 
 const Checkout = ({ navigation }: any) => {
@@ -76,6 +94,15 @@ const Checkout = ({ navigation }: any) => {
         [cart_data?.products],
     );
 
+    const restaurant_data = useMemo(
+        () => getFirstRestaurant(cart_data?.products),
+        [cart_data?.products],
+    );
+
+    const restaurant_location = useMemo(
+        () => getFirstRestaurantLocation(cart_data?.products),
+        [cart_data?.products],
+    );
 
     const cart_subtotal = useMemo(
         () => calculateCartSubtotal(cart_items),
@@ -83,6 +110,38 @@ const Checkout = ({ navigation }: any) => {
     );
     const shipping_fee = 0;
     const cart_total = cart_subtotal + shipping_fee;
+
+    const build_order_locations = () => {
+        const customer_location = toLocationWithAddress(deliveryAddress);
+        if (!customer_location) {
+            toast.show({
+                title: "Please select a delivery address",
+                background: "red.800",
+            });
+            return null;
+        }
+        if (!restaurant_data) {
+            toast.show({
+                title: "Restaurant data is missing for this cart",
+                background: "red.800",
+            });
+            return null;
+        }
+        if (!restaurant_location) {
+            toast.show({
+                title: "Restaurant location is missing for this cart",
+                background: "red.800",
+            });
+            return null;
+        }
+        return {
+            delivery_detail: {
+                customer_location,
+                restaurant_location,
+            },
+            restaurant_data,
+        };
+    };
 
     useFocusEffect(
         useCallback(() => {
@@ -231,12 +290,16 @@ const Checkout = ({ navigation }: any) => {
     const handle_place_order_with_razorpay = async () => {
         if (!cart_data?.cart_id) return;
 
+        const order_locations = build_order_locations();
+        if (!order_locations) return;
+
         setLoading(true);
         try {
             const response = await order.create_order({
                 cart_id: cart_data?.cart_id,
                 provider: "razorpay",
-                delivery_address: deliveryAddress,
+                delivery_detail: order_locations.delivery_detail,
+                restaurant_data: order_locations.restaurant_data,
             });
             const data = response?.data;
             if (response?.status === 201) {
@@ -254,35 +317,39 @@ const Checkout = ({ navigation }: any) => {
         } finally {
             setLoading(false);
         }
-
-        
     };
 
     const handle_place_order = async () => {
-        setLoading(true);
-        if (cart_data?.cart_id && selectedCardId) {
-            try {
-                const response = await order.create_order({
-                    cart_id: cart_data?.cart_id,
-                    payment_method_id: selectedCardId,
-                    provider: "demo",
-                    delivery_address: deliveryAddress,
-                });
+        if (!cart_data?.cart_id || !selectedCardId) {
+            return;
+        }
 
-                if (response?.status === 201) {
-                    navigation.navigate(constants.route_names.OrderConfirmed , { order_id: response?.data?.order_data?.order_id });
-                    dispatch(clear_cart());
-                    await initializeUserCart(dispatch, auth_user?.id);
-                }
-            } catch (error) {
-                toast.show({
-                    title: "Failed to place order",
-                    background: "red.800",
+        const order_locations = build_order_locations();
+        if (!order_locations) return;
+
+        setLoading(true);
+        try {
+            const response = await order.create_order({
+                cart_id: cart_data?.cart_id,
+                payment_method_id: selectedCardId,
+                provider: "demo",
+                delivery_detail: order_locations.delivery_detail,
+                restaurant_data: order_locations.restaurant_data,
+            });
+
+            if (response?.status === 201) {
+                navigation.navigate(constants.route_names.OrderConfirmed, {
+                    order_id: response?.data?.order_data?.order_id,
                 });
-            } finally {
-                setLoading(false);
+                dispatch(clear_cart());
+                await initializeUserCart(dispatch, auth_user?.id);
             }
-        } else {
+        } catch (error) {
+            toast.show({
+                title: "Failed to place order",
+                background: "red.800",
+            });
+        } finally {
             setLoading(false);
         }
     };

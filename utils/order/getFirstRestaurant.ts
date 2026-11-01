@@ -1,5 +1,8 @@
 import { flatMap } from "lodash";
-import type { RestaurantSummary } from "../../types/restaurant";
+import type {
+  LocationWithAddress,
+  RestaurantSummary,
+} from "../../types/restaurant";
 
 type CartLineWithRestaurant = {
   restaurant?: RestaurantSummary | null;
@@ -39,4 +42,26 @@ export function getFirstRestaurantLogo(
     return logo;
   }
   return undefined;
+}
+
+/** Restaurant pin from the first cart line that has address + coordinates. */
+export function getFirstRestaurantLocation(
+  products: unknown,
+): LocationWithAddress | null {
+  const restaurant = getFirstRestaurant(products);
+  if (
+    !restaurant ||
+    typeof restaurant.formattedAddress !== "string" ||
+    restaurant.formattedAddress.length === 0 ||
+    typeof restaurant.latitude !== "number" ||
+    typeof restaurant.longitude !== "number"
+  ) {
+    return null;
+  }
+
+  return {
+    formattedAddress: restaurant.formattedAddress,
+    latitude: restaurant.latitude,
+    longitude: restaurant.longitude,
+  };
 }

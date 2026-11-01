@@ -8,6 +8,9 @@ export type Restaurant = {
   deliveryDistance: number;
   rating: number;
   tags: string[];
+  formattedAddress?: string;
+  latitude?: number;
+  longitude?: number;
 };
 
 export type RestaurantSummary = {
@@ -19,6 +22,15 @@ export type RestaurantSummary = {
   deliveryTime: string;
   deliveryDistance: number;
   cuisine: string[];
+  formattedAddress?: string;
+  latitude?: number;
+  longitude?: number;
+};
+
+export type LocationWithAddress = {
+  formattedAddress: string;
+  latitude: number;
+  longitude: number;
 };
 
 export type RestaurantDetail = Restaurant & {
