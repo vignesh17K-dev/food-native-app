@@ -116,6 +116,7 @@ const MyOrders = ({ navigation }: any) => {
     });
 
     const first_product = head(flattened_products);
+    const restaurant_name = first_product?.restaurant?.name;
     const restaurant_logo = first_product?.restaurant?.logo;
     const order_image =
       typeof restaurant_logo === "string" && restaurant_logo.length > 0
@@ -156,6 +157,14 @@ const MyOrders = ({ navigation }: any) => {
             )}
           </View>
           <View style={styles.order_info}>
+            {restaurant_name ? (
+              <Text
+                style={[styles.restaurant_name, { color: colors.text }]}
+                numberOfLines={1}
+              >
+                {restaurant_name}
+              </Text>
+            ) : null}
             <View style={styles.order_id_row}>
               <Text style={[styles.order_id, { color: colors.text }]}>
                 #{String(orderId).slice(-6).toUpperCase()}
@@ -317,15 +326,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
-  order_id: {
-    fontSize: 15,
+  restaurant_name: {
+    fontSize: 16,
     fontWeight: "700",
+  },
+  order_id: {
+    fontSize: 13,
+    fontWeight: "600",
   },
   razorpay_logo: {
     width: 56,
-    height: 18,  },
+    height: 18,
+  },
   order_meta: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "500",
   },
   order_total: {

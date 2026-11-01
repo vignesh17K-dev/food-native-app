@@ -111,8 +111,17 @@ const OrderStatusBannerRow = ({
     constants.order_statuses.find((item) => item.key === order.order_status) ??
     null;
 
-  const title = status_meta?.title ?? "Order update";
-  const subtitle = status_meta?.description ?? "Tap to track delivery";
+  const restaurant_name =
+    typeof order.restaurant?.name === "string" &&
+    order.restaurant.name.length > 0
+      ? order.restaurant.name
+      : undefined;
+  const title = restaurant_name ?? status_meta?.title ?? "Order update";
+  const status_description =
+    status_meta?.description ?? "Tap to track delivery";
+  const subtitle = restaurant_name
+    ? `${status_meta?.title ?? "Order update"} · ${status_description}`
+    : status_description;
   const icon_name =
     STATUS_ICONS[order.order_status] ?? "package-variant-closed";
   const restaurant_logo =

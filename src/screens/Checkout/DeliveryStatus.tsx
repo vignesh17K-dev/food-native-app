@@ -153,6 +153,7 @@ const DeliveryStatus = ({ navigation, route }: any) => {
       flatMap(product_data, (item: any) => item),
     );
     const first_product = head(flattened_products);
+    const restaurant_name = first_product?.restaurant?.name;
     const restaurant_logo = first_product?.restaurant?.logo;
     const order_image =
       typeof restaurant_logo === "string" && restaurant_logo.length > 0
@@ -164,7 +165,7 @@ const DeliveryStatus = ({ navigation, route }: any) => {
         : null;
     const date_value = order_detail?.created_at || order_detail?.createdAt;
     const is_razorpay_order =
-      order_detail?.payment_details?.provider === "razorpay" 
+      order_detail?.payment_details?.provider === "razorpay";
 
     return {
       order_id: order_detail?.order_id ?? order_id,
@@ -174,6 +175,10 @@ const DeliveryStatus = ({ navigation, route }: any) => {
       item_count: flattened_products.length,
       image_source,
       is_razorpay_order,
+      restaurant_name:
+        typeof restaurant_name === "string" && restaurant_name.length > 0
+          ? restaurant_name
+          : undefined,
     };
   }, [order_detail, order_id]);
 
@@ -312,6 +317,17 @@ const DeliveryStatus = ({ navigation, route }: any) => {
                     )}
                   </View>
                   <View style={styles.order_info}>
+                    {order_card.restaurant_name ? (
+                      <Text
+                        style={[
+                          styles.restaurant_name,
+                          { color: colors.text },
+                        ]}
+                        numberOfLines={1}
+                      >
+                        {order_card.restaurant_name}
+                      </Text>
+                    ) : null}
                     <View style={styles.order_id_row}>
                       <Text style={[styles.order_id, { color: colors.text }]}>
                         #
@@ -496,16 +512,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
-  order_id: {
-    fontSize: 15,
+  restaurant_name: {
+    fontSize: 16,
     fontWeight: "700",
+  },
+  order_id: {
+    fontSize: 13,
+    fontWeight: "600",
   },
   razorpay_logo: {
     width: 56,
     height: 18,
   },
   order_meta: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "500",
   },
   order_total: {
