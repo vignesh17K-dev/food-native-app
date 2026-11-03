@@ -8,6 +8,11 @@ export type OrderDeliveryStatus =
   | "delivered"
   | string;
 
+export type Coordinate = {
+  latitude: number;
+  longitude: number;
+};
+
 export type OrderStatusEvent = {
   order_id: string;
   order_status: OrderDeliveryStatus;
@@ -16,6 +21,7 @@ export type OrderStatusEvent = {
   currency?: string;
   estimated_delivery_time?: string;
   restaurant?: RestaurantSummary | null;
+  delivery_location?: Coordinate | null;
   [key: string]: unknown;
 };
 
@@ -40,6 +46,8 @@ const OrderStatusSlice = createSlice({
         ...existing,
         ...payload,
         restaurant: payload.restaurant ?? existing?.restaurant ?? null,
+        delivery_location:
+          payload.delivery_location ?? existing?.delivery_location ?? null,
       };
     },
     removeOrderDeliveryStatus: (

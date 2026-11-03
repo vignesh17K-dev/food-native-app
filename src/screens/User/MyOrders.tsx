@@ -18,9 +18,10 @@ import constants from "../../../utils/constants";
 import orderApi from "../../../utils/api/order";
 import { useAppTheme } from "../../hooks/useAppTheme";
 import { ACCENT } from "../../../utils/theme/appTheme";
-import { flatMap, head } from "lodash";
+import { flatMap } from "lodash";
 import Button from "../../components/Button";
 import { getCurrencySymbol } from "../../../utils/currency";
+import type { RestaurantSummary } from "../../../types/restaurant";
 
 type OrderItem = {
   user_id?: string;
@@ -32,6 +33,7 @@ type OrderItem = {
       price?: number;
     }[];
   };
+  restaurant_data?: RestaurantSummary | null;
   payment_details:{
     provider?: string;
     order_id?: string;
@@ -115,16 +117,12 @@ const MyOrders = ({ navigation }: any) => {
       });
     });
 
-    const first_product = head(flattened_products);
-    const restaurant_name = first_product?.restaurant?.name;
-    const restaurant_logo = first_product?.restaurant?.logo;
-    const order_image =
-      typeof restaurant_logo === "string" && restaurant_logo.length > 0
-        ? restaurant_logo
-        : first_product?.image;
+    const restaurant = item?.restaurant_data;
+    const restaurant_name = restaurant?.name;
+    const restaurant_logo = restaurant?.logo;
     const image_source =
-      typeof order_image === "string" && order_image.length > 0
-        ? { uri: order_image }
+      typeof restaurant_logo === "string" && restaurant_logo.length > 0
+        ? { uri: restaurant_logo }
         : null;
 
     return (

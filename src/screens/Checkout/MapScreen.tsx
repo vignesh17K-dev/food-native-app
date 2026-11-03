@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -7,29 +7,24 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import MapView from "react-native-maps";
+import MapView, { Marker, Polyline } from "react-native-maps";
 import * as Location from "expo-location";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ThemedScreen from "../../components/ThemedScreen";
 import Header from "../../components/Header";
+import Button from "../../components/Button";
 import { useAppTheme } from "../../hooks/useAppTheme";
-import { type DeliveryAddress } from "../../hooks/useGetLocation";
 import ImageLinks from "../../../assets/ImageLink";
 import { SIZES } from "../../../constants";
 import constants from "../../../utils/constants";
-import utils from "../../../utils/utils";
 import { ACCENT } from "../../../utils/theme/appTheme";
-
-function isDeliveryAddress(value: unknown): value is DeliveryAddress {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-  const record = value as DeliveryAddress;
-  return (
-    typeof record.latitude === "number" &&
-    typeof record.longitude === "number" &&
-    typeof record.formattedAddress === "string"
-  );
-}
+import { useAppSelector } from "../../../store/hooks";
+import orderApi from "../../../utils/api/order";
+import {
+  type Coordinate,
+  type OrderDeliveryStatus,
+} from "../../../store/slices/OrderStatusSlice";
+import { remainingRouteFrom } from "../../../utils/map/routeProgress";
 
 type MapRegion = {
   latitude: number;
@@ -38,57 +33,127 @@ type MapRegion = {
   longitudeDelta: number;
 };
 
-const MapScreen = ({ navigation }: any) => {
+function isCoordinate(value: unknown): value is Coordinate {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const record = value as Coordinate;
+  return (
+    typeof record.latitude === "number" &&
+    typeof record.longitude === "number"
+  );
+}
+
+function toCoordinate(value: unknown): Coordinate | null {
+  return isCoordinate(value) ? value : null;
+}
+
+const MapScreen = ({ navigation, route }: any) => {
   const { colors } = useAppTheme();
-  const [region, setRegion] = useState<MapRegion>(constants.default_map_region);
+  const insets = useSafeAreaInsets();
+  const map_ref = useRef<MapView | null>(null);
+  const has_fitted_route = useRef(false);
+
   const [showUserLocation, setShowUserLocation] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [fullRoute, setFullRoute] = useState<Coordinate[]>([]);
+  const [customerLocation, setCustomerLocation] = useState<Coordinate | null>(
+    null,
+  );
+  const [restaurantLocation, setRestaurantLocation] =
+    useState<Coordinate | null>(null);
+  const [initialDeliveryLocation, setInitialDeliveryLocation] =
+    useState<Coordinate | null>(null);
+  const [trackCourierIcon, setTrackCourierIcon] = useState(true);
+  const [orderStatusFromApi, setOrderStatusFromApi] =
+    useState<OrderDeliveryStatus | null>(null);
+
+  const { order_id } = route.params ?? {};
+  const order_event_from_store = useAppSelector((state) =>
+    order_id ? state.orderStatus.statusesByOrderId[order_id] : undefined,
+  );
+  const order_status =
+    order_event_from_store?.order_status ?? orderStatusFromApi;
+  const is_delivered = order_status === "delivered";
+
+  const courierLocation = useMemo(() => {
+    const live = toCoordinate(order_event_from_store?.delivery_location);
+    if (live) {
+      return live;
+    }
+    if (initialDeliveryLocation) {
+      return initialDeliveryLocation;
+    }
+    return restaurantLocation;
+  }, [
+    order_event_from_store?.delivery_location,
+    initialDeliveryLocation,
+    restaurantLocation,
+  ]);
+
+  const remainingRoute = useMemo(() => {
+    if (!courierLocation || fullRoute.length === 0) {
+      return [];
+    }
+    return remainingRouteFrom(fullRoute, courierLocation);
+  }, [fullRoute, courierLocation]);
 
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
       try {
-        const stored = await utils.retrieve_data(
-          constants.storage_keys.deliveryAddress,
-        );
-
         const permission = await Location.requestForegroundPermissionsAsync();
-        const granted = permission.status === "granted";
+        if (!cancelled) {
+          setShowUserLocation(permission.status === "granted");
+        }
+      } catch {
+        if (!cancelled) {
+          setShowUserLocation(false);
+        }
+      }
+    })();
 
-        if (cancelled) {
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!order_id) {
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      setLoading(true);
+      try {
+        const response = await orderApi.get_order(order_id);
+        const order = response?.data;
+        if (cancelled || !order) {
           return;
         }
 
-        setShowUserLocation(granted);
+        const customer = toCoordinate(
+          order?.delivery_detail?.customer_location,
+        );
+        const restaurant = toCoordinate(
+          order?.delivery_detail?.restaurant_location,
+        );
+        const delivery = toCoordinate(
+          order?.delivery_detail?.delivery_location,
+        );
 
-        if (granted) {
-          try {
-            const position = await Location.getCurrentPositionAsync({
-              accuracy: Location.Accuracy.Balanced,
-            });
-            if (!cancelled) {
-              setRegion({
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              });
-              return;
-            }
-          } catch {
-            // Fall through to stored delivery address.
-          }
+        setCustomerLocation(customer);
+        setRestaurantLocation(restaurant);
+        setInitialDeliveryLocation(delivery ?? restaurant);
+        if (typeof order?.order_status === "string") {
+          setOrderStatusFromApi(order.order_status);
         }
-
-        if (!cancelled && isDeliveryAddress(stored)) {
-          setRegion({
-            latitude: stored.latitude,
-            longitude: stored.longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          });
-        }
+      } catch (error) {
+        console.log("Failed to load order for map:", error);
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -99,7 +164,101 @@ const MapScreen = ({ navigation }: any) => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [order_id]);
+
+  useEffect(() => {
+    if (!restaurantLocation || !customerLocation) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const getRoute = async () => {
+      try {
+        const url =
+          `https://router.project-osrm.org/route/v1/driving/` +
+          `${restaurantLocation.longitude},${restaurantLocation.latitude};` +
+          `${customerLocation.longitude},${customerLocation.latitude}` +
+          `?overview=full&geometries=geojson`;
+
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Routing request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.code !== "Ok" || !data.routes?.length) {
+          throw new Error("No route found");
+        }
+
+        const coordinates: Coordinate[] =
+          data.routes[0].geometry.coordinates.map(
+            ([longitude, latitude]: [number, number]) => ({
+              latitude,
+              longitude,
+            }),
+          );
+
+        if (!cancelled) {
+          setFullRoute(coordinates);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.log("Route error:", error);
+          setFullRoute([restaurantLocation, customerLocation]);
+        }
+      }
+    };
+
+    getRoute();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [restaurantLocation, customerLocation]);
+
+  useEffect(() => {
+    if (
+      !map_ref.current ||
+      !restaurantLocation ||
+      !customerLocation ||
+      has_fitted_route.current
+    ) {
+      return;
+    }
+
+    has_fitted_route.current = true;
+    map_ref.current.fitToCoordinates(
+      [restaurantLocation, customerLocation],
+      {
+        edgePadding: { top: 80, right: 60, bottom: 80, left: 60 },
+        animated: true,
+      },
+    );
+  }, [restaurantLocation, customerLocation, fullRoute]);
+
+  useEffect(() => {
+    if (!map_ref.current || !courierLocation || !has_fitted_route.current) {
+      return;
+    }
+
+    map_ref.current.animateToRegion(
+      {
+        latitude: courierLocation.latitude,
+        longitude: courierLocation.longitude,
+        latitudeDelta: 0.02,
+        longitudeDelta: 0.02,
+      } as MapRegion,
+      500,
+    );
+
+    setTrackCourierIcon(true);
+    const timeout = setTimeout(() => setTrackCourierIcon(false), 400);
+    return () => clearTimeout(timeout);
+  }, [
+    courierLocation?.latitude,
+    courierLocation?.longitude,
+  ]);
 
   return (
     <ThemedScreen style={styles.screen}>
@@ -127,13 +286,103 @@ const MapScreen = ({ navigation }: any) => {
         </View>
       ) : (
         <MapView
+          ref={map_ref}
           style={styles.map}
-          initialRegion={region}
+          initialRegion={
+            restaurantLocation
+              ? {
+                  ...restaurantLocation,
+                  latitudeDelta: 0.05,
+                  longitudeDelta: 0.05,
+                }
+              : constants.default_map_region
+          }
           showsUserLocation={showUserLocation}
           showsMyLocationButton={showUserLocation}
-          followsUserLocation={showUserLocation}
-        />
+        >
+          {fullRoute.length > 1 ? (
+            <Polyline
+              coordinates={fullRoute}
+              strokeColor="rgba(237, 117, 80, 0.25)"
+              strokeWidth={6}
+              lineCap="round"
+              lineJoin="round"
+            />
+          ) : null}
+
+          {remainingRoute.length > 1 ? (
+            <Polyline
+              coordinates={remainingRoute}
+              strokeColor={ACCENT}
+              strokeWidth={6}
+              lineCap="round"
+              lineJoin="round"
+            />
+          ) : null}
+
+          {restaurantLocation ? (
+            <Marker
+              coordinate={restaurantLocation}
+              anchor={{ x: 0.5, y: 1 }}
+              tracksViewChanges={false}
+              title="Restaurant"
+            >
+              <Image
+                source={ImageLinks.restaurant_map_pin}
+                style={styles.marker_image}
+              />
+            </Marker>
+          ) : null}
+
+          {customerLocation ? (
+            <Marker
+              coordinate={customerLocation}
+              anchor={{ x: 0.5, y: 1 }}
+              tracksViewChanges={false}
+              title="Delivery address"
+            >
+              <Image
+                source={ImageLinks.location}
+                style={styles.customer_marker_image}
+              />
+            </Marker>
+          ) : null}
+
+          {courierLocation ? (
+            <Marker
+              coordinate={courierLocation}
+              anchor={{ x: 0.5, y: 0.5 }}
+              tracksViewChanges={trackCourierIcon}
+              title="Delivery partner"
+            >
+              <Image
+                source={ImageLinks.delivery_person_map_pin}
+                style={styles.courier_marker_image}
+              />
+            </Marker>
+          ) : null}
+        </MapView>
       )}
+
+      {is_delivered ? (
+        <View
+          style={[
+            styles.footer,
+            {
+              paddingBottom: Math.max(insets.bottom, 16),
+              backgroundColor: colors.background,
+              borderTopColor: colors.border,
+            },
+          ]}
+        >
+          <Button
+            text="Done"
+            type="primary"
+            width="100%"
+            onClick={() => navigation.navigate(constants.route_names.DeliveryStatus, { order_id })}
+          />
+        </View>
+      ) : null}
     </ThemedScreen>
   );
 };
@@ -165,7 +414,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   map: {
+    flex: 1,
     width: "100%",
-    height: "100%",
+  },
+  marker_image: {
+    width: 48,
+    height: 48,
+  },
+  customer_marker_image: {
+    width: 36,
+    height: 36,
+    tintColor: ACCENT,
+  },
+  courier_marker_image: {
+    width: 56,
+    height: 56,
+  },
+  footer: {
+    paddingHorizontal: SIZES.padding,
+    paddingTop: 16,
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
 });

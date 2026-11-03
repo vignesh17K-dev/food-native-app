@@ -555,7 +555,7 @@ const Checkout = ({ navigation }: any) => {
                     type="primary"
                     width="100%"
                     loading={loading}
-                    disabled={loading}
+                    disabled={loading || !deliveryAddress}
                     icon={ImageLinks.razorpay}
                     iconStyle={styles.razorpay_icon}
                 />
@@ -566,7 +566,7 @@ const Checkout = ({ navigation }: any) => {
                     type="primary"
                     width="100%"
                     loading={loading}
-                    disabled={loading}
+                    disabled={loading || !deliveryAddress || !selectedCardId}
                 />
 
             </View>

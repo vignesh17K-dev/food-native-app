@@ -67,6 +67,7 @@ function onEvent(event: PusherEvent) {
     order_status?: string;
     estimated_delivery_time?: string;
     restaurant?: OrderStatusEvent["restaurant"];
+    delivery_location?: OrderStatusEvent["delivery_location"];
   };
 
   if (
@@ -79,6 +80,7 @@ function onEvent(event: PusherEvent) {
         order_id: record.order_id,
         order_status: record.order_status,
         restaurant: record.restaurant ?? null,
+        delivery_location: record.delivery_location ?? null,
       }),
     );
   }

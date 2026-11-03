@@ -65,7 +65,11 @@ const Button = ({
         {icon ? (
           <Image
             source={icon}
-            style={[styles.icon, iconStyle]}
+            style={[
+              styles.icon,
+              iconStyle,
+              isDisabled && styles.iconDisabled,
+            ]}
             resizeMode="contain"
           />
         ) : null}
@@ -82,9 +86,10 @@ const Button = ({
             <View
               style={[
                 styles.primaryButton,
-                isDisabled && styles.primaryButtonDisabled,
                 style,
                 width !== undefined ? { width } : null,
+                // Disabled styles must come after `style` so callers can't override them.
+                isDisabled && styles.primaryButtonDisabled,
               ]}
             >
               {renderContent(
@@ -100,9 +105,9 @@ const Button = ({
             <View
               style={[
                 styles.softButton,
-                isDisabled && styles.softButtonDisabled,
                 style,
                 width !== undefined ? { width } : null,
+                isDisabled && styles.softButtonDisabled,
               ]}
             >
               {renderContent(
@@ -119,9 +124,9 @@ const Button = ({
             <View
               style={[
                 styles.secondaryButton,
-                isDisabled && styles.secondaryButtonDisabled,
                 style,
                 width !== undefined ? { width } : null,
+                isDisabled && styles.secondaryButtonDisabled,
               ]}
             >
               {renderContent(
@@ -149,6 +154,9 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
   },
+  iconDisabled: {
+    opacity: 0.55,
+  },
   secondaryButton: {
     borderRadius: 10,
   },
@@ -162,6 +170,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonDisabled: {
     backgroundColor: "#f3b9a5",
+    opacity: 0.7,
   },
   primaryButtonText: {
     color: "white",
