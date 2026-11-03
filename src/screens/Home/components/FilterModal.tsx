@@ -15,6 +15,8 @@ import ImageLinks from "../../../../assets/ImageLink";
 import constants from "../../../../utils/constants";
 import Button from "../../../components/Button";
 import { useAppTheme } from "../../../hooks/useAppTheme";
+import product from "../../../../utils/api/product";
+import { Restaurant } from "../../../../types/restaurant";
 
 const THUMB_SIZE = 30;
 const PRIMARY = "#ed7550";
@@ -27,6 +29,7 @@ export type FilterValues = {
   priceMax: number;
   rating: number | null;
   tags: number[];
+  restaurantId: string | null;
 };
 
 export const DEFAULT_FILTER_VALUES: FilterValues = {
@@ -37,6 +40,7 @@ export const DEFAULT_FILTER_VALUES: FilterValues = {
   priceMax: 100,
   rating: null,
   tags: [],
+  restaurantId: null,
 };
 
 type RangeSliderProps = {
@@ -203,6 +207,7 @@ const FilterModal = ({
 }: FilterModalProps) => {
   const { colors, darkMode } = useAppTheme();
   const [filters, setFilters] = useState<FilterValues>(DEFAULT_FILTER_VALUES);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
 
   const sheet_background = darkMode ? colors.surface : colors.surfaceElevated;
 
@@ -222,9 +227,36 @@ const FilterModal = ({
 
   useEffect(() => {
     if (visible) {
-      setFilters(initialFilters ?? DEFAULT_FILTER_VALUES);
+      setFilters(
+        initialFilters
+          ? { ...DEFAULT_FILTER_VALUES, ...initialFilters }
+          : DEFAULT_FILTER_VALUES
+      );
     }
   }, [visible, initialFilters]);
+
+  useEffect(() => {
+    if (!visible) {
+      return;
+    }
+
+    let cancelled = false;
+    const loadRestaurants = async () => {
+      try {
+        const response = await product.get_restaurants();
+        if (!cancelled) {
+          setRestaurants(response?.data ?? []);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    loadRestaurants();
+    return () => {
+      cancelled = true;
+    };
+  }, [visible]);
 
   const toggleTag = (tagId: number) => {
     setFilters((prev) => ({
@@ -366,6 +398,54 @@ const FilterModal = ({
                 );
               })}
             </View>
+
+            {restaurants.length > 0 && (
+              <>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                  Restaurant
+                </Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.restaurantRow}
+                >
+                  {restaurants.map((item) => {
+                    const selected = filters.restaurantId === item.id;
+                    return (
+                      <TouchableOpacity
+                        key={item.id}
+                        style={[
+                          styles.restaurantChip,
+                          chip_style(selected),
+                          selected && styles.restaurantChipSelected,
+                        ]}
+                        onPress={() =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            restaurantId: selected ? null : item.id,
+                          }))
+                        }
+                      >
+                        <Image
+                          source={{ uri: item.logo }}
+                          style={styles.restaurantLogo}
+                        />
+                        <Text
+                          style={[
+                            styles.chipText,
+                            chip_text_style(selected),
+                            styles.restaurantName,
+                          ]}
+                          numberOfLines={1}
+                        >
+                          {item.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              </>
+            )}
           </ScrollView>
 
           <View style={[styles.footer, { borderTopColor: colors.border }]}>
@@ -497,6 +577,32 @@ const styles = StyleSheet.create({
   },
   chipTextSelected: {
     color: COLORS.white,
+  },
+  restaurantRow: {
+    flexDirection: "row",
+    gap: 10,
+    paddingBottom: 8,
+  },
+  restaurantChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    maxWidth: 180,
+    gap: 8,
+  },
+  restaurantChipSelected: {
+    backgroundColor: PRIMARY,
+  },
+  restaurantLogo: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+  },
+  restaurantName: {
+    flexShrink: 1,
+    fontSize: 14,
   },
   footer: {
     paddingHorizontal: SIZES.padding,

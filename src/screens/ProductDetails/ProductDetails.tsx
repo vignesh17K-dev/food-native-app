@@ -130,14 +130,16 @@ const ProductDetails = ({ route, navigation }: any) => {
               products: product_snapshot?.products,
               submittedProductId: product_id,
               submittedSize: size,
-              display: {
-                name: line.name,
-                price: line.price,
-                image: line.image,
-              },
-            }),
-          ),
-        );
+            display: {
+              name: line.name,
+              price: line.price,
+              image: line.image,
+              restaurant_id: line.restaurant_id,
+              restaurant: line.restaurant,
+            },
+          }),
+        ),
+      );
       } catch (error) {
         console.log(error);
       } finally {
@@ -478,6 +480,8 @@ const ProductDetails = ({ route, navigation }: any) => {
               name: product_details?.name,
               price: product_details?.price,
               image: product_details?.image,
+              restaurant_id: product_details?.restaurant_id,
+              restaurant: product_details?.restaurant ?? null,
             },
           }),
         ),

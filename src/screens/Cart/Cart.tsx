@@ -120,6 +120,8 @@ const Cart = ({ navigation }: any) => {
                 name: line.name,
                 price: line.price,
                 image: line.image,
+                restaurant_id: line.restaurant_id,
+                restaurant: line.restaurant,
               },
             }),
           ),

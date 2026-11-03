@@ -1,3 +1,5 @@
+import type { RestaurantSummary } from "../../types/restaurant";
+
 export type CartLineItem = {
   product_id: string;
   cart_item_id: string;
@@ -7,6 +9,8 @@ export type CartLineItem = {
   price?: number;
   quantity?: number;
   selectedSize?: string;
+  restaurant_id?: string;
+  restaurant?: RestaurantSummary | null;
   products?: CartProductsMap;
 };
 

@@ -6,7 +6,10 @@ import {
 import constants from "./utils/constants";
 import pusherApi from "./utils/api/pusher";
 import { store } from "./store/store";
-import { setOrderDeliveryStatus } from "./store/slices/OrderStatusSlice";
+import {
+  setOrderDeliveryStatus,
+  type OrderStatusEvent,
+} from "./store/slices/OrderStatusSlice";
 
 export type PusherOrderEventPayload = {
   order_id: string;
@@ -63,6 +66,8 @@ function onEvent(event: PusherEvent) {
     payment_status?: "created" | "paid" | "failed" | string;
     order_status?: string;
     estimated_delivery_time?: string;
+    restaurant?: OrderStatusEvent["restaurant"];
+    delivery_location?: OrderStatusEvent["delivery_location"];
   };
 
   if (
@@ -74,6 +79,8 @@ function onEvent(event: PusherEvent) {
         ...record,
         order_id: record.order_id,
         order_status: record.order_status,
+        restaurant: record.restaurant ?? null,
+        delivery_location: record.delivery_location ?? null,
       }),
     );
   }

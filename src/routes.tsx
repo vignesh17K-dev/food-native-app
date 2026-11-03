@@ -26,6 +26,7 @@ import MapScreen from "./screens/Checkout/MapScreen";
 import User from "./screens/User/User";
 import MyOrders from "./screens/User/MyOrders";
 import Notifications from "./screens/User/Notifications";
+import Restaurant from "./screens/Restaurant/Restaurant";
 
 export type RootStackParamList = {
   onBoarding: undefined;
@@ -37,6 +38,7 @@ export type RootStackParamList = {
   mainApp: undefined;
   productdetails: { id: string };
   categorydetails: { id: string };
+  restaurant: { id: string };
   checkupdate: undefined;
   "terms&condition": undefined;
   privacypolicy: undefined;
@@ -92,6 +94,10 @@ const Routes = () => {
       <Stack.Screen
         name={route_names.CategoryDetails}
         component={CategoryDetails}
+      />
+      <Stack.Screen
+        name={route_names.Restaurant}
+        component={Restaurant}
       />
        <Stack.Screen
         name={route_names.Terms}

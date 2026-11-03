@@ -18,9 +18,10 @@ import constants from "../../../utils/constants";
 import orderApi from "../../../utils/api/order";
 import { useAppTheme } from "../../hooks/useAppTheme";
 import { ACCENT } from "../../../utils/theme/appTheme";
-import { flatMap, head } from "lodash";
+import { flatMap } from "lodash";
 import Button from "../../components/Button";
 import { getCurrencySymbol } from "../../../utils/currency";
+import type { RestaurantSummary } from "../../../types/restaurant";
 
 type OrderItem = {
   user_id?: string;
@@ -32,6 +33,7 @@ type OrderItem = {
       price?: number;
     }[];
   };
+  restaurant_data?: RestaurantSummary | null;
   payment_details:{
     provider?: string;
     order_id?: string;
@@ -115,10 +117,12 @@ const MyOrders = ({ navigation }: any) => {
       });
     });
 
-    const order_image = head(flattened_products)?.image;
+    const restaurant = item?.restaurant_data;
+    const restaurant_name = restaurant?.name;
+    const restaurant_logo = restaurant?.logo;
     const image_source =
-      typeof order_image === "string" && order_image.length > 0
-        ? { uri: order_image }
+      typeof restaurant_logo === "string" && restaurant_logo.length > 0
+        ? { uri: restaurant_logo }
         : null;
 
     return (
@@ -151,6 +155,14 @@ const MyOrders = ({ navigation }: any) => {
             )}
           </View>
           <View style={styles.order_info}>
+            {restaurant_name ? (
+              <Text
+                style={[styles.restaurant_name, { color: colors.text }]}
+                numberOfLines={1}
+              >
+                {restaurant_name}
+              </Text>
+            ) : null}
             <View style={styles.order_id_row}>
               <Text style={[styles.order_id, { color: colors.text }]}>
                 #{String(orderId).slice(-6).toUpperCase()}
@@ -312,15 +324,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
-  order_id: {
-    fontSize: 15,
+  restaurant_name: {
+    fontSize: 16,
     fontWeight: "700",
+  },
+  order_id: {
+    fontSize: 13,
+    fontWeight: "600",
   },
   razorpay_logo: {
     width: 56,
-    height: 18,  },
+    height: 18,
+  },
   order_meta: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "500",
   },
   order_total: {

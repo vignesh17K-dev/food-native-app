@@ -4,11 +4,14 @@ import {
   CartProductsMap,
   UpsertCartItemPayload,
 } from "../../store/slices/CartSlice";
+import type { RestaurantSummary } from "../../types/restaurant";
 
 export type ProductDisplayFields = {
   name?: string;
   price?: number;
   image?: string;
+  restaurant_id?: string;
+  restaurant?: RestaurantSummary | null;
 };
 
 export type ApplyCartItemResponseInput = {
@@ -37,5 +40,11 @@ export function applyCartItemResponse(
     name: display.name,
     price: display.price,
     image: display.image,
+    ...(display.restaurant_id != null
+      ? { restaurant_id: display.restaurant_id }
+      : {}),
+    ...(display.restaurant !== undefined
+      ? { restaurant: display.restaurant }
+      : {}),
   };
 }

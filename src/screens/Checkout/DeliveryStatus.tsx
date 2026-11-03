@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { flatMap, head } from "lodash";
+import { flatMap } from "lodash";
 import ThemedScreen from "../../components/ThemedScreen";
 import { useAppTheme } from "../../hooks/useAppTheme";
 import Header from "../../components/Header";
@@ -21,7 +21,6 @@ import { Divider, Skeleton } from "native-base";
 import Button from "../../components/Button";
 import type { RootState } from "../../../store/store";
 import orderApi from "../../../utils/api/order";
-import { setOrderDeliveryStatus } from "../../../store/slices/OrderStatusSlice";
 import { getCurrencySymbol } from "../../../utils/currency";
 import { ACCENT } from "../../../utils/theme/appTheme";
 
@@ -124,7 +123,6 @@ const DeliveryStatus = ({ navigation, route }: any) => {
   const [order_detail, set_order_detail] = useState<any>(null);
   const [is_loading, set_is_loading] = useState(true);
   const { colors, darkMode } = useAppTheme();
-  const dispatch = useDispatch();
   const { order_id } = route.params ?? {};
   const order_event_from_store = useSelector((state: RootState) =>
     order_id ? state.orderStatus.statusesByOrderId[order_id] : undefined,
@@ -133,6 +131,7 @@ const DeliveryStatus = ({ navigation, route }: any) => {
   const is_from_my_order =
     navigation.getState().routes[navigation.getState().routes.length - 2]
       ?.name === constants.route_names.MyOrders;
+
 
   const order_status = is_from_my_order
     ? order_detail?.order_status
@@ -151,15 +150,16 @@ const DeliveryStatus = ({ navigation, route }: any) => {
     const flattened_products = flatMap(cart_products, (product_data: any) =>
       flatMap(product_data, (item: any) => item),
     );
-    const order_image = head(flattened_products)?.image;
+    const restaurant = order_detail?.restaurant_data;
+    const restaurant_name = restaurant?.name;
+    const restaurant_logo = restaurant?.logo;
     const image_source =
-      typeof order_image === "string" && order_image.length > 0
-        ? { uri: order_image }
+      typeof restaurant_logo === "string" && restaurant_logo.length > 0
+        ? { uri: restaurant_logo }
         : null;
     const date_value = order_detail?.created_at || order_detail?.createdAt;
     const is_razorpay_order =
-      order_detail?.payment_details?.provider === "razorpay" ||
-      Boolean(order_detail?.razorpayOrderId);
+      order_detail?.payment_details?.provider === "razorpay";
 
     return {
       order_id: order_detail?.order_id ?? order_id,
@@ -169,6 +169,10 @@ const DeliveryStatus = ({ navigation, route }: any) => {
       item_count: flattened_products.length,
       image_source,
       is_razorpay_order,
+      restaurant_name:
+        typeof restaurant_name === "string" && restaurant_name.length > 0
+          ? restaurant_name
+          : undefined,
     };
   }, [order_detail, order_id]);
 
@@ -182,22 +186,8 @@ const DeliveryStatus = ({ navigation, route }: any) => {
       set_is_loading(true);
       const response = await orderApi.get_order(order_id);
       const order = response?.data;
-      const status = order?.order_status;
 
       set_order_detail(order);
-      if (typeof status === "string" && (order?.order_id || order_id)) {
-        dispatch(
-          setOrderDeliveryStatus({
-            ...order,
-            order_id: order?.order_id ?? order_id,
-            order_status: status,
-            payment_status: order?.payment_status,
-            amount: order?.amount,
-            currency: order?.currency,
-            estimated_delivery_time: order?.estimated_delivery_time ?? undefined,
-          }),
-        );
-      }
     } catch (error) {
       console.log("Failed to fetch order:", error);
     } finally {
@@ -207,7 +197,7 @@ const DeliveryStatus = ({ navigation, route }: any) => {
 
   useEffect(() => {
     handle_get_order_detail();
-  }, [order_id, dispatch]);
+  }, [order_id ]);
 
   const handle_back_home = () => {
     if (is_from_my_order) {
@@ -304,6 +294,17 @@ const DeliveryStatus = ({ navigation, route }: any) => {
                     )}
                   </View>
                   <View style={styles.order_info}>
+                    {order_card.restaurant_name ? (
+                      <Text
+                        style={[
+                          styles.restaurant_name,
+                          { color: colors.text },
+                        ]}
+                        numberOfLines={1}
+                      >
+                        {order_card.restaurant_name}
+                      </Text>
+                    ) : null}
                     <View style={styles.order_id_row}>
                       <Text style={[styles.order_id, { color: colors.text }]}>
                         #
@@ -387,7 +388,7 @@ const DeliveryStatus = ({ navigation, route }: any) => {
               { backgroundColor: colors.background },
             ]}
           >
-            {is_from_my_order ? (
+            {order_detail?.order_status === "delivered" ? (
               <Button
                 text="Go Back"
                 type="primary"
@@ -409,7 +410,7 @@ const DeliveryStatus = ({ navigation, route }: any) => {
                   iconStyle={{ width: 20, height: 20, tintColor: "#ffffff" }}
                   style={{ width: SIZES.width * 0.5 }}
                   onClick={() =>
-                    navigation.navigate(constants.route_names.MapView)
+                    navigation.navigate(constants.route_names.MapView, { order_id })
                   }
                 />
               </>
@@ -488,16 +489,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
-  order_id: {
-    fontSize: 15,
+  restaurant_name: {
+    fontSize: 16,
     fontWeight: "700",
+  },
+  order_id: {
+    fontSize: 13,
+    fontWeight: "600",
   },
   razorpay_logo: {
     width: 56,
     height: 18,
   },
   order_meta: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "500",
   },
   order_total: {

@@ -27,6 +27,8 @@ import location from './icons/location.png';
 import party_popper from './images/party_popper.png';
 import razorpay from './icons/razorpay.png';
 import map from './icons/map.png';
+import restaurant_map_pin from './icons/restaurant_map_pin.png';
+import delivery_person_map_pin from './icons/delivery_person_map_pin.png';
 import profile_header_bg from './images/profile_header_bg.jpg';
 
 const ImageLinks = {
@@ -59,6 +61,8 @@ const ImageLinks = {
     party_popper,
     razorpay,
     map,
+    restaurant_map_pin,
+    delivery_person_map_pin,
     profile_header_bg,
 };
 

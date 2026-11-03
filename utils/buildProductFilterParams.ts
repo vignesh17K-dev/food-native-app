@@ -8,6 +8,7 @@ export type ProductFilters = {
   maxDeliveryTime?: number;
   maxDistance?: number;
   tags?: string[];
+  restaurant_id?: string;
 };
 
 export type ProductPagination = {
@@ -81,6 +82,10 @@ const buildProductFilters = (
     }
   }
 
+  if (filters.restaurantId) {
+    result.restaurant_id = filters.restaurantId;
+  }
+
   return result;
 };
 
@@ -119,6 +124,7 @@ export const hasActiveFilters = (filters: FilterValues | null): boolean => {
     filters.deliveryTime !== null ||
     filters.distanceMin > 0 ||
     filters.distanceMax < 20 ||
-    filters.tags.length > 0
+    filters.tags.length > 0 ||
+    Boolean(filters.restaurantId)
   );
 };
