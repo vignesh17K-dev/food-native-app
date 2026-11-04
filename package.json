@@ -6,7 +6,7 @@
     "start": "expo start",
     "ios:connect": "bash scripts/ios-connect-metro.sh booted",
     "ios:sim": "expo run:ios",
-    "android": "expo run:android",
+    "android": "JAVA_HOME=\"$HOME/.jdks/temurin-17/Contents/Home\" ANDROID_HOME=\"$HOME/Library/Android/sdk\" expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web"
   },

@@ -19,9 +19,7 @@ import RestaurantRails from "./components/RestaurantRails";
 import _ from "lodash";
 import constants from "../../../utils/constants";
 import MenuRails from "./components/MenuRails";
-import { useAppToast } from "../../context/AppToast";
 import { set_section_data } from "../../../store/slices/HomeSlice";
-import mock_data from "../../../constants/dummyData";
 import wishlist from "../../../utils/api/wishlist";
 import { set_wishlist } from "../../../store/slices/WishlistSlice";
 import FilterModal, { FilterValues } from "./components/FilterModal";
@@ -38,7 +36,6 @@ const Home = ({ navigation }: any) => {
   const section_data = useSelector((state: any) => state?.home?.section_data);
   const navigate: any = useNavigation();
   const dispatch = useDispatch();
-  const toast = useAppToast();
   const [filter_visible, set_filter_visible] = useState(false);
 
   const scrollY = useRef(new Animated.Value(0))?.current;
@@ -93,10 +90,6 @@ const Home = ({ navigation }: any) => {
       </Animated.View>
     );
   };
-
-  // const handle_open_filter = () => {
-  //   set_filter_visible(true);
-  // };
 
   const handle_close_filter = () => {
     set_filter_visible(false);

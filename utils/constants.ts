@@ -37,11 +37,6 @@ const constants = {
     storage_keys: {
         deliveryAddress: "delivery_address",
     },
-    pusher: {
-        apiKey: "3b9ac8d21967a2239e94",
-        cluster: "ap2",
-    },
-
     bottom_tabs: [
         {
             id: 0,

@@ -66,6 +66,7 @@ export default function DeliveryAddressButton({
 
     try {
       const result = await getLocation();
+      console.log(result , 'result')
 
       setAddress(result);
       onAddressSelected(result);
@@ -73,7 +74,8 @@ export default function DeliveryAddressButton({
         constants.storage_keys.deliveryAddress,
         JSON.stringify(result),
       );
-    } catch {
+    } catch (error) {
+      console.log(error , 'error')
       // Error toast is shown in useGetLocation.
     } finally {
       setLoading(false);

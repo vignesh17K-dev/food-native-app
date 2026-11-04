@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -10,6 +11,7 @@ import {
 import MapView, { Marker, Polyline } from "react-native-maps";
 import * as Location from "expo-location";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import config from "../../../utils/config";
 import ThemedScreen from "../../components/ThemedScreen";
 import Header from "../../components/Header";
 import Button from "../../components/Button";
@@ -46,6 +48,14 @@ function isCoordinate(value: unknown): value is Coordinate {
 
 function toCoordinate(value: unknown): Coordinate | null {
   return isCoordinate(value) ? value : null;
+}
+
+function hasGoogleMapsApiKey() {
+  if (Platform.OS !== "android") {
+    return true;
+  }
+
+  return config.google.mapsApiKey.trim().length > 0;
 }
 
 const MapScreen = ({ navigation, route }: any) => {
@@ -284,6 +294,16 @@ const MapScreen = ({ navigation, route }: any) => {
         <View style={styles.loader}>
           <ActivityIndicator color={ACCENT} />
         </View>
+      ) : !hasGoogleMapsApiKey() ? (
+        <View style={styles.loader}>
+          <Text style={[styles.maps_error_title, { color: colors.text }]}>
+            Google Maps API key is missing
+          </Text>
+          <Text style={[styles.maps_error_body, { color: colors.text }]}>
+            Add GOOGLE_MAPS_API_KEY to android/local.properties, then rebuild
+            the Android app.
+          </Text>
+        </View>
       ) : (
         <MapView
           ref={map_ref}
@@ -412,6 +432,18 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: SIZES.padding,
+  },
+  maps_error_title: {
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  maps_error_body: {
+    fontSize: 14,
+    textAlign: "center",
+    opacity: 0.75,
   },
   map: {
     flex: 1,

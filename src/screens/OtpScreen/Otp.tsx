@@ -16,7 +16,7 @@ import { SIZES } from "../../../constants";
 import { useAppToast } from "../../context/AppToast";
 import { supabase } from "../../../supabase.config";
 import Button from "../../components/Button";
-import { setLogin } from "../../../store/slices/LoginSlice";
+import { setLogin, setLoggedInViaGoogle } from "../../../store/slices/LoginSlice";
 import { useDispatch } from "react-redux";
 import constants from "../../../utils/constants";
 
@@ -60,6 +60,7 @@ function Otp({ navigation }) {
   };
 
   const handle_navigation = () => {
+    dispatch(setLoggedInViaGoogle(false));
     dispatch(setLogin(true));
     set_loading(false);
     navigation.reset({

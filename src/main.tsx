@@ -4,7 +4,7 @@ import "react-native-url-polyfill/auto";
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import Routes from "./routes";
 import { supabase } from "../supabase.config";
-import { setLogin } from "../store/slices/LoginSlice";
+import { setLogin, setLoggedInViaGoogle } from "../store/slices/LoginSlice";
 import { useDispatch } from "react-redux";
 import { useAppToast } from "./context/AppToast";
 import { setSession } from "../store/slices/User";
@@ -24,6 +24,9 @@ const MainApp = () => {
   ) => {
     dispatch(setSession({ session }));
     dispatch(setLogin(!!session));
+    dispatch(
+      setLoggedInViaGoogle(session?.user?.app_metadata?.provider === "google"),
+    );
 
     if (event === "SIGNED_OUT") {
       dispatch(clear_cart());
@@ -54,6 +57,11 @@ const MainApp = () => {
       }
       dispatch(setSession({ session: data.session }));
       dispatch(setLogin(!!data.session));
+      dispatch(
+        setLoggedInViaGoogle(
+          data.session?.user?.app_metadata?.provider === "google",
+        ),
+      );
 
       if (data.session?.user?.id) {
         await initializeUserCart(dispatch, data.session.user.id);
