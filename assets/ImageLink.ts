@@ -13,8 +13,6 @@ import filter from './icons/filter.png';
 import profile from './images/profile.png';
 import burger from './icons/burger.png';
 import cherry from './icons/cherry.png';
-import burger_menu from './dummyData/hamburger.png';
-import tacos_menu from './dummyData/hot_tacos.png';
 import calories from './icons/calories.png';
 import _delete from './icons/delete.png';
 import cross from './icons/cross.png';
@@ -47,8 +45,6 @@ const ImageLinks = {
     profile,
     burger,
     cherry,
-    burger_menu,
-    tacos_menu,
     calories,
     cross,
     cart,
