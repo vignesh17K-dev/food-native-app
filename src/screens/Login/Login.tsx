@@ -3,6 +3,7 @@ import LoginInputFieldContainer from "../Login/components/loginInputFieldContain
 import ThemedScreen from "../../components/ThemedScreen";
 import { useAppTheme } from "../../hooks/useAppTheme";
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -155,7 +156,7 @@ const Login = ({ navigation }: any) => {
       </KeyboardAvoidingView>
 
       {login_type === "login" && (
-        <TouchableOpacity onPress={() => navigate.navigate(constants.route_names.PhoneLogin)}>
+        <TouchableOpacity disabled={google_loading} onPress={() => navigate.navigate(constants.route_names.PhoneLogin)}>
           <View style={styles.phoneLogin}>
             <Text color="white">Login With Phone Number</Text>
           </View>
@@ -166,7 +167,7 @@ const Login = ({ navigation }: any) => {
         disabled={google_loading}
         onPress={handle_signin_with_google}
       >
-        <View
+        {google_loading ? <ActivityIndicator size="small" color={colors.text} /> : <View
           style={[
             styles.googleButton,
             { backgroundColor: colors.surface },
@@ -181,7 +182,7 @@ const Login = ({ navigation }: any) => {
             }}
           />
           <Text style={{ color: colors.text }}>Continue With Google</Text>
-        </View>
+        </View>}
       </TouchableOpacity>
     </ThemedScreen>
   );

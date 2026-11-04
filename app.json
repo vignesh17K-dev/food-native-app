@@ -55,7 +55,8 @@
       "expo-web-browser",
       "expo-font",
       "@react-native-community/datetimepicker",
-      "react-native-maps"
+      "react-native-maps",
+      "expo-image"
     ]
   }
 }
