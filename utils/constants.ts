@@ -1,5 +1,4 @@
 import { icons } from "../constants"
-import mock_data from "../constants/dummyData";
 
 const constants = {
     route_names: {
@@ -71,10 +70,10 @@ const constants = {
     ],
     sections: [
         { section: "delivery", data: [] },
-        { section: "category", data: mock_data.categories },
-        { section: "popular", data: mock_data.popular_rails },
+        { section: "category", data: [] },
+        { section: "popular", data: [] },
         { section: "restaurants", data: [] },
-        { section: "menu", data: mock_data.menu_data },
+        { section: "menu", data: [] },
     ],
     onboarding_screens: [
         {
