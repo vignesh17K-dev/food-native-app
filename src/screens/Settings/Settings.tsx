@@ -24,10 +24,14 @@ const Settings = ({ navigation }: any) => {
   const auth_user = useAppSelector(
     (state) => state.user.session?.session?.user,
   );
+  const is_logged_in_via_google = useAppSelector(
+    (state) => state.login.is_logged_in_via_google,
+  );
   const is_phone_provider = auth_user?.app_metadata?.provider === "phone";
-  const settings_list = is_phone_provider
-    ? constants.settings.filter((item) => item.key !== "change_password")
-    : constants.settings;
+  const settings_list =
+    is_phone_provider || is_logged_in_via_google
+      ? constants.settings.filter((item) => item.key !== "change_password")
+      : constants.settings;
 
   const handle_logout = async () => {
     const { error } = await supabase.auth.signOut();

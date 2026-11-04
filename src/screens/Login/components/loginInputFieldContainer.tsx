@@ -6,7 +6,7 @@ import Password from "../../../components/Password";
 import Button from "../../../components/Button";
 import { Messages } from "../../../../utils/text";
 import { useDispatch, useSelector } from "react-redux";
-import { changeLoginType, setLogin } from "../../../../store/slices/LoginSlice";
+import { changeLoginType, setLogin, setLoggedInViaGoogle } from "../../../../store/slices/LoginSlice";
 import { useNavigation } from "@react-navigation/native";
 import { supabase } from "../../../../supabase.config";
 import { useForm } from "react-hook-form";
@@ -49,6 +49,7 @@ const loginInputFieldContainer = ({ navigation }: any) => {
   });
 
   const handle_navigation = () => {
+    dispatch(setLoggedInViaGoogle(false));
     dispatch(setLogin(true));
     set_loading(false);
     navigation.reset({

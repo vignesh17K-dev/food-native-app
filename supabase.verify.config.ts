@@ -1,14 +1,9 @@
-// lib/supabase-verify.ts
 import { createClient } from "@supabase/supabase-js";
-
-
-const supabaseUrl = 'https://nhivnrtnwavstvuxrmbf.supabase.co';
-const supabaseKey ="sb_publishable_8QN1TwINCyhyelJ593wTHQ_r3XdKVic";
-
+import config from "./utils/config";
 
 export const supabaseVerify = createClient(
-  supabaseUrl,
-  supabaseKey,
+    config.supabase.url,
+    config.supabase.anonKey,
   {
     auth: {
       persistSession: false,

@@ -3,7 +3,7 @@ import {
   PusherAuthorizerResult,
   PusherEvent,
 } from "@pusher/pusher-websocket-react-native";
-import constants from "./utils/constants";
+import config from "./utils/config";
 import pusherApi from "./utils/api/pusher";
 import { store } from "./store/store";
 import {
@@ -108,8 +108,8 @@ export async function connectPusher(userId: string) {
 
     if (!initialized) {
       await pusher.init({
-        apiKey: constants.pusher.apiKey,
-        cluster: constants.pusher.cluster,
+        apiKey: config.pusher.apiKey,
+        cluster: config.pusher.cluster,
         onAuthorizer,
         onConnectionStateChange: (currentState, previousState) => {
           console.log("Pusher connection:", previousState, "->", currentState);

@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { store } from '../store/store';
 import { get } from 'lodash';
+import config from './config';
 
-
-export const BASE_URL = 'https://food-app-backend-flame-omega.vercel.app';
-export const BASE_URL_STAGING = 'https://food-app-backend-git-staging-vignesh17-projects.vercel.app/';
+export const BASE_URL = config.api.baseUrl;
+export const BASE_URL_STAGING = config.api.baseUrlStaging;
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
