@@ -88,7 +88,27 @@ if (localPropertiesFile.exists()) {
         localProperties.load(reader)
     }
 }
-def googleMapsApiKey = localProperties.getProperty("GOOGLE_MAPS_API_KEY") ?: System.getenv("GOOGLE_MAPS_API_KEY") ?: "YOUR_GOOGLE_MAPS_API_KEY"
+def readGoogleMapsApiKeyFromConfig() {
+    def configFile = rootProject.file("../utils/config.ts")
+    if (!configFile.exists()) {
+        return null
+    }
+    def matcher = (configFile.getText("UTF-8") =~ /mapsApiKey:\s*"([^"]*)"/)
+    return matcher.find() ? matcher.group(1) : null
+}
+
+def googleMapsApiKey =
+    localProperties.getProperty("GOOGLE_MAPS_API_KEY") ?:
+    System.getenv("GOOGLE_MAPS_API_KEY") ?:
+    findProperty("GOOGLE_MAPS_API_KEY") ?:
+    readGoogleMapsApiKeyFromConfig() ?:
+    "YOUR_GOOGLE_MAPS_API_KEY"
+
+if (!googleMapsApiKey || googleMapsApiKey == "YOUR_GOOGLE_MAPS_API_KEY") {
+    throw new GradleException(
+        "GOOGLE_MAPS_API_KEY is missing. Set it in android/local.properties, EAS env, or utils/config.ts mapsApiKey."
+    )
+}
 
 android {
     ndkVersion rootProject.ext.ndkVersion

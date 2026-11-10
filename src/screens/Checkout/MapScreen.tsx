@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import MapView, { Marker, Polyline } from "react-native-maps";
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import config from "../../../utils/config";
@@ -308,6 +308,7 @@ const MapScreen = ({ navigation, route }: any) => {
         <MapView
           ref={map_ref}
           style={styles.map}
+          provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
           initialRegion={
             restaurantLocation
               ? {

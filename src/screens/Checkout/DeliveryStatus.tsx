@@ -396,7 +396,7 @@ const DeliveryStatus = ({ navigation, route }: any) => {
               <Button
                 text="Go Back"
                 type="primary"
-                width={SIZES.width * 0.8}
+                width={SIZES.width * 0.85}
                 onClick={handle_back_home}
               />
             ) : (
