@@ -12,6 +12,7 @@ import { clear_cart } from "../store/slices/CartSlice";
 import Loader from "./components/Loader";
 import { initializeUserCart } from "../utils/cart/initializeUserCart";
 import { connectPusher, disconnectPusher } from "../pusher.config";
+import { clearNotifications } from "../store/slices/NotificationsSlice";
 
 const MainApp = () => {
   const dispatch = useDispatch();
@@ -30,6 +31,7 @@ const MainApp = () => {
 
     if (event === "SIGNED_OUT") {
       dispatch(clear_cart());
+      dispatch(clearNotifications());
       disconnectPusher().catch((error) => {
         console.log("Pusher disconnect on logout failed:", error);
       });

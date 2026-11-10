@@ -6,6 +6,7 @@ import SearchReducer from "./slices/SearchSlice";
 import CartReducer from "./slices/CartSlice";
 import PreferencesReducer from "./slices/PreferencesSlice";
 import OrderStatusReducer from "./slices/OrderStatusSlice";
+import NotificationsReducer from "./slices/NotificationsSlice";
 import { createStore, combineReducers, applyMiddleware, AnyAction } from "redux";
 import { persistStore, persistReducer } from "redux-persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,6 +21,7 @@ const main_reducer = combineReducers({
   cart: CartReducer,
   preferences: PreferencesReducer,
   orderStatus: OrderStatusReducer,
+  notifications: NotificationsReducer,
 });
 
 export type RootState = ReturnType<typeof main_reducer>;

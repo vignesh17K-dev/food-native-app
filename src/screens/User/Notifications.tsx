@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   Image,
   StyleSheet,
@@ -8,56 +9,93 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import Header from "../../components/Header";
 import ImageLinks from "../../../assets/ImageLink";
 import { SIZES } from "../../../constants";
 import { useAppTheme } from "../../hooks/useAppTheme";
 import { ACCENT } from "../../../utils/theme/appTheme";
+import notificationsApi from "../../../utils/api/notifications";
+import constants from "../../../utils/constants";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import {
+  markNotificationRead,
+  setNotifications,
+  type AppNotification,
+} from "../../../store/slices/NotificationsSlice";
 
-type NotificationItem = {
-  id: string;
-  title: string;
-  body: string;
-  time: string;
-  read: boolean;
-  icon: string;
-};
-
-/** Static for now — wire to notifications API later */
-const MOCK_NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: "1",
-    title: "Order confirmed",
-    body: "Your order #56823 has been received and is being prepared.",
-    time: "2h ago",
-    read: false,
-    icon: "check-circle-outline",
-  },
-  {
-    id: "2",
-    title: "Delivery update",
-    body: "Your rider is on the way. Track your order anytime.",
-    time: "Yesterday",
-    read: true,
-    icon: "moped",
-  },
-  {
-    id: "3",
-    title: "Welcome to Eat Me",
-    body: "Thanks for joining. Explore deals near you today.",
-    time: "3d ago",
-    read: true,
-    icon: "food",
-  },
-];
+function format_relative_time(value?: string) {
+  if (!value) {
+    return "";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+  const diff_ms = Date.now() - date.getTime();
+  const minutes = Math.floor(diff_ms / 60000);
+  if (minutes < 1) {
+    return "Just now";
+  }
+  if (minutes < 60) {
+    return `${minutes}m ago`;
+  }
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    return `${hours}h ago`;
+  }
+  const days = Math.floor(hours / 24);
+  if (days === 1) {
+    return "Yesterday";
+  }
+  return `${days}d ago`;
+}
 
 const Notifications = ({ navigation }: any) => {
   const { colors, darkMode } = useAppTheme();
-  const [items] = useState(MOCK_NOTIFICATIONS);
+  const dispatch = useAppDispatch();
+  const items = useAppSelector((state) => state.notifications.items);
+  const [loading, set_loading] = useState(items.length === 0);
 
-  const render_item = ({ item }: { item: NotificationItem }) => (
-    <View
+  console.log("items", items);
+
+  const load_notifications = useCallback(async () => {
+    try {
+      const response = await notificationsApi.get_notifications();
+      dispatch(setNotifications(response?.data ?? []));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      set_loading(false);
+    }
+  }, [dispatch]);
+
+  useFocusEffect(
+    useCallback(() => {
+      load_notifications();
+    }, [load_notifications]),
+  );
+
+  const handle_press = async (item: AppNotification) => {
+    if (!item.read) {
+      dispatch(markNotificationRead(item.id));
+      notificationsApi.mark_read(item.id).catch((error) => {
+        console.log("Mark notification read failed:", error);
+      });
+    }
+    if (item.order_id) {
+      navigation.navigate(constants.route_names.DeliveryStatus, {
+        order_id: item.order_id,
+        from_notification: true,
+      });
+    }
+  };
+
+  const render_item = ({ item }: { item: AppNotification }) => (
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onPress={() => handle_press(item)}
       style={[
         styles.card,
         {
@@ -81,7 +119,7 @@ const Notifications = ({ navigation }: any) => {
         ]}
       >
         <MaterialCommunityIcons
-          name={item.icon}
+          name={item.icon || "bell-outline"}
           size={22}
           color={item.read ? colors.textSecondary : ACCENT}
         />
@@ -109,10 +147,10 @@ const Notifications = ({ navigation }: any) => {
           {item.body}
         </Text>
         <Text style={[styles.time, { color: colors.placeholder }]}>
-          {item.time}
+          {format_relative_time(item.created_at)}
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -140,33 +178,39 @@ const Notifications = ({ navigation }: any) => {
         }
       />
 
-      <FlatList
-        data={items}
-        keyExtractor={(item) => item.id}
-        renderItem={render_item}
-        contentContainerStyle={[
-          styles.list_content,
-          items.length === 0 && styles.list_empty,
-        ]}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <MaterialCommunityIcons
-              name="bell-outline"
-              size={48}
-              color={colors.textSecondary}
-            />
-            <Text style={[styles.empty_title, { color: colors.text }]}>
-              No notifications
-            </Text>
-            <Text
-              style={[styles.empty_subtitle, { color: colors.textSecondary }]}
-            >
-              Updates about your orders and offers will appear here.
-            </Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <View style={styles.empty}>
+          <ActivityIndicator color={ACCENT} />
+        </View>
+      ) : (
+        <FlatList
+          data={items}
+          keyExtractor={(item) => item.id}
+          renderItem={render_item}
+          contentContainerStyle={[
+            styles.list_content,
+            items.length === 0 && styles.list_empty,
+          ]}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.empty}>
+              <MaterialCommunityIcons
+                name="bell-outline"
+                size={48}
+                color={colors.textSecondary}
+              />
+              <Text style={[styles.empty_title, { color: colors.text }]}>
+                No notifications
+              </Text>
+              <Text
+                style={[styles.empty_subtitle, { color: colors.textSecondary }]}
+              >
+                Updates about your orders and offers will appear here.
+              </Text>
+            </View>
+          }
+        />
+      )}
     </SafeAreaView>
   );
 };

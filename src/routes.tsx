@@ -52,7 +52,7 @@ export type RootStackParamList = {
   addcard: { brand: "Visa" | "Mastercard" };
   checkout: undefined;
   orderconfirmed: undefined;
-  deliverystatus: undefined;
+  deliverystatus: { order_id?: string } | undefined;
   mapview: undefined;
 };
 

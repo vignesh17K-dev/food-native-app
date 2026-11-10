@@ -123,7 +123,7 @@ const DeliveryStatus = ({ navigation, route }: any) => {
   const [order_detail, set_order_detail] = useState<any>(null);
   const [is_loading, set_is_loading] = useState(true);
   const { colors, darkMode } = useAppTheme();
-  const { order_id } = route.params ?? {};
+  const { order_id, from_notification } = route.params ?? {};
   const order_event_from_store = useSelector((state: RootState) =>
     order_id ? state.orderStatus.statusesByOrderId[order_id] : undefined,
   );
@@ -200,6 +200,10 @@ const DeliveryStatus = ({ navigation, route }: any) => {
   }, [order_id ]);
 
   const handle_back_home = () => {
+    if (from_notification) {
+      navigation.goBack();
+      return;
+    }
     if (is_from_my_order) {
       navigation.navigate(constants.route_names.MyOrders);
     } else {

@@ -10,6 +10,10 @@ import {
   setOrderDeliveryStatus,
   type OrderStatusEvent,
 } from "./store/slices/OrderStatusSlice";
+import {
+  prependNotification,
+  type AppNotification,
+} from "./store/slices/NotificationsSlice";
 
 export type PusherOrderEventPayload = {
   order_id: string;
@@ -68,6 +72,7 @@ function onEvent(event: PusherEvent) {
     estimated_delivery_time?: string;
     restaurant?: OrderStatusEvent["restaurant"];
     delivery_location?: OrderStatusEvent["delivery_location"];
+    notification?: AppNotification | null;
   };
 
   if (
@@ -83,6 +88,10 @@ function onEvent(event: PusherEvent) {
         delivery_location: record.delivery_location ?? null,
       }),
     );
+  }
+
+  if (record.notification?.id) {
+    store.dispatch(prependNotification(record.notification));
   }
 }
 
